@@ -1,0 +1,286 @@
+#!/bin/bash
+
+ttsActive="false"
+
+##### 파라미터 체크 시작 #####
+if [ $# -gt 0 ]; then
+    if [ "$1" == "-h" ]; then
+        echo "USAGE: $0 [option] [values]"
+        echo "  -o 다운로드 디렉토리 변경"
+        echo "  -h 도움말 표시"
+        exit 0
+    elif [ "$1" == "-o" ]; then
+        if [ -d "$2" ]; then
+            cd $2
+        else
+            if [ x"$2" == x ]; then
+                echo -e "\033[31mERR: 변경할 다운로드 디렉토리 경로를 명시해야 합니다. \033[m"
+            else
+                echo -e "\033[31mERR: $2 를 찾을 수 없습니다. 제공한 디렉토리 경로가 올바르지 않습니다. \033[m"
+            fi
+            exit 1
+        fi
+    else
+        echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
+        echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
+        exit 1
+    fi
+fi
+##### 파라미터 체크 끝 #####
+
+##### 소스코드 함수 시작 #####
+function checkDependence() {
+    if [ x"$yt_dlp" != x ]; then
+        return
+    fi
+
+    which $1 > /dev/null 2>&1
+    if [ $? == 0 ]; then
+        yt_dlp="$1"
+    fi
+}
+
+function tts() {
+    if [ "$ttsActive" == "Darwin" ]; then
+        say -v "Yuna" "$1" &
+    elif [ "$ttsActive" == "Linux" ]; then
+        espeak "$1" &
+    else
+        echo -e "\a"
+    fi
+}
+
+function addMedia() {
+    tts "다운로드 받을 미디어 정보를 입력하세요. "
+    echo -e "\033[37mNOTE: 입력란이 비어있을 경우 이전 메뉴로 이동합니다. \033[m"
+    echo -n "저장할 파일 이름: "
+    read fileName
+    if [ "$fileName" == "" ]; then
+        return
+    fi
+
+    echo -n "원본 URL: "
+    read originURL
+    if [ "$originURL" == "" ]; then
+        return
+    else
+        fileName=$(echo "$fileName" | sed -e "s/\//_/g; s/</(/g; s/>/)/g")
+        fi
+    mediaDownloader "$originURL" "$fileName" &
+}
+
+function mediaDownloader() {
+    originURL="$1"
+    fileName="$2"
+
+    tts "$fileName 다운로드를 시작합니다. "
+    echo -e "\033[37mINFO: 다운로드 상태 확인은 'tail -f $fileName.out' 명령을 입력하세요. \033[m"
+    $yt_dlp "$originURL" --no-warnings --output "$fileName.%(ext)s" > "$fileName.out" 2> "$fileName.err"
+    if [ $? != 0 ]; then
+        tts "$fileName 다운로드가 실패하였습니다. 출력 로그를 참조하세요."
+    else
+        tts "$fileName 다운로드가 완료되었습니다. "
+        echo -e "$fileName 이(가) \033[0;1m$(pwd)\033[m 에 다운로드 되었습니다. "
+        rm "$fileName.out" "$fileName.err" 2> /dev/null
+    fi
+}
+
+function mediaList() {
+    ps | grep $yt_dlp | grep -v grep | grep -v "$1 $2"
+}
+
+function mediaCount() {
+    if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $1") -ge 6 ]; then
+        echo -e "--- 현재 다운로드 중인 미디어(\033[31m$(ps | grep $yt_dlp | grep -vEc "grep|$0 $1")\033[m/5) ---"
+        echo -e "\033[33mWARN: 권장량을 초과해서 다운로드할 경우 서버와 연결이 끊어질 수 있습니다. \033[m"
+    elif [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $1") -ge 4 ]; then
+        echo -e "--- 현재 다운로드 중인 미디어(\033[33m$(ps | grep $yt_dlp | grep -vEc "grep|$0 $1")\033[m/5) ---"
+        echo -e "\033[33mWARN: 동시에 다운로드할 경우 사용자의 네트워크 환경에 따라 인터넷이 느려질 수 있습니다. \033[m"
+    elif [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $1") -ge 2 ]; then
+        echo -e "--- 현재 다운로드 중인 미디어(\033[32m$(ps | grep $yt_dlp | grep -vEc "grep|$0 $1")\033[m/5) ---"
+    else
+        echo -e "--- 현재 다운로드 중인 미디어(\033[34m$(ps | grep $yt_dlp | grep -vEc "grep|$0 $1")\033[m/5) ---"
+    fi
+}
+
+function removeMedia() {
+    while true; do
+        mediaList $0 $1
+        tts "제거할 미디어 프로세스 아이디를 입력하세요."
+        echo -n "제거할 PID 입력: "
+        read pid
+        if [ "$pid" == "" ]; then
+            return
+        fi
+
+        kill $pid
+        if [ $? == 0 ]; then
+            tts "미디어 다운로드 $pid 를 삭제했습니다. "
+        else
+            tts "미디어 다운로드 $pid 를 삭제하지 못했습니다. "
+        fi
+    done
+}
+##### 스크립트 함수 끝 #####
+
+##### 종속 패키지 체크 시작 #####
+checkDependence youtube-dl
+checkDependence yt-dlp
+
+if [ x"$yt_dlp" == x ]; then
+    echo -e "\033[33mWARN: 알려진 youtube-dl 패키지를 검색했지만 설치된 패키지를 찾을 수 없습니다. \033[m"
+    echo "youtube-dl 계열 패키지가 이미 설치되어 있다면 수동으로 등록할 수 있습니다. "
+    echo "등록하시려면 패키지 이름을 입력하시고 프로그램을 종료하시려면 공란으로 두십시오. "
+    echo -n "등록할 패키지 이름: "
+    read n
+    if [ "$n" != "" ]; then
+        yt_dlp="$n"
+    fi
+fi
+
+which $yt_dlp > /dev/null 2>&1
+if [ $? != 0 ]; then
+    echo -e "\033[31mERR: 호환되는 youtube-dl 패키지를 찾을 수 없습니다. \n\t계속하려면 youtube-dl 계열 패키지를 설치하시기 바랍니다. \033[m"
+    exit 1
+else
+    echo -n "$yt_dlp 버전: "
+    $yt_dlp --version 2> /dev/null
+    if [ "$?" == "0" ]; then
+        echo -e "\033[37mINFO: $yt_dlp 이(가) 감지되었습니다. 이후 작업에 $yt_dlp 이(가) 사용됩니다. \033[m"
+    else
+        echo -e "N/A\n\033[31mERR: $yt_dlp 검증 중 에러 발생. \n\tyoutube-dl 계열이 아니거나, 검증시 사용하는 명령이 $yt_dlp 에서 지원하지 않습니다. \033[m"
+        exit 1
+    fi
+fi
+
+ping -c 1 -W 1 -q "www.google.com" &> /dev/null
+if [ "$?" != "0" ]; then
+    echo -e "\033[31mERR: $yt_dlp 은(는) 오프라인 상태를 지원하지 않아 계속 진행할 수 없습니다. \n\t이 문제를 해결하려면 네트워크 연결을 점검하세요. \033[m"
+    exit 1
+fi
+
+# TTS 테스트
+if [ "$(uname)" == "Darwin" ]; then
+    which say > /dev/null 2>&1
+    if [ $? != 0 ]; then
+        echo -e "\033[33mWARN: TTS가 감지되지 않았습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
+    else
+        say -v "Yuna" "한국어 TTS 음성 테스트" 2> /dev/null
+        if [ $? != 0 ]; then
+            echo -e "\033[33mWARN: TTS doesn't support Korean. \n\tIt's replaced by a terminal bell when user attention is required. \033[m"
+        else
+            echo -e "\033[37mINFO: TTS가 성공적으로 활성화 되었습니다. 사용자 주의가 필요할 때 Yuna로 알립니다.\033[m"
+            ttsActive="Darwin"
+        fi
+    fi
+elif [ "$(uname)" == "Linux" ]; then
+    ttsFind="false"
+    which espeak > /dev/null 2>&1
+    if [ $? != 0 ]; then
+        echo -e "\033[33mWARN: 지원되는 TTS를 찾을 수 없습니다. 지금 espeak TTS를 설치하시겠습니까?\033[m"
+        echo -en "\033[33m\t이 작업은 관리자 권한이 필요합니다. (Y/n)\033[m > "
+        read installAction
+        if [ "$installAction" == "n" -o "$installAction" == "N" ]; then
+            echo -e "\033[33mWARN: TTS를 사용하려면 espeak가 필요합니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
+        else
+            sudo apt install espeak
+            if [ $? != 0 ]; then
+                echo -e "\033[33mWARN: espeak TTS가 제대로 설치되지 않았습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
+            else
+                ttsFind="true"
+            fi
+        fi
+    else
+        ttsFind="true"
+    fi
+
+    if [ "$ttsFind" == "true" ]; then
+        espeak "한국어 TTS 음성 테스트" 2> /dev/null
+        if [ $? != 0 ]; then
+            echo -e "\033[33mWARN: TTS doesn't support Korean. \n\tIt's replaced by a terminal bell when user attention is required. \033[m"
+        else
+            echo -e "\033[37mINFO: TTS가 성공적으로 활성화 되었습니다. 사용자 주의가 필요할 때 espeak TTS로 알립니다.\033[m"
+            ttsActive="Linux"
+        fi
+    fi
+else
+    echo -e "\033[33mWARN: 알려진 OS가 아니므로 TTS를 식별할 수 없습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
+fi
+
+
+which osascript > /dev/null 2>&1
+if [ $? == 0 ]; then
+    volume=$(osascript -e 'output volume of (get volume settings)')
+    muted=$(osascript -e 'output muted of (get volume settings)')
+
+    if [ "$volume" == "missing value" ]; then
+        echo -e "\033[33mWARN: 현재 사운드 설정에 문제가 있습니다. 이 문제는 주로 외장 모니터 연결로 인해 발생됩니다.\033[m"
+        echo -e "\033[33m\t만약 모니터를 연결하지 않았으며, 사운드를 서드파티 앱이나 다른 기기에 공유하고 있지 않다면 공인 서비스가 필요할 수 있습니다.\033[m"
+        if [ -d /System/Library/PreferencePanes/Sound.prefPane ]; then
+            open /System/Library/PreferencePanes/Sound.prefPane
+        else
+            echo -e "\033[33mWARN: 사운드 환경설정 패널을 찾을 수 없습니다. 이 문제가 계속되면 공인 서비스업체에 문의하시길 바랍니다.\033[m"
+        fi
+    elif [ $volume -lt 20 -a "$muted" == "true" ]; then
+        echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있으며 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제한 후 음량을 조절하십시오. \033[m"
+    elif [ $volume -lt 20 -a "$muted" == "false" ]; then
+        echo -e "\033[33mWARN: 현재 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음량을 조절하십시오. \033[m"
+    elif [ "$muted" == "true" ]; then
+        echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제하십시오. \033[m"
+    fi
+else
+    echo -e "\033[33mWARN: 시스템 볼륨 설정을 확인할 수 없습니다. \n\t상시 모니터링하는 것이 아니라면 설정을 확인하여 주십시오.\033[m"
+fi
+
+##### 종속 패키지 체크 끝 #####
+
+##### 현재 디렉토리 알림 #####
+if [ -w "$(pwd)" ]; then
+    echo -e "\033[37mINFO: 다운로드 받은 미디어는 $(pwd) 에 저장됩니다. \033[m"
+else
+    echo -e "\033[31mERR: 현재 $(pwd) 디렉토리에 쓰기 권한이 없습니다. \033[m"
+    exit 1
+fi
+
+##### Main Loop #####
+while true; do
+    mediaCount
+    echo -e "\n1. 다운로드 확인"
+    if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -lt 6 ]; then
+        echo "2. 다운로드 추가"
+    else
+        echo "2. 다운로드 추가 (비활성화 됨)"
+    fi
+    echo "3. 다운로드 제거"
+    echo "4. 업데이트 확인"
+    echo "5. 프로그램 종료"
+
+    echo -n "#] "
+    read n
+
+    if [ "$n" == "" ]; then
+        continue
+    elif [ "$n" == "1" ]; then
+        mediaCount
+        mediaList $0 $yt_dlp
+    elif [ "$n" == "2" -a $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -lt 6 ]; then
+        addMedia
+    elif [ "$n" == "2" -a $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -ge 6 ]; then
+        tts "현재 너무 많은 다운로드가 실행 중입니다. 나중에 다시 시도하세요. "
+        echo -e "\033[31mERR: 현재 네트워크에 심각한 부하를 가하거나 다운로드 서버와 연결이 끊어질 수 있으므로 이 작업을 수행할 수 없습니다. "
+        echo -e "미디어를 추가하려면 먼저 \"3. 다운로드 제거\" 옵션을 사용하여 부하를 줄이시길 바랍니다. \033[m"
+    elif [ "$n" == "3" ]; then
+        removeMedia
+    elif [ "$n" == "4" ]; then
+        $yt_dlp -U
+    elif [ "$n" == "5" ]; then
+        if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
+            echo -e "\033[33mWARN: 아직 다운로드 중인 미디어가 $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") 개 있습니다. \n\t이 작업을 나중에 취소하고 싶을 경우 터미널에서 수동으로 작업을 종료하세요.\033[m"
+        fi
+        echo -e "\033[37mINFO: 프로그램을 종료합니다. \033[m"
+        exit 0
+    else
+        echo -e "\033[31mERR: 명령을 찾을 수 없습니다. $n 명령이 없습니다. \033[m"
+    fi
+done
+

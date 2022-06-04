@@ -1,0 +1,33 @@
+#!/bin/bash
+
+failure=false
+
+if [ x"$1" == x ]; then
+    echo "Usage: open <src>"
+    exit 1
+fi
+
+if [ -x /mnt/c/Windows/explorer.exe ]; then
+    echo "" > /dev/null 2>&1
+else
+    echo "open: fatal error: unable to access daemon. please mount the Windows system volume C:\\."
+    exit 1
+fi
+
+for i in "$@"; do
+    targetDir=$(wslpath -w "$i" 2> /dev/null)
+    if [ $? != 0 ]; then
+        if [[ "$i" == *"://"* ]]; then
+            explorer.exe "$i"
+        else
+            echo "open: $i: No such file or directory"
+            failure=true
+        fi
+    else
+        explorer.exe "$targetDir"
+    fi
+done
+
+if [ "$failure" == "true" ]; then
+    exit 1
+fi
