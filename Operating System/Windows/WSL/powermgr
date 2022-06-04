@@ -117,7 +117,7 @@ elif [ "$option" == "logout" ]; then
         checkOption $option
         engageTime $option 10
         sleep 10
-        shutdown -l
+        shutdown.exe -l
     else
 		result=$(date -d "$time second")
         echo "This command doesn't not support. Please enter this command after $result."
