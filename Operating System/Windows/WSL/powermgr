@@ -112,14 +112,26 @@ elif [ "$option" == "sleep" ]; then
         echo "This command doesn't not support. Please enter this command after $result."
         exit 1
     fi
+elif [ "$option" == "logout" ]; then
+    if [ "$time" == "" ]; then
+        checkOption $option
+        engageTime $option 10
+        sleep 10
+        shutdown -l
+    else
+		result=$(date -d "$time second")
+        echo "This command doesn't not support. Please enter this command after $result."
+        exit 1
+    fi
 
 elif [ "$option" == "help" ]; then
     echo "usage: powermgr <option> [time] [comment]"
-    echo -e "    halt: Shut down this computer"
-    echo -e "  reboot: Restart this computer"
-    echo -e "   abort: Cancel a shutdown or restart schedule"
-    echo -e "   sleep: Put this computer to sleep"
-    echo -e "    help: Show this help\n"
+    echo "    halt: Shut down this computer"
+    echo "  reboot: Restart this computer"
+    echo "   abort: Cancel a shutdown or restart schedule"
+    echo "   sleep: Put this computer to sleep"
+    echo "  logout: Log off $USER account"
+    echo "    help: Show this help\n"
     echo "NOTE: Some parameters or options have the following restrictions"
     echo "- The time and comment parameter only applies halt and reboot options."
     echo "- The abort option takes effect only when the shutdown or restart is scheduled."
