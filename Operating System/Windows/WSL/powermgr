@@ -104,8 +104,8 @@ elif [ "$option" == "abort" ]; then
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
-        engageTime $option 10
-        sleep 10
+        engageTime $option 15
+        sleep 15
         rundll32.exe powrprof.dll SetSuspendState
     else
 		result=$(date -d "$time second")
@@ -115,8 +115,8 @@ elif [ "$option" == "sleep" ]; then
 elif [ "$option" == "logout" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
-        engageTime $option 10
-        sleep 10
+        engageTime $option 15
+        sleep 15
         shutdown.exe -l
     else
 		result=$(date -d "$time second")
