@@ -1,48 +1,24 @@
 #!/bin/bash
 
 exitCode=0
+prevDir=$(pwd)
 
 function gitUpdate() {
-    cd ~/Documents/Release/brewall 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/aptall 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Dev 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/ShellScript 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/Recruitment-Assistant 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/Timer 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/PracticeCalc 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
-    cd ~/Documents/Release/PasswordsGenerator 2> /dev/null
-    if [ $? == 0 ]; then
-        git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-        cd - > /dev/null
-    fi
+    repoName=("Release/brewall" "Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator" "Dev")
+
+    for target in "${repoName[@]}"; do
+        if [ -d ~/Documents/$target ]; then
+            echo -e "\n\033[37mupdater: Updating repo ~/Documents/$target...\033[m"
+            cd ~/Documents/$target
+            git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
+            cd - &> /dev/null
+            if [ $? != 0 ]; then
+                echo -e "\033[31mupdater: exception occurred: return original directory function corrupted: $prevDir currently not accessible. \033[m"
+                cd ~
+                echo "updater: autofix: Fix broken original directory to $HOME."
+            fi
+        fi
+    done
 }
 
 if [ "$SKIP_PACKAGE_UPDATER" == "true" ]; then
