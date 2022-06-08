@@ -21,6 +21,7 @@ foreach ($item in $target) {
             Remove-Item "$item" 2>$null
             if ($?) {
                 $output = "Deleted broken shortcut: $($item.name)"
+                Write-Host "$($item.name) is deleted due to a broken link."
                 $isBroken = $true
             } else {
                 $output = "Access denied. unable to delete this shortcut: $($item.name)"
