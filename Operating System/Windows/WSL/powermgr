@@ -110,6 +110,8 @@ elif [ "$option" == "sleep" ]; then
             fi
             sleep 1
         done
+        echo ""
+        engagedTime $option
         rundll32.exe powrprof.dll SetSuspendState
     else
 		result=$(date -d "$time second")
@@ -130,6 +132,8 @@ elif [ "$option" == "logout" ]; then
             fi
             sleep 1
         done
+        echo ""
+        engagedTime $option
         shutdown.exe -l
     else
 		result=$(date -d "$time second")
