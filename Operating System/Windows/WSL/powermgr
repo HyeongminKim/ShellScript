@@ -144,7 +144,7 @@ elif [ "$option" == "help" ]; then
     echo "   abort: Cancel a shutdown or restart schedule"
     echo "   sleep: Put this computer to sleep"
     echo "  logout: Log off $USER account"
-    echo "    help: Show this help\n"
+    echo -e "    help: Show this help\n"
     echo "NOTE: Some parameters or options have the following restrictions"
     echo "- The time and comment parameter only applies halt and reboot options."
     echo "- The abort option takes effect only when the shutdown or restart is scheduled."
