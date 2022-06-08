@@ -28,11 +28,6 @@ if [ -n "$chk_time" ]; then
     fi
 fi
 
-function engageTime() {
-    result=$(date -d "$2 second")
-    echo -e "This system \e[1;37mwill \e[1;31m$1\e[1;37m after\e[m: $result"
-}
-
 function engagedTime() {
     echo -e "System \e[1;37mwent to \e[1;31m$1\e[m at: $(date)"
 }
@@ -104,8 +99,17 @@ elif [ "$option" == "abort" ]; then
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
-        engageTime $option 15
-        sleep 15
+        echo -en "This system \e[1;37mwill \e[1;31m$1\e[1;37m after\e[m 15 seconds. "
+        for (( i=15; i>=0; i-- )); do
+            if [[ $i -ge 9 ]]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            elif [ $i == 1 ]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+            else
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            fi
+            sleep 1
+        done
         rundll32.exe powrprof.dll SetSuspendState
     else
 		result=$(date -d "$time second")
@@ -115,8 +119,17 @@ elif [ "$option" == "sleep" ]; then
 elif [ "$option" == "logout" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
-        engageTime $option 15
-        sleep 15
+        echo -en "This system \e[1;37mwill \e[1;31m$1\e[1;37m after\e[m 15 seconds. "
+        for (( i=15; i>=0; i-- )); do
+            if [[ $i -ge 9 ]]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            elif [ $i == 1 ]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+            else
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            fi
+            sleep 1
+        done
         shutdown.exe -l
     else
 		result=$(date -d "$time second")
