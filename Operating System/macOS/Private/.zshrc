@@ -146,6 +146,7 @@ alias tmuxconfig="vi ~/.tmux.conf"
 alias rtlogin="~/.shellscript/rtlogin"
 alias aptall="echo \"$(uname -s) doesn't support this command.\""
 alias yt-multi="~/.shellscript/YTMultiDown"
+alias check="~/.shellscript/gitFileSize"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 unalias l
 unalias ll
