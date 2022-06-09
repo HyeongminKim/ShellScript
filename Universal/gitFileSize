@@ -3,10 +3,10 @@
 echo "Listing large files which can't be uploaded to github..." 
 echo -e "\033[37mNOTE: Large file searches will be done relative to the $(pwd) directory.\033[m" 
 
-count=$(find . -size +80M -size -100M | wc -l)
-echo -e "\033[33mThe $count files listed here are over the 80M limit."
+count=$(find . -size +50M -size -100M | wc -l)
+echo -e "\033[33mThe $count files listed here are over the 50M limit."
 if [ $count -ne 0 ]; then
-    find . -size +80M -size -100M
+    find . -size +50M -size -100M
 else
     echo -e "\tNo such file. The filter doesn't met the criteria."
 fi
