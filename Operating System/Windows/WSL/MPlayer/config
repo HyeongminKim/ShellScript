@@ -9,6 +9,7 @@ unicode=true
 # Video options
 fs=no
 xy=640
+geometry=50%:50%
 
 # Subtitle Settings
 spuaa=2
