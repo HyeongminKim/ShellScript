@@ -1,7 +1,10 @@
 #!/bin/bash
 
 echo "Listing large files which can't be uploaded to github..." 
-echo -e "\033[37mNOTE: Large file searches will be done relative to the $(pwd) directory.\033[m" 
+ls -a | grep ".git" &> /dev/null
+if [ $? != 0 ]; then
+    echo -e "\033[37mNOTE: Large file searches will be done relative to the current directory.\033[m"
+fi
 
 count=$(find . -size +50M -size -100M | wc -l)
 echo -e "\033[33mThe $count files listed here are over the 50M limit."
