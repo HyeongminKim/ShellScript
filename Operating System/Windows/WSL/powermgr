@@ -118,6 +118,29 @@ elif [ "$option" == "sleep" ]; then
         echo "This command doesn't not support. Please enter this command after $result."
         exit 1
     fi
+elif [ "$option" == "lock" ]; then
+    if [ "$time" == "" ]; then
+        checkOption $option
+        echo -en "This system \e[1;37mwill \e[1;31m$1\e[1;37m after\e[m 15 seconds. "
+        for (( i=15; i>=0; i-- )); do
+            if [[ $i -ge 9 ]]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            elif [ $i == 1 ]; then
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+            else
+                echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+            fi
+            sleep 1
+        done
+        echo ""
+        engagedTime $option
+        rundll32.exe user32.dll LockWorkStation
+    else
+		result=$(date -d "$time second")
+        echo "This command doesn't not support. Please enter this command after $result."
+        exit 1
+    fi
+
 elif [ "$option" == "logout" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
@@ -147,6 +170,7 @@ elif [ "$option" == "help" ]; then
     echo "  reboot: Restart this computer"
     echo "   abort: Cancel a shutdown or restart schedule"
     echo "   sleep: Put this computer to sleep"
+    echo "    lock: Lock $USER account"
     echo "  logout: Log off $USER account"
     echo -e "    help: Show this help\n"
     echo "NOTE: Some parameters or options have the following restrictions"
