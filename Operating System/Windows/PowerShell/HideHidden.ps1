@@ -24,7 +24,11 @@ if ((Test-Path -Path $vscodevim) -and ((Test-Path -Path $vscode_cmd) -or (Test-P
 Write-Host "Hiding dotfiles in $userdir..." -NoNewLine
 if (Test-Path -Path $userDir) {
     Get-ChildItem "$userDir" -recurse -force 2>$null | Where-Object {$_.name -like ".*" -and $_.attributes -match 'Hidden' -eq $false} 2>$null | Set-ItemProperty -name Attributes -value ([System.IO.FileAttributes]::Hidden) 2>$null
-    Write-Host " Done!"
+    if ($?) {
+        Write-Host " Done!"
+    } else {
+        Write-Host " Failed!"
+    }
 } else {
     Write-Host " Skipping!"
 }
@@ -33,7 +37,11 @@ if (Test-Path -Path $userDir) {
 Write-Host "Hiding dotfiles in $externalDir..." -NoNewLine
 if (Test-Path -Path $externalDir) {
     Get-ChildItem "$externalDir" -recurse -force 2>$null | Where-Object {$_.name -like ".*" -and $_.attributes -match 'Hidden' -eq $false} 2>$null | Set-ItemProperty -name Attributes -value ([System.IO.FileAttributes]::Hidden) 2>$null
-    Write-Host " Done!"
+    if ($?) {
+        Write-Host " Done!"
+    } else {
+        Write-Host " Failed!"
+    }
 } else {
     Write-Host " Skipping!"
 }
