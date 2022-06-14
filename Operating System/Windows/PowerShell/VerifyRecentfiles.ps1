@@ -48,7 +48,7 @@ Write-Progress "N/A" "N/A" -completed
 # Relaunch explorer.exe when broken shortcuts exist (aka. isBroken value is true)
 if($isBroken -eq $true) {
     Write-Host "Restart Windows Explorer for changes to take effect"
-    Write-Host "⌊ (NOTE: Any unsaved information will be lost) ..." -NoNewLine
+    Write-Host "> (NOTE: Any unsaved information will be lost) ..." -NoNewLine
     cmd.exe /c taskkill /f /im explorer.exe 1>$null 2>&1
     if ($?) {
         Write-Host "Done. "
