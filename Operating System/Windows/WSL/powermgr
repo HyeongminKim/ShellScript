@@ -99,7 +99,12 @@ elif [ "$option" == "abort" ]; then
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
         checkOption $option
-        echo -en "This system \e[1;37mwill \e[1;31m$1\e[1;37m after\e[m 15 seconds. "
+        ls /mnt/c | grep hiberfil.sys &> /dev/null
+        if [ $? == 0 ]; then
+            echo -en "This system \e[1;37mwill \e[1;31mhibernate\e[1;37m after\e[m 15 seconds. "
+        else
+            echo -en "This system \e[1;37mwill \e[1;31mstandby\e[1;37m after\e[m 15 seconds. "
+        fi
         for (( i=15; i>=0; i-- )); do
             if [[ $i -ge 9 ]]; then
                 echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
