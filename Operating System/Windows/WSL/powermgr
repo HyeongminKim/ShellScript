@@ -13,10 +13,6 @@ time=$2
 comment=$3
 chk_time=${time//[0-9]/}
 
-if [ "$option" == "" ]; then
-    option="help"
-fi
-
 if [ -n "$chk_time" ]; then
     if [ $# == 2 ]; then
         comment=$time
@@ -162,7 +158,7 @@ elif [ "$option" == "logout" ]; then
         exit 1
     fi
 
-elif [ "$option" == "help" ]; then
+elif [ "$option" == "help" -o x"$option" == x ]; then
     echo "usage: powermgr <option> [time] [comment]"
     echo "    halt: Shut down this computer"
     echo "  reboot: Restart this computer"
