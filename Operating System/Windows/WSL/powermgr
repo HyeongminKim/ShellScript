@@ -97,8 +97,10 @@ elif [ "$option" == "sleep" ]; then
         ls /mnt/c | grep hiberfil.sys &> /dev/null
         if [ $? == 0 ]; then
             option="hibernate"
+            echo "NOTE: Do not unplug the power until the hibernation is completed."
         else
             option="standby"
+            echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
         fi
         checkOption $option
         if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
