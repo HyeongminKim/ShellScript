@@ -47,6 +47,8 @@ function executeCmd() {
     if [ "$comment" == "" ]; then
         comment="$USER didn't provided comment. The system $option due to powermgr script."
         echo "NOTE: Empty comment detected. The comment are replaced with the default sentences. "
+    else
+        comment="$USER executed $option using powermgr script. Here are the user-provided comments: $comment"
     fi
 
     if [ "$time" == "" ]; then
