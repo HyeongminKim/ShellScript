@@ -7,4 +7,10 @@ if [ "$USE_FULL_UPGRADE" == "true" ]; then
 fi
 pip3 cache purge
 
+if [ -d ~/.shellscript/ShellScript ]; then
+    cd ~/.shellscript/ShellScript &> /dev/null
+    git pull origin master
+    cd - &> /dev/null
+fi
+
 sudo npm install --location=global npm

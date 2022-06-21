@@ -9,8 +9,8 @@ aptall() {
 }
 
 temp() {
-    if [ -x ~/.local/bin/temp ]; then
-        ~/.local/bin/temp cmd
+    if [ -x ~/.shellscript/ShellScript/Operating\ System/Linux/RaspberryPi/temp ]; then
+        ~/.shellscript/ShellScript/Operating\ System/Linux/RaspberryPi/temp cmd
     fi
 }
 
