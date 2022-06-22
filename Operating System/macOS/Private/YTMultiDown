@@ -75,7 +75,7 @@ function mediaDownloader() {
 
     tts "$fileName 다운로드를 시작합니다. "
     echo -e "\033[37mINFO: 다운로드 상태 확인은 'tail -f $fileName.out' 명령을 입력하세요. \033[m"
-    $yt_dlp "$originURL" --no-warnings --output "$fileName.%(ext)s" > "$fileName.out" 2> "$fileName.err"
+    $yt_dlp "$originURL" --output "$fileName.%(ext)s" > "$fileName.out" 2> "$fileName.err"
     if [ $? != 0 ]; then
         tts "$fileName 다운로드가 실패하였습니다. 출력 로그를 참조하세요."
     else
@@ -244,7 +244,6 @@ fi
 
 ##### Main Loop #####
 while true; do
-    mediaCount
     echo -e "\n1. 다운로드 확인"
     if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -lt 6 ]; then
         echo "2. 다운로드 추가"
