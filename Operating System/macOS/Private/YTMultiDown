@@ -4,12 +4,12 @@ ttsActive="false"
 
 ##### 파라미터 체크 시작 #####
 if [ $# -gt 0 ]; then
-    if [ "$1" == "-h" ]; then
+    if [ "$1" == "-h" -o "$1" == "--help" ]; then
         echo "USAGE: $0 [option] [values]"
-        echo "  -o 다운로드 디렉토리 변경"
-        echo "  -h 도움말 표시"
+        echo "  --output, -o 다운로드 디렉토리 변경"
+        echo "  --help, -h 도움말 표시"
         exit 0
-    elif [ "$1" == "-o" ]; then
+    elif [ "$1" == "-o" -o "$1" == "--output" ]; then
         if [ -d "$2" ]; then
             cd $2
         else
