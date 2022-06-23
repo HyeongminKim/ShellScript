@@ -14,3 +14,8 @@ if [ -d ~/.shellscript/ShellScript ]; then
 fi
 
 sudo npm install --location=global npm
+
+if [ -x ~/.shellscript/ShellScript/Operating\ System/Linux/RaspberryPi/temp ]; then
+    ~/.shellscript/ShellScript/Operating\ System/Linux/RaspberryPi/temp cmd
+fi
+
