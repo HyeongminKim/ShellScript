@@ -14,10 +14,10 @@ function checkDir() {
     else
         if [ x"$1" == x ]; then
             echo -e "\033[31mERR: 변경할 다운로드 디렉토리 경로를 명시해야 합니다. \033[m"
-            exit 1
         else
             echo -e "\033[33mWARN: $1 를 찾을 수 없습니다. 제공한 디렉토리 경로가 올바르지 않습니다. \033[m"
         fi
+        exit 1
     fi
 }
 
@@ -72,9 +72,14 @@ function checkDependence() {
 }
 
 function checkRequirement() {
-    touch . 2> /dev/null
-    if [ $? != 0 ]; then
-        echo -e "\033[31mERR: $(pwd) 에 쓰기 권한이 없어 계속 진행할 수 없습니다. \n\t이 문제를 해결하려면 디렉토리 권한을 확인하세요. \033[m"
+    if [ -d "$(pwd)" ]; then
+        touch . 2> /dev/null
+        if [ $? != 0 ]; then
+            echo -e "\033[31mERR: $(pwd) 에 쓰기 권한이 없어 계속 진행할 수 없습니다. \n\t이 문제를 해결하려면 디렉토리 권한을 확인하세요. \033[m"
+            exit 1
+        fi
+    else
+        echo -e "\033[31mERR: $(pwd) 가 존재하지 않아 계속 진행할 수 없습니다. \033[m"
         exit 1
     fi
 
