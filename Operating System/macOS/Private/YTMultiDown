@@ -29,9 +29,38 @@ if [ $# -gt 0 ]; then
         exit 0
     fi
 
-    existOption="false"
-    if [ "$1" == "--verbose" -o "$3" == "--verbose" ]; then
-        existOption="true"
+    if [ "$1" == "--verbose" -o "$1" == "-o" -o "$1" == "--output" ];then
+        if [ "$1" == "--verbose" ]; then
+            echo -e "\033[37mNOTE: 이 옵션은 다운로드 상태를 터미널에 표시합니다. \n\t여러 미디어를 동시에 다운로드할 경우 정보가 교차되서 나타나므로 권장하지 않습니다. \033[m"
+            echo -n "--verbose 옵션을 적용하시겠습니까? (y/N) > "
+            read n
+            if [ "$n" == "y" -o "$n" == "Y" ]; then
+                verbose="true"
+            else
+                echo -e "\033[37mNOTE: --verbose 옵션이 $USER 에 의해 무효화 되었습니다. "
+            fi
+        elif [ "$1" == "-o" -o "$1" == "--output" ]; then
+            checkDir "$2"
+        elif [ "$1" != "" ]; then
+            echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
+            echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
+            exit 1
+        fi
+    fi
+
+    if [ "$2" == "-o" -o "$2" == "--output" ];then
+        checkDir "$3"
+    elif [ "$2" != "" ]; then
+        if [ "$1" == "-o" -o "$1" == "--output" ]; then
+            echo "" &> /dev/null
+        else
+            echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
+            echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
+            exit 1
+        fi
+    fi
+
+    if [ "$3" == "--verbose" ]; then
         echo -e "\033[37mNOTE: 이 옵션은 다운로드 상태를 터미널에 표시합니다. \n\t여러 미디어를 동시에 다운로드할 경우 정보가 교차되서 나타나므로 권장하지 않습니다. \033[m"
         echo -n "--verbose 옵션을 적용하시겠습니까? (y/N) > "
         read n
@@ -40,20 +69,14 @@ if [ $# -gt 0 ]; then
         else
             echo -e "\033[37mNOTE: --verbose 옵션이 $USER 에 의해 무효화 되었습니다. "
         fi
-    fi
-
-    if [ "$1" == "-o" -o "$1" == "--output" ]; then
-        existOption="true"
-        checkDir "$2"
-    elif [ "$2" == "-o" -o "$2" == "--output" ]; then
-        existOption="true"
-        checkDir "$3"
-    fi
-
-    if [ "$existOption" == "false" ]; then
-        echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
-        echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
-        exit 1
+    elif [ "$3" != "" ]; then
+        if [ "$2" == "-o" -o "$2" == "--output" ]; then
+            echo "" &> /dev/null
+        else
+            echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
+            echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
+            exit 1
+        fi
     fi
 fi
 ##### 파라미터 체크 끝 #####
