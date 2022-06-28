@@ -6,9 +6,8 @@ verbose="false"
 ##### 파라미터 체크 시작 #####
 function checkDir() {
     if [ -d "$1" ]; then
-        if [ -r "$1" -a -w "$1" ]; then
-            cd "$1"
-        else
+        cd "$1" 2> /dev/null
+        if [ $? != 0 ]; then
             echo -e "\033[33mWARN: $1 디렉토리에 접근 권한이 없습니다. 033[m"
         fi
     else
@@ -45,10 +44,10 @@ if [ $# -gt 0 ]; then
 
     if [ "$1" == "-o" -o "$1" == "--output" ]; then
         existOption="true"
-        checkDir $2
+        checkDir "$2"
     elif [ "$2" == "-o" -o "$2" == "--output" ]; then
         existOption="true"
-        checkDir $3
+        checkDir "$3"
     fi
 
     if [ "$existOption" == "false" ]; then
