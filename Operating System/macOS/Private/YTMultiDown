@@ -1,29 +1,57 @@
 #!/bin/bash
 
 ttsActive="false"
+verbose="false"
 
 ##### 파라미터 체크 시작 #####
+function checkDir() {
+    if [ -d "$1" ]; then
+        if [ -r "$1" -a -w "$1" ]; then
+            cd "$1"
+        else
+            echo -e "\033[33mWARN: $1 디렉토리에 접근 권한이 없습니다. 033[m"
+        fi
+    else
+        if [ x"$1" == x ]; then
+            echo -e "\033[31mERR: 변경할 다운로드 디렉토리 경로를 명시해야 합니다. \033[m"
+            exit 1
+        else
+            echo -e "\033[33mWARN: $1 를 찾을 수 없습니다. 제공한 디렉토리 경로가 올바르지 않습니다. \033[m"
+        fi
+    fi
+}
+
 if [ $# -gt 0 ]; then
     if [ "$1" == "-h" -o "$1" == "--help" ]; then
         echo "USAGE: $0 [option] [values]"
-        echo "  --output, -o 다운로드 디렉토리 변경"
-        echo "  --help, -h 도움말 표시"
+        echo " --output, -o 다운로드 디렉토리 변경"
+        echo "   --help, -h 도움말 표시"
+        echo "--verbose     다운로드 상태를 임시파일이 아닌 터미널에 표시 (레거시)"
         exit 0
-    elif [ "$1" == "-o" -o "$1" == "--output" ]; then
-        if [ -d "$2" ]; then
-            cd "$2" 2> /dev/null
-            if [ $? != 0 ]; then
-                echo -e "\033[33mWARN: $2 디렉토리에 접근 권한이 없습니다. 033[m"
-            fi
+    fi
+
+    existOption="false"
+    if [ "$1" == "--verbose" -o "$3" == "--verbose" ]; then
+        existOption="true"
+        echo -e "\033[37mNOTE: 이 옵션은 다운로드 상태를 터미널에 표시합니다. \n\t여러 미디어를 동시에 다운로드할 경우 정보가 교차되서 나타나므로 권장하지 않습니다. \033[m"
+        echo -n "--verbose 옵션을 적용하시겠습니까? (y/N) > "
+        read n
+        if [ "$n" == "y" -o "$n" == "Y" ]; then
+            verbose="true"
         else
-            if [ x"$2" == x ]; then
-                echo -e "\033[31mERR: 변경할 다운로드 디렉토리 경로를 명시해야 합니다. \033[m"
-            else
-                echo -e "\033[31mERR: $2 를 찾을 수 없습니다. 제공한 디렉토리 경로가 올바르지 않습니다. \033[m"
-            fi
-            exit 1
+            echo -e "\033[37mNOTE: --verbose 옵션이 $USER 에 의해 무효화 되었습니다. "
         fi
-    else
+    fi
+
+    if [ "$1" == "-o" -o "$1" == "--output" ]; then
+        existOption="true"
+        checkDir $2
+    elif [ "$2" == "-o" -o "$2" == "--output" ]; then
+        existOption="true"
+        checkDir $3
+    fi
+
+    if [ "$existOption" == "false" ]; then
         echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
         echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
         exit 1
@@ -40,6 +68,20 @@ function checkDependence() {
     which $1 > /dev/null 2>&1
     if [ $? == 0 ]; then
         yt_dlp="$1"
+    fi
+}
+
+function checkRequirement() {
+    touch . 2> /dev/null
+    if [ $? != 0 ]; then
+        echo -e "\033[31mERR: $(pwd) 에 쓰기 권한이 없어 계속 진행할 수 없습니다. \n\t이 문제를 해결하려면 디렉토리 권한을 확인하세요. \033[m"
+        exit 1
+    fi
+
+    ping -c 1 -W 1 -q "www.google.com" &> /dev/null
+    if [ "$?" != "0" ]; then
+        echo -e "\033[31mERR: $yt_dlp 은(는) 오프라인 상태를 지원하지 않아 계속 진행할 수 없습니다. \n\t이 문제를 해결하려면 네트워크 연결을 점검하세요. \033[m"
+        exit 1
     fi
 }
 
@@ -77,14 +119,25 @@ function mediaDownloader() {
     fileName="$2"
 
     tts "$fileName 다운로드를 시작합니다. "
-    echo -e "\033[37mINFO: 다운로드 상태 확인은 'tail -f $fileName.out' 명령을 입력하세요. \033[m"
-    $yt_dlp "$originURL" --output "$fileName.%(ext)s" > "$fileName.out" 2> "$fileName.err"
-    if [ $? != 0 ]; then
-        tts "$fileName 다운로드가 실패하였습니다. 출력 로그를 참조하세요."
+    if [ "$verbose" == "true" ]; then
+        echo -e "\033[37mNOTE: 상태바가 프롬프트를 덮어써도 명령 입력에는 문제가 없으며 이는 정상입니다. \033[m"
+        $yt_dlp "$originURL" --output "$fileName.%(ext)s"
+        if [ $? != 0 ]; then
+            tts "$fileName 다운로드가 실패하였습니다. 상단에 출력된 에러를 참조하세요."
+        else
+            tts "$fileName 다운로드가 완료되었습니다. "
+            echo -e "$fileName 이(가) \033[0;1m$(pwd)\033[m 에 다운로드 되었습니다. "
+        fi
     else
-        tts "$fileName 다운로드가 완료되었습니다. "
-        echo -e "$fileName 이(가) \033[0;1m$(pwd)\033[m 에 다운로드 되었습니다. "
-        rm "$fileName.out" "$fileName.err" 2> /dev/null
+        echo -e "\033[37mINFO: 다운로드 상태 확인은 'tail -f $fileName.out' 명령을 입력하세요. \033[m"
+        $yt_dlp "$originURL" --output "$fileName.%(ext)s" &> "$fileName.out"
+        if [ $? != 0 ]; then
+            tts "$fileName 다운로드가 실패하였습니다. $fileName.out 파일을 참조하세요."
+        else
+            tts "$fileName 다운로드가 완료되었습니다. "
+            echo -e "$fileName 이(가) \033[0;1m$(pwd)\033[m 에 다운로드 되었습니다. "
+            rm "$fileName.out" 2> /dev/null
+        fi
     fi
 }
 
@@ -247,6 +300,8 @@ fi
 
 ##### Main Loop #####
 while true; do
+    checkRequirement
+
     echo -e "\n1. 다운로드 확인"
     if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -lt 6 ]; then
         echo "2. 다운로드 추가"
