@@ -103,15 +103,21 @@ if [[ "$OMZ_INSTALLED" == "true" ]]; then
 fi
 
 aptall() {
-    ~/.local/bin/updater $@
+    if [ -x ~/.local/bin/updater ]; then
+        ~/.local/bin/updater $@
+    fi
 }
 
 open() {
-    ~/.local/bin/open $@
+    if [ -x ~/.local/bin/open ]; then
+        ~/.local/bin/open $@
+    fi
 }
 
 powermgr() {
-    ~/.local/bin/powermgr $@
+    if [ -x ~/.local/bin/powermgr ]; then
+        ~/.local/bin/powermgr $@
+    fi
 }
 
 function diff() {

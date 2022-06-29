@@ -99,7 +99,9 @@ if [[ "$OMZ_INSTALLED" == "true" ]]; then
 fi
 
 brewall() {
-    ~/.shellscript/updater $@
+    if [ -x ~/.shellscript/updater ]; then
+        ~/.shellscript/updater $@
+    fi
 }
 
 function diff() {

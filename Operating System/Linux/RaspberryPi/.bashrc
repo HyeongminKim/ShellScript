@@ -3,9 +3,11 @@
 # for examples
 
 aptall() {
-    export USE_FULL_UPGRADE=true
-    ~/.shellscript/aptall/aptall.sh $@
-    unset USE_FULL_UPGRADE
+    if [ -x ~/.shellscript/aptall/aptall.sh ]; then
+        export USE_FULL_UPGRADE=true
+        ~/.shellscript/aptall/aptall.sh $@
+        unset USE_FULL_UPGRADE
+    fi
 }
 
 temp() {

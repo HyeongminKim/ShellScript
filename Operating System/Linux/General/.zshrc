@@ -95,7 +95,9 @@ if [[ "$OMZ_INSTALLED" == "true" ]]; then
 fi
 
 aptall() {
-    ~/.local/bin/updater $@
+    if [ -x ~/.local/bin/updater ]; then
+        ~/.local/bin/updater $@
+    fi
 }
 
 function diff() {

@@ -95,11 +95,15 @@ plugins=(
 )
 
 brewall() {
-    ~/.shellscript/changesu brewall $@
-    if [ $? -eq 0 ]; then
-        if [ $# -eq 0 ]; then
-            ~/.shellscript/updater; 
-            echo -e '\a'
+    if [ -x ~/.shellscript/changesu ]; then
+        ~/.shellscript/changesu brewall $@
+        if [ $? -eq 0 ]; then
+            if [ $# -eq 0 ]; then
+                if [ -x ~/.shellscript/updater ]; then
+                    ~/.shellscript/updater
+                fi
+                echo -e '\a'
+            fi
         fi
     fi
 }
