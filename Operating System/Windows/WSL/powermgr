@@ -53,12 +53,27 @@ function executeCmd() {
 
     if [ "$time" == "" ]; then
         checkOption $option
+        if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
+            echo -en "This system \e[1;37mwill \e[1;31m$option\e[1;37m after\e[m 15 seconds. "
+            for (( i=15; i>=0; i-- )); do
+                if [[ $i -ge 9 ]]; then
+                    echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                elif [ $i == 1 ]; then
+                    echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+                else
+                    echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                fi
+                sleep 1
+            done
+            echo ""
+        fi
         engagedTime $option
         shutdown.exe -$1 -t 0 -c "$comment"
     else
         shutdown.exe -$1 -t $time -c "$comment"
         if [ "$?" == "0" ]; then
-            engageTime $option $time
+            result=$(date -d "$time second")
+            echo "The $option option will be executed at $result."
         fi
     fi
 }
