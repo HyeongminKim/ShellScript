@@ -357,16 +357,27 @@ while true; do
 
         cnt_commit=$(git rev-parse HEAD)
         cnt_revision=$(git rev-parse --short HEAD)
-        if git pull --rebase --stat origin master; then
+
+        git pull --rebase origin master | grep YTMultiDown &> /dev/null
+        if [ $? == 0 ]; then
             updated_commit=$(git rev-parse HEAD)
-            if [ "$updated_commit" == "$cnt_commit" ]; then
-                echo -e "\033[37mNOTE: ShellScript 레포가 이미 최신버전입니다. ($cnt_revision)\033[m"
-            else
-                updated_revision=$(git rev-parse --short HEAD)
-                echo -e "\033[37mNOTE: ShellScript 레포가 업데이트 되었습니다. ($cnt_revision→$updated_revision)\033[m"
+            updated_revision=$(git rev-parse --short HEAD)
+            if [ "$cnt_commit" != "$updated_commit" ]; then
+                echo -e "\033[37mNOTE: YTMultiDown이 업데이트 되었습니다. ($cnt_revision→$updated_revision)\033[m"
             fi
         else
-            echo -e "\033[31mERR: ShellScript 레포 업데이트에 실패하였습니다. 잠시후 다시 시도하세요. \033[m"
+            updated_commit=$(git rev-parse HEAD)
+            updated_revision=$(git rev-parse --short HEAD)
+            ping -c 1 -W 1 -q "www.google.com" &> /dev/null
+            if [ $? != 0 ]; then
+                echo -e "\033[31mERR: ShellScript 레포 업데이트에 실패하였습니다. 잠시후 다시 시도하세요. \033[m"
+            else
+                if [ "$cnt_commit" == "$updated_commit" ]; then
+                    echo -e "\033[37mNOTE: YTMultiDown이 이미 최신버전입니다. \033[m"
+                else
+                    echo -e "\033[37mINFO: ShellScript 레포가 업데이트 되었습니다. ($cnt_revision→$updated_revision)\033[m"
+                fi
+            fi
         fi
         cd - &> /dev/null
     elif [ "$n" == "5" ]; then
