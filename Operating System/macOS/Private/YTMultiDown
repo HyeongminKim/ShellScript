@@ -364,6 +364,11 @@ while true; do
             updated_revision=$(git rev-parse --short HEAD)
             if [ "$cnt_commit" != "$updated_commit" ]; then
                 echo -e "\033[37mNOTE: YTMultiDown이 업데이트 되었습니다. ($cnt_revision → $updated_revision)\033[m"
+                if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
+                    echo -e "\033[33mWARN: 현재 이전 버전의 YTMultiDown이 실행되고 있습니다.\n\t이 문제를 해결하려면 $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") 개의 미디어 다운로드가 완료된 후 재실행하여 주십시오. \033[m"
+                else
+                    echo -e "\033[33mWARN: 현재 이전 버전의 YTMultiDown이 실행되고 있습니다.\n\t이 문제를 해결하려면 미디어를 다운로드 하기 전 YTMultiDown을 재실행하여 주십시오. \033[m"
+                fi
             fi
         else
             updated_commit=$(git rev-parse HEAD)
