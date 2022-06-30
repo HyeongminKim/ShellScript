@@ -363,7 +363,7 @@ while true; do
             updated_commit=$(git rev-parse HEAD)
             updated_revision=$(git rev-parse --short HEAD)
             if [ "$cnt_commit" != "$updated_commit" ]; then
-                echo -e "\033[37mNOTE: YTMultiDown이 업데이트 되었습니다. ($cnt_revision→$updated_revision)\033[m"
+                echo -e "\033[37mNOTE: YTMultiDown이 업데이트 되었습니다. ($cnt_revision → $updated_revision)\033[m"
             fi
         else
             updated_commit=$(git rev-parse HEAD)
@@ -375,7 +375,7 @@ while true; do
                 if [ "$cnt_commit" == "$updated_commit" ]; then
                     echo -e "\033[37mNOTE: YTMultiDown이 이미 최신버전입니다. \033[m"
                 else
-                    echo -e "\033[37mINFO: ShellScript 레포가 업데이트 되었습니다. ($cnt_revision→$updated_revision)\033[m"
+                    echo -e "\033[37mINFO: ShellScript 레포가 업데이트 되었습니다. ($cnt_revision → $updated_revision)\033[m"
                 fi
             fi
         fi
