@@ -1,17 +1,26 @@
 #!/bin/bash
 
+if [ ! -r /sys/class/leds/led1/trigger ]; then
+    echo "$(uname -srvmpio) is not supported. This script only works on Raspberry Pi. " >&2
+    exit 1
+fi
+
 for (( ; ; )); do
     ping -c 1 -W 1 -q "www.google.com" &> /dev/null
     if [ "$?" != "0" ]; then
         if [ -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
             sudo sh -c 'sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=1 --spd=1'
         fi
-        sudo sh -c 'echo input > /sys/class/leds/led1/trigger'
+        if [ -r /sys/class/leds/led1/trigger ]; then
+            sudo sh -c 'echo input > /sys/class/leds/led1/trigger'
+        fi
     else
         if [ -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
             sudo sh -c 'sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=0 --spd=0'
         fi
-        sudo sh -c 'echo panic > /sys/class/leds/led1/trigger'
+        if [ -r /sys/class/leds/led1/trigger ]; then
+            sudo sh -c 'echo panic > /sys/class/leds/led1/trigger'
+        fi
     fi
 
     sleep 10
