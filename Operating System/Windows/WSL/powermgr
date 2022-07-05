@@ -141,6 +141,9 @@ elif [ "$option" == "sleep" ]; then
                         option="standby"
                         echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
                     fi
+                else
+                    option="hibernate"
+                    echo "NOTE: Do not unplug the power until the hibernation is completed."
                 fi
                 break
             elif [ "$n" == "s" -o "$n" == "S" ]; then
@@ -169,6 +172,9 @@ elif [ "$option" == "sleep" ]; then
                         option="hibernate"
                         echo "NOTE: Do not unplug the power until the hibernation is completed."
                     fi
+                else
+                    option="standby"
+                    echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
                 fi
                 break
             else
