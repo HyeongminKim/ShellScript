@@ -12,6 +12,7 @@ option=$1
 time=$2
 comment=$3
 chk_time=${time//[0-9]/}
+changed="false"
 
 if [ -n "$chk_time" ]; then
     if [ $# == 2 ]; then
@@ -111,14 +112,72 @@ elif [ "$option" == "abort" ]; then
 
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
-        ls /mnt/c | grep hiberfil.sys &> /dev/null
-        if [ $? == 0 ]; then
-            option="hibernate"
-            echo "NOTE: Do not unplug the power until the hibernation is completed."
-        else
-            option="standby"
-            echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
-        fi
+        while true; do
+            echo -n "Please choose a sleeping method (h: hibernate, s: standby) > "
+            read n
+            if [ "$n" == "h" -o "$n" == "H" ]; then
+                ls /mnt/c | grep hiberfil.sys &> /dev/null
+                if [ $? != 0 ]; then
+                    echo "The current system sleep option is set to standby. You need administrator privileges to change to hibernate mode."
+                    echo -n "Are you sure you want to change this option? (y/N) > "
+                    read n
+                    if [ "$n" == "y" -o "$n" == "Y" ]; then
+                        if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
+                            if [ $? == 0 ]; then
+                                option="hibernate"
+                                changed="true"
+                                echo "NOTE: Do not unplug the power until the hibernation is completed."
+                            else
+                                option="standby"
+                                echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
+                            fi
+                        else
+                            echo "Failed to talk UAC daemon. no such file or directory."
+                            option="standby"
+                            echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
+                        fi
+                    else
+                        option="standby"
+                        echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
+                    fi
+                fi
+                break
+            elif [ "$n" == "s" -o "$n" == "S" ]; then
+                ls /mnt/c | grep hiberfil.sys &> /dev/null
+                if [ $? == 0 ]; then
+                    echo "The current system sleep option is set to hibernate. You need administrator privileges to change to standby mode."
+                    echo -n "Are you sure you want to change this option? (y/N) > "
+                    read n
+                    if [ "$n" == "y" -o "$n" == "Y" ]; then
+                        if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
+                            if [ $? == 0 ]; then
+                                option="standby"
+                                changed="true"
+                                echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
+                            else
+                                option="hibernate"
+                                echo "NOTE: Do not unplug the power until the hibernation is completed."
+                            fi
+                        else
+                            echo "Failed to talk UAC daemon. no such file or directory."
+                            option="hibernate"
+                            echo "NOTE: Do not unplug the power until the hibernation is completed."
+                        fi
+                    else
+                        option="hibernate"
+                        echo "NOTE: Do not unplug the power until the hibernation is completed."
+                    fi
+                fi
+                break
+            else
+                if [ "$n" != "" ]; then
+                    echo "Unknown command $n, Skipping."
+                fi
+            fi
+        done
+
         checkOption $option
         if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
             echo -en "This system \e[1;37mwill \e[1;31m$option\e[1;37m after\e[m 15 seconds. "
@@ -143,6 +202,28 @@ elif [ "$option" == "sleep" ]; then
             resultMin=$((diffTime/60))
             resultSec=$((diffTime%60))
             echo -e "The \e[1;31m$option\e[1;37m was aborted\e[m. 'Cause the system came out of $option state in only $resultMin min $resultSec sec. To resolve this issue, the system should $option for at least 5 minutes."
+        fi
+        if [ "$changed" == "true" ]; then
+            echo -n "Do you want to restore sleep settings to their previous values? (Y/n) > "
+            read n
+            if [ "$n" == "n" -o "$n" == "N" ]; then
+                echo "Please manually adjust your sleep settings. The current setting is $option mode."
+            else
+                echo "NOTE: This operation requires administrator privileges."
+                if [ "$option" == "standby" ]; then
+                    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
+                    else
+                        echo "Failed to talk UAC daemon. no such file or directory."
+                    fi
+                elif [ "$option" == "hibernate" ]; then
+                    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
+                    else
+                        echo "Failed to talk UAC daemon. no such file or directory."
+                    fi
+                fi
+            fi
         fi
     else
 		result=$(date -d "$time second")
