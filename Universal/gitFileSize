@@ -1,24 +1,26 @@
 #!/bin/bash
 
-echo "Listing large files which can't be uploaded to github..." 
 ls -a | grep ".git" &> /dev/null
-if [ $? != 0 ]; then
-    echo -e "\033[37mNOTE: Large file searches will be done relative to the current directory.\033[m"
+if [ $? == 0 ]; then
+    echo "Listing large files which can't be uploaded to github..."
+else
+    echo "gitFileSize: cannot access '.git': No such file or directory"
+    exit 1
 fi
 
-count=$(find . -size +50M -size -100M | wc -l)
+count=$(find . -size +50M -size -100M -and -not -path "./.git/objects/*" | wc -l)
 echo -e "\033[33mThe $count files listed here are over the 50M limit."
 if [ $count -ne 0 ]; then
-    find . -size +50M -size -100M
+    find . -size +50M -size -100M -and -not -path "./.git/objects/*"
 else
     echo -e "\tNo such file. The filter doesn't met the criteria."
 fi
 echo -e "\033[31m"
 
-count=$(find . -size +100M | wc -l)
+count=$(find . -size +100M -and -not -path "./.git/objects/*" | wc -l)
 echo "The $count files listed here can't be uploaded to github over the 100M limit."
 if [ $count -ne 0 ]; then
-    find . -size +100M
+    find . -size +100M -and -not -path "./.git/objects/*"
 else
     echo -e "\tNo such file. The filter doesn't met the criteria."
 fi
