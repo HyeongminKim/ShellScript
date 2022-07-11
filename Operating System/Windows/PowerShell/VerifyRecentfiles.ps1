@@ -45,7 +45,6 @@ foreach ($item in $target) {
     }
     $progress++
     Write-Progress -activity "Verifing recent files..." -currentOperation "$($output)" -status "Please wait until action completed... ($progress of $($target.count))" -percentComplete (($progress / $target.count) * 100)
-    Start-Sleep -milliseconds 256
 }
 
 # Specify message when progress bar completes

@@ -10,6 +10,9 @@ $vscodevim = "$userDir\AppData\Roaming\Code\User\globalStorage\vscodevim.vim"
 $vscode_cmd = "$vscodevim\.cmdline_history"
 $vscode_search = "$vscodevim\.search_history"
 
+$isMakeup = $false
+$accessFailed = $false
+
 # Hide dotfiles function
 function Hide-Dotfiles {
     param (
@@ -17,12 +20,47 @@ function Hide-Dotfiles {
         [string]$targetDir
     )
 
-    Write-Host "Hiding dotfiles in $targetDir..." -NoNewLine
     if (Test-Path -Path $targetDir) {
-        Get-ChildItem "$targetDir" -recurse -force 2>$null | Where-Object {$_.name -like ".*" -and $_.attributes -match 'Hidden' -eq $false} 2>$null | Set-ItemProperty -name Attributes -value ([System.IO.FileAttributes]::Hidden) 2>$null
-        Write-Host " Done!"
+        Write-Host "Hiding dotfiles in $targetDir..."
+        $folder = Get-ChildItem -Recurse "$targetDir" -Include .* -Force 2>$null
+        $progress = 0
+        foreach ($item in $folder) {
+            $target = Get-Item $item -Force
+            if ($target.attributes.GetType().Hidden) {
+                Set-ItemProperty -Path $target -name Attributes -value ([System.IO.FileAttributes]::Hidden) -Force 2>$null
+                if ($?) {
+                    $output = "Hid dotfiles: $($item.name)"
+                    Write-Host "$($item.name) is hid due to dotfiles."
+                    $isMakeup = $true
+                    $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
+                } else {
+                    $output = "Access denied. unable to modify this file: $($item.name)"
+                    Write-Host "Access denied. unable to modify attributes this file: $($item.name)" -ForegroundColor red
+                    $Host.PrivateData.ProgressBackgroundColor='Red'
+                    $accessFailed = $true
+                }
+            } else {
+                $output = "Scanned file: $($item.name)"
+            }
+            $progress++
+            Write-Progress -activity "Hiding dotfiles..." -currentOperation "$($output)" -status "Please wait until action completed... ($progress of $($folder.count))" -percentComplete (($progress / $folder.count) * 100)
+        }
+
+        if ($accessFailed) {
+            $Host.PrivateData.ProgressBackgroundColor='Magenta'
+            Write-Progress -activity "Unable to hide dotfiles." -status "Failed to hide target files."
+        } elseif ($isMakeup) {
+            $Host.PrivateData.ProgressBackgroundColor='Green'
+            Write-Progress -activity "Hid dotfiles." -status "Successfully deleted target files."
+        } else {
+            $Host.PrivateData.ProgressBackgroundColor='Green'
+            Write-Progress -activity "Hid dotfiles." -status "Requirements already satisfied."
+        }
+        Start-Sleep -milliseconds 800
+        Write-Progress "N/A" "N/A" -completed
+        $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
     } else {
-        Write-Host " Skipping!"
+        Write-Host "Hiding dotfiles in $targetDir... Skipping!"
     }
 }
 
