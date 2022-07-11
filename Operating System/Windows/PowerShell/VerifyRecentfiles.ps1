@@ -56,7 +56,7 @@ if ($deleteFailed) {
     $Host.PrivateData.ProgressBackgroundColor='Green'
     Write-Progress -activity "Verified recent files." -status "Successfully deleted target files."
 } else {
-    $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
+    $Host.PrivateData.ProgressBackgroundColor='Green'
     Write-Progress -activity "Verified recent files." -status "Requirements already satisfied."
 }
 Start-Sleep -milliseconds 800
