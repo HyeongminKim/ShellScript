@@ -6,6 +6,7 @@ $recentDir = "C:\Users\$whoami\AppData\Roaming\Microsoft\Windows\Recent"
 
 # Is broken shortcut exist?
 $isBroken = $false
+$deleteFailed = $false
 
 # Start verifying recent items shortcut function
 Write-Host "Verification of the existence of the original shortcut to the recent item..."
@@ -18,14 +19,25 @@ foreach ($item in $target) {
     if ($broken) {
         $check = Test-Path "$broken"
         if ($check -eq $false) {
-            Remove-Item "$item" 2>$null
+            Remove-Item "$item" -Force 2>$null
             if ($?) {
-                $output = "Deleted broken shortcut: $($item.name)"
-                Write-Host "$($item.name) is deleted due to a broken link."
-                $isBroken = $true
+                Get-Item "$item" 2>$null
+                if ($?) {
+                    $output = "Access denied. unable to delete this shortcut: $($item.name)"
+                    Write-Host "Access denied. unable to delete this shortcut: $($item.name)" -ForegroundColor red
+                    $Host.PrivateData.ProgressBackgroundColor='Red'
+                    $deleteFailed = $true
+                } else {
+                    $output = "Deleted broken shortcut: $($item.name)"
+                    Write-Host "$($item.name) is deleted due to a broken link."
+                    $isBroken = $true
+                    $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
+                }
             } else {
                 $output = "Access denied. unable to delete this shortcut: $($item.name)"
                 Write-Host "Access denied. unable to delete this shortcut: $($item.name)" -ForegroundColor red
+                $Host.PrivateData.ProgressBackgroundColor='Red'
+                $deleteFailed = $true
             }
         }
     } else {
@@ -33,17 +45,23 @@ foreach ($item in $target) {
     }
     $progress++
     Write-Progress -activity "Verifing recent files..." -currentOperation "$($output)" -status "Please wait until action completed... ($progress of $($target.count))" -percentComplete (($progress / $target.count) * 100)
-    Start-Sleep -milliseconds 128
+    Start-Sleep -milliseconds 256
 }
 
 # Specify message when progress bar completes
-if ($isBroken) {
+if ($deleteFailed) {
+    $Host.PrivateData.ProgressBackgroundColor='Magenta'
+    Write-Progress -activity "Unable to verify recent files." -status "Failed to delete target files."
+} elseif ($isBroken) {
+    $Host.PrivateData.ProgressBackgroundColor='Green'
     Write-Progress -activity "Verified recent files." -status "Successfully deleted target files."
 } else {
+    $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
     Write-Progress -activity "Verified recent files." -status "Requirements already satisfied."
 }
 Start-Sleep -milliseconds 800
 Write-Progress "N/A" "N/A" -completed
+$Host.PrivateData.ProgressBackgroundColor='DarkCyan'
 
 # Relaunch explorer.exe when broken shortcuts exist (aka. isBroken value is true)
 if($isBroken -eq $true) {
