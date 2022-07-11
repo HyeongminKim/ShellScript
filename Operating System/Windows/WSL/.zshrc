@@ -14,9 +14,7 @@ else
     autoload -U colors && colors
 fi
 
-if [ -d /mnt/c ]; then
-    echo "" > /dev/null 2>&1
-else
+if [ ! -d /mnt/c ]; then
     echo -e "\033[31mAttention: Windows volume \"Local Disk (C:)\" is currently not mounted."
     echo -e "           Therefore most functions doesn't work probably."
     echo -e "           Please check /mnt/c directory can accessable.\033[m"
