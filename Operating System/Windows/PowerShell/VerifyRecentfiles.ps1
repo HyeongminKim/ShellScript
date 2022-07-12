@@ -63,16 +63,23 @@ Write-Progress "N/A" "N/A" -completed
 $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
 
 # Relaunch explorer.exe when broken shortcuts exist (aka. isBroken value is true)
-if($isBroken -eq $true) {
+if ($isBroken) {
     Write-Host "Restart Windows Explorer for changes to take effect"
     Write-Host "> (NOTE: Any unsaved information will be lost) ..." -NoNewLine
     cmd.exe /c taskkill /f /im explorer.exe 1>$null 2>&1
     if ($?) {
-        Write-Host "Done. "
+        Write-Host " Done. "
+        cmd.exe /c start explorer.exe
     } else {
-        Write-Host "`nAnother user is logged in. Please restart computer to take effect." -ForegroundColor red
+        $input = Read-Host "`nWindows Explorer doesn't seem to close properly.`n`tDid it close properly? (y/N)"
+        if (($input -eq "y") -or ($input -eq "Y")) {
+            Write-Host "Done. "
+            cmd.exe /c start explorer.exe
+        } else {
+            Write-Host "Reboot the computer for the changes to take effect." -ForegroundColor red
+            Write-Host "NOTE: Press the ^⇧⎋ (CTRL + SHIFT + ESC) and the Task Manager will open."
+        }
     }
-    cmd.exe /c start explorer.exe
 } else {
     Write-Host "Windows Explorer will not restart. Requirements already satisfied."
 }
