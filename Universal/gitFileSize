@@ -9,20 +9,26 @@ else
 fi
 
 count=$(find . -size +50M -size -100M -and -not -path "./.git/objects/*" | wc -l)
-echo -e "\033[33mThe $count files listed here are over the 50M limit."
-if [ $count -ne 0 ]; then
-    find . -size +50M -size -100M -and -not -path "./.git/objects/*"
+if [ $count -gt 1 ]; then
+    echo -e "\033[33mThe $count files listed here are over the 50M limit."
+    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | nl
+elif [ $count -eq 1 ]; then
+    echo -e "\033[33mThe $count file listed here are over the 50M limit."
+    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | nl
 else
-    echo -e "\tNo such file. The filter doesn't met the criteria."
+    echo -e "\033[33mNo such file. The 50M limit filter doesn't met the criteria."
 fi
-echo -e "\033[31m"
 
+echo -e "\033[31m"
 count=$(find . -size +100M -and -not -path "./.git/objects/*" | wc -l)
-echo "The $count files listed here can't be uploaded to github over the 100M limit."
-if [ $count -ne 0 ]; then
-    find . -size +100M -and -not -path "./.git/objects/*"
+if [ $count -gt 1 ]; then
+    echo "The $count files listed here can't be uploaded to github over the 100M limit."
+    find . -size +100M -and -not -path "./.git/objects/*" | nl
+elif [ $count -eq 1 ]; then
+    echo "The $count file listed here can't be uploaded to github over the 100M limit."
+    find . -size +100M -and -not -path "./.git/objects/*" | nl
 else
-    echo -e "\tNo such file. The filter doesn't met the criteria."
+    echo -e "No such file. The 100M limit filter doesn't met the criteria."
 fi
 echo -e "\033[m"
 
