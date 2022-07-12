@@ -24,18 +24,18 @@ foreach ($item in $target) {
                 Get-Item "$item" 2>$null
                 if ($?) {
                     $output = "Access denied. unable to delete this shortcut: $($item.name)"
-                    Write-Host "Access denied. unable to delete this shortcut: $($item.name)" -ForegroundColor red
+                    Write-Host "Access denied. unable to delete this shortcut: $($item)" -ForegroundColor red
                     $Host.PrivateData.ProgressBackgroundColor='Red'
                     $deleteFailed = $true
                 } else {
                     $output = "Deleted broken shortcut: $($item.name)"
-                    Write-Host "$($item.name) is deleted due to a broken link."
+                    Write-Host "$($item) is deleted due to a broken link."
                     $isBroken = $true
                     $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
                 }
             } else {
                 $output = "Access denied. unable to delete this shortcut: $($item.name)"
-                Write-Host "Access denied. unable to delete this shortcut: $($item.name)" -ForegroundColor red
+                Write-Host "Access denied. unable to delete this shortcut: $($item)" -ForegroundColor red
                 $Host.PrivateData.ProgressBackgroundColor='Red'
                 $deleteFailed = $true
             }

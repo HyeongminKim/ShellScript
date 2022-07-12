@@ -30,12 +30,12 @@ function Hide-Dotfiles {
                 Set-ItemProperty -Path $target -name Attributes -value ([System.IO.FileAttributes]::Hidden) -Force 2>$null
                 if ($?) {
                     $output = "Hid dotfiles: $($item.name)"
-                    Write-Host "$($item.name) is hid due to dotfiles."
+                    Write-Host "$($item) is hid due to dotfiles."
                     $isMakeup = $true
                     $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
                 } else {
                     $output = "Access denied. unable to modify this file: $($item.name)"
-                    Write-Host "Access denied. unable to modify attributes this file: $($item.name)" -ForegroundColor red
+                    Write-Host "Access denied. unable to modify attributes this file: $($item)" -ForegroundColor red
                     $Host.PrivateData.ProgressBackgroundColor='Red'
                     $accessFailed = $true
                 }

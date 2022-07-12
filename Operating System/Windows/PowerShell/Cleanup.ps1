@@ -15,18 +15,18 @@ foreach ($item in $target) {
         Get-Item "$item" 2>$null
         if ($?) {
             $output = "Access denied. unable to delete this file: $($item.name)"
-            Write-Host "Access denied. unable to delete this file: $($item.name)" -ForegroundColor red
+            Write-Host "Access denied. unable to delete this file: $($item)" -ForegroundColor red
             $Host.PrivateData.ProgressBackgroundColor='Red'
             $deleteFailed = $true
         } else {
             $output = "Deleted file: $($item.name)"
-            Write-Host "The $($item.name) executable has been deleted."
+            Write-Host "The $($item) executable has been deleted."
             $isMakeup = $true
             $Host.PrivateData.ProgressBackgroundColor='DarkCyan'
         }
     } else {
         $output = "Access denied. unable to delete this file: $($item.name)"
-        Write-Host "Access denied. unable to delete this file: $($item.name)" -ForegroundColor red
+        Write-Host "Access denied. unable to delete this file: $($item)" -ForegroundColor red
         $Host.PrivateData.ProgressBackgroundColor='Red'
         $deleteFailed = $true
     }
