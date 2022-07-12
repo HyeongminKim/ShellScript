@@ -8,25 +8,25 @@ else
     exit 1
 fi
 
-count=$(find . -size +50M -size -100M -and -not -path "./.git/objects/*" | wc -l)
+count=$(find . -size +50M -size -100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | wc -l)
 if [ $count -gt 1 ]; then
     echo -e "\033[33mThe $count files listed here are over the 50M limit."
-    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | nl
+    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | nl
 elif [ $count -eq 1 ]; then
     echo -e "\033[33mThe $count file listed here are over the 50M limit."
-    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | nl
+    find . -size +50M -size -100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | nl
 else
     echo -e "\033[33mNo such file. The 50M limit filter doesn't met the criteria."
 fi
 
 echo -e "\033[31m"
-count=$(find . -size +100M -and -not -path "./.git/objects/*" | wc -l)
+count=$(find . -size +100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | wc -l)
 if [ $count -gt 1 ]; then
     echo "The $count files listed here can't be uploaded to github over the 100M limit."
-    find . -size +100M -and -not -path "./.git/objects/*" | nl
+    find . -size +100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | nl
 elif [ $count -eq 1 ]; then
     echo "The $count file listed here can't be uploaded to github over the 100M limit."
-    find . -size +100M -and -not -path "./.git/objects/*" | nl
+    find . -size +100M -and -not -path "./.git/objects/*" | grep -vf .gitignore | nl
 else
     echo -e "No such file. The 100M limit filter doesn't met the criteria."
 fi
