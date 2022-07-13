@@ -124,11 +124,13 @@ elif [ "$option" == "sleep" ]; then
                     if [ "$n" == "y" -o "$n" == "Y" ]; then
                         if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
                             python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
+                            ls /mnt/c | grep hiberfil.sys &> /dev/null
                             if [ $? == 0 ]; then
                                 option="hibernate"
                                 changed="true"
                                 echo "NOTE: Do not unplug the power until the hibernation is completed."
                             else
+                                echo "Failed to change the value. You don't have permission."
                                 option="standby"
                                 echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
                             fi
@@ -155,11 +157,13 @@ elif [ "$option" == "sleep" ]; then
                     if [ "$n" == "y" -o "$n" == "Y" ]; then
                         if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
                             python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
-                            if [ $? == 0 ]; then
+                            ls /mnt/c | grep hiberfil.sys &> /dev/null
+                            if [ $? != 0 ]; then
                                 option="standby"
                                 changed="true"
                                 echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
                             else
+                                echo "Failed to change the value. You don't have permission."
                                 option="hibernate"
                                 echo "NOTE: Do not unplug the power until the hibernation is completed."
                             fi
@@ -219,12 +223,26 @@ elif [ "$option" == "sleep" ]; then
                 if [ "$option" == "standby" ]; then
                     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
                         python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
+                        ls /mnt/c | grep hiberfil.sys &> /dev/null
+                        if [ $? == 0 ]; then
+                            option="hibernate"
+                            echo "Successfully restored to previous values."
+                        else
+                            echo "Failed to change the value. You don't have permission."
+                        fi
                     else
                         echo "Failed to talk UAC daemon. no such file or directory."
                     fi
                 elif [ "$option" == "hibernate" ]; then
                     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
                         python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
+                        ls /mnt/c | grep hiberfil.sys &> /dev/null
+                        if [ $? == 0 ]; then
+                            option="standby"
+                            echo "Successfully restored to previous values."
+                        else
+                            echo "Failed to change the value. You don't have permission."
+                        fi
                     else
                         echo "Failed to talk UAC daemon. no such file or directory."
                     fi
