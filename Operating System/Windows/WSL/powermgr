@@ -121,9 +121,12 @@ elif [ "$option" == "abort" ]; then
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
         while true; do
-            echo -n "Please choose a sleeping method (h: hibernate, s: standby) > "
+            echo -n "Please choose a sleeping method (h: hibernate, s: standby, c: cancel) > "
             read n
-            if [ "$n" == "h" -o "$n" == "H" ]; then
+            if [ "$n" == "c" -o "$n" == "C" ]; then
+                echo -e "\e[1;31m$option\e[1;37m command aborted\e[m by user."
+                exit 2
+            elif [ "$n" == "h" -o "$n" == "H" ]; then
                 ls /mnt/c | grep hiberfil.sys &> /dev/null
                 if [ $? != 0 ]; then
                     echo "The current system sleep option is set to standby. You need administrator privileges to change to hibernate mode."
