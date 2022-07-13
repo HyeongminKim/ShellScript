@@ -71,6 +71,14 @@ function executeCmd() {
         engagedTime $option
         shutdown.exe -$1 -t 0 -c "$comment"
     else
+        if [ $time -lt 15 ]; then
+            echo -n "Warning! The time provided is shorter than the recommended time. would you like to proceed (y/N) > "
+            read n
+            if ! [ "$n" == "y" -o "$n" == "Y" ]; then
+                echo -e "\e[1;31m$option\e[1;37m command aborted\e[m by user."
+                exit 2
+            fi
+        fi
         shutdown.exe -$1 -t $time -c "$comment"
         if [ "$?" == "0" ]; then
             result=$(date -d "$time second")
