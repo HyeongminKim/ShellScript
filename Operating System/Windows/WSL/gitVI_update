@@ -8,7 +8,7 @@ if [ -r "/mnt/c/Program Files/Git/usr/bin/vim.exe" ]; then
         echo "gitVI_update: UAC is required for elevation of privilege to continue this action..."
         if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
             python3 ~/.shellscript/wsl-sudo/wsl-sudo.py mv -f "/mnt/c/Program Files/Git/usr/bin/vim.exe" "/mnt/c/Program Files/Git/usr/bin/vim-legacy.exe"
-            if [ $? == 0 ]; then
+            if [ ! -r "/mnt/c/Program Files/Git/usr/bin/vim.exe" ]; then
                 echo "gitVI_update: Successfully changed vim.exe to vim-legacy.exe."
             else
                 echo "gitVI_update: Access denied. Please run the script again and accept the UAC prompt."
