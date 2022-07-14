@@ -35,6 +35,7 @@ if [ -d /mnt/c/Users/$USER/AppData/Local/Microsoft/WindowsApps ]; then
     if [ $? != 0 ]; then
         errorCount=$((errorCount+1))
     fi
+    echo -e "\e[m"
 fi
 
 if [ -x ~/.local/bin/gitVI_update ]; then
