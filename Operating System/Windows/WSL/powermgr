@@ -248,7 +248,7 @@ elif [ "$option" == "sleep" ]; then
                     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
                         python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
                         ls /mnt/c | grep hiberfil.sys &> /dev/null
-                        if [ $? == 0 ]; then
+                        if [ $? != 0 ]; then
                             option="standby"
                             echo "Successfully restored to previous values."
                         else
