@@ -121,7 +121,14 @@ elif [ "$option" == "abort" ]; then
 elif [ "$option" == "sleep" ]; then
     if [ "$time" == "" ]; then
         while true; do
-            echo -n "Please choose a sleeping method (h: hibernate, s: standby, c: cancel) > "
+            ls /mnt/c | grep hiberfil.sys &> /dev/null
+            if [ $? == 0 ]; then
+                echo "NOTE: Methods marked with '*' require administrator privileges."
+                echo -n "Please choose a sleeping method (h: hibernate, s: standby*, c: cancel) > "
+            else
+                echo "NOTE: Methods marked with '*' require administrator privileges."
+                echo -n "Please choose a sleeping method (h: hibernate*, s: standby, c: cancel) > "
+            fi
             read n
             if [ "$n" == "c" -o "$n" == "C" ]; then
                 echo -e "\e[1;31m$option\e[1;37m command aborted\e[m by user."
