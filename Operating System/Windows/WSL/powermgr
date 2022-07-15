@@ -124,10 +124,10 @@ elif [ "$option" == "sleep" ]; then
             ls /mnt/c | grep hiberfil.sys &> /dev/null
             if [ $? == 0 ]; then
                 echo "NOTE: Methods marked with '*' require administrator privileges."
-                echo -n "Please choose a sleeping method (h: hibernate, s: standby*, c: cancel) > "
+                echo -n "Please choose a sleeping method (H: hibernate, s: standby*, c: cancel) > "
             else
                 echo "NOTE: Methods marked with '*' require administrator privileges."
-                echo -n "Please choose a sleeping method (h: hibernate*, s: standby, c: cancel) > "
+                echo -n "Please choose a sleeping method (h: hibernate*, S: standby, c: cancel) > "
             fi
             read n
             if [ "$n" == "c" -o "$n" == "C" ]; then
@@ -202,6 +202,16 @@ elif [ "$option" == "sleep" ]; then
             else
                 if [ "$n" != "" ]; then
                     echo "Unknown command $n, Skipping."
+                else
+                    ls /mnt/c | grep hiberfil.sys &> /dev/null
+                    if [ $? == 0 ]; then
+                        option="hibernate"
+                        echo "NOTE: Do not unplug the power until the hibernation is completed."
+                    else
+                        option="standby"
+                        echo "NOTE: If in the event of a power outage, all unsaved data may be lost."
+                    fi
+                    break
                 fi
             fi
         done
