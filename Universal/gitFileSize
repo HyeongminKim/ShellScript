@@ -4,7 +4,7 @@ ls -a | grep ".git" &> /dev/null
 if [ $? == 0 ]; then
     echo "Listing large files which can't be uploaded to github..."
 else
-    echo "gitFileSize: cannot access '.git': No such file or directory"
+    echo "gitFileSize: cannot access '.git': No such directory"
     exit 1
 fi
 
