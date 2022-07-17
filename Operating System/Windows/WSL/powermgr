@@ -93,6 +93,9 @@ function checkOption() {
         read n
         if [ "$n" == "N" -o "$n" == "n" ]; then
             echo -e "\e[1;31m$1\e[1;37m command aborted\e[m by user."
+            if [ "$1" == "standby" -o "$1" == "hibernate" ]; then
+                restoreSleepOption
+            fi
             exit 2
         elif [ "$n" == "D" -o "$n" == "d" ]; then
             if [ "$SHELL" == "/bin/bash" ]; then
@@ -103,6 +106,45 @@ function checkOption() {
                 echo "Unsupported shell ($SHELL). Please paste this command to your config file manually."
                 echo "$exportCmd"
                 exit 1
+            fi
+        fi
+    fi
+}
+
+function restoreSleepOption() {
+    if [ "$changed" == "true" ]; then
+        echo -n "Do you want to restore sleep settings to their previous values? (Y/n) > "
+        read n
+        if [ "$n" == "n" -o "$n" == "N" ]; then
+            echo "Please manually adjust your sleep settings. The current setting is $option mode."
+        else
+            echo "NOTE: This operation requires administrator privileges."
+            if [ "$option" == "standby" ]; then
+                if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                    python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
+                    ls /mnt/c | grep hiberfil.sys &> /dev/null
+                    if [ $? == 0 ]; then
+                        option="hibernate"
+                        echo "Successfully restored to previous values."
+                    else
+                        echo "Failed to change the value. You don't have permission."
+                    fi
+                else
+                    echo "Failed to talk UAC daemon. no such file or directory."
+                fi
+            elif [ "$option" == "hibernate" ]; then
+                if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                    python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
+                    ls /mnt/c | grep hiberfil.sys &> /dev/null
+                    if [ $? != 0 ]; then
+                        option="standby"
+                        echo "Successfully restored to previous values."
+                    else
+                        echo "Failed to change the value. You don't have permission."
+                    fi
+                else
+                    echo "Failed to talk UAC daemon. no such file or directory."
+                fi
             fi
         fi
     fi
@@ -241,42 +283,8 @@ elif [ "$option" == "sleep" ]; then
             resultSec=$((diffTime%60))
             echo -e "The \e[1;31m$option\e[1;37m was aborted\e[m. 'Cause the system came out of $option state in only $resultMin min $resultSec sec. To resolve this issue, the system should $option for at least 5 minutes."
         fi
-        if [ "$changed" == "true" ]; then
-            echo -n "Do you want to restore sleep settings to their previous values? (Y/n) > "
-            read n
-            if [ "$n" == "n" -o "$n" == "N" ]; then
-                echo "Please manually adjust your sleep settings. The current setting is $option mode."
-            else
-                echo "NOTE: This operation requires administrator privileges."
-                if [ "$option" == "standby" ]; then
-                    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
-                        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
-                        ls /mnt/c | grep hiberfil.sys &> /dev/null
-                        if [ $? == 0 ]; then
-                            option="hibernate"
-                            echo "Successfully restored to previous values."
-                        else
-                            echo "Failed to change the value. You don't have permission."
-                        fi
-                    else
-                        echo "Failed to talk UAC daemon. no such file or directory."
-                    fi
-                elif [ "$option" == "hibernate" ]; then
-                    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
-                        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
-                        ls /mnt/c | grep hiberfil.sys &> /dev/null
-                        if [ $? != 0 ]; then
-                            option="standby"
-                            echo "Successfully restored to previous values."
-                        else
-                            echo "Failed to change the value. You don't have permission."
-                        fi
-                    else
-                        echo "Failed to talk UAC daemon. no such file or directory."
-                    fi
-                fi
-            fi
-        fi
+
+        restoreSleepOption
     else
 		result=$(date -d "$time second")
         echo "$option command doesn't not support time. Please enter this command after $result."
