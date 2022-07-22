@@ -118,6 +118,12 @@ powermgr() {
     fi
 }
 
+wudo() {
+    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py $@
+    fi
+}
+
 function diff() {
     git diff --no-index $2 $3
 }
