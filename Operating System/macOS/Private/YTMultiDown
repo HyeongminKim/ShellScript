@@ -325,7 +325,8 @@ while true; do
     else
         echo "4. 업데이트 확인"
     fi
-    echo "5. 프로그램 종료"
+    echo "5. 다운로드 경로 변경"
+    echo "6. 프로그램 종료"
 
     echo -n "#] "
     read n
@@ -388,6 +389,8 @@ while true; do
         fi
         cd - &> /dev/null
     elif [ "$n" == "5" ]; then
+        echo -e "\033[31mERR: $n 기능을 현재 준비중입니다. \033[m"
+    elif [ "$n" == "6" ]; then
         if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
             echo -e "\033[33mWARN: 아직 다운로드 중인 미디어가 $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") 개 있습니다. \n\t이 작업을 나중에 취소하고 싶을 경우 터미널에서 수동으로 작업을 종료하세요.\033[m"
         fi
