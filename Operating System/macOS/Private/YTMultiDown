@@ -334,7 +334,11 @@ while true; do
     else
         echo "4. 업데이트 확인"
     fi
-    echo "5.   경로   변경"
+    if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
+        echo "5.   경로   변경 (비활성화 됨)"
+    else
+        echo "5.   경로   변경"
+    fi
     echo "6. 프로그램 종료"
 
     echo -n "#] "
@@ -398,6 +402,12 @@ while true; do
         fi
         cd - &> /dev/null
     elif [ "$n" == "5" ]; then
+        if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
+            tts "현재 미디어가 다운로드 중입니다. 나중에 다시 시도하세요. "
+            echo -e "\033[31mERR: 현재 다운로드 경로 변경 기능이 비활성화 되어 있습니다. $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") 개의 미디어 다운로드가 모두 완료된 후 다시 시도하여 주세요. \033[m"
+            continue
+        fi
+
         echo -e "\033[37mINFO: 변경할 디렉토리의 절대 경로를 입력하세요. \033[m"
         echo -e "\033[33mWARN: 캡슐화 되지 않은 간격 문자는 예기치 않은 동작을 발생시킬 수 있습니다. \n\t이스케이프 문자 또는 큰따옴표로 경로가 분리되지 않도록 주의하시기 바랍니다. \033[m"
         if [ "$(id -u)" == 0 ]; then
