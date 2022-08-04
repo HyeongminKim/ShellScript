@@ -334,7 +334,7 @@ while true; do
     else
         echo "4. 업데이트 확인"
     fi
-    echo "5. 다운로드 경로 변경"
+    echo "5.   경로   변경"
     echo "6. 프로그램 종료"
 
     echo -n "#] "
