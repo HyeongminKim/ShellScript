@@ -5,10 +5,14 @@ verbose="false"
 
 ##### 파라미터 체크 시작 #####
 function checkDir() {
+    checked=2
     if [ -d "$1" ]; then
         cd "$1" 2> /dev/null
         if [ $? != 0 ]; then
             echo -e "\033[33mWARN: $1 디렉토리에 접근 권한이 없습니다. 033[m"
+            checked=0
+        else
+            checked=1
         fi
     else
         if [ x"$1" == x ]; then
@@ -16,7 +20,7 @@ function checkDir() {
         else
             echo -e "\033[33mWARN: $1 를 찾을 수 없습니다. 제공한 디렉토리 경로가 올바르지 않습니다. \033[m"
         fi
-        exit 1
+        checked=0
     fi
 }
 
@@ -35,6 +39,9 @@ if [ $# -gt 0 ]; then
             verbose="true"
         elif [ "$1" == "-o" -o "$1" == "--output" ]; then
             checkDir "$2"
+            if [ "$checked" == "0" ]; then
+                exit 1
+            fi
         elif [ "$1" != "" ]; then
             echo -e "\033[31mERR: 유효하지 않은 파라미터 옵션입니다: $@\033[m"
             echo -e "\033[31m\t-h 파라미터를 사용하여 도움말을 확인하세요.\033[m"
@@ -66,6 +73,14 @@ fi
 ##### 파라미터 체크 끝 #####
 
 ##### 소스코드 함수 시작 #####
+function currentDirAlert() {
+    if [ -w "$(pwd)" ]; then
+        echo -e "\033[37mINFO: 다운로드 받은 미디어는 $(pwd) 에 저장됩니다. \033[m"
+    else
+        echo -e "\033[31mERR: 현재 $(pwd) 디렉토리에 쓰기 권한이 없습니다. \033[m"
+        exit 1
+    fi
+}
 function checkDependence() {
     if [ x"$yt_dlp" != x ]; then
         return
@@ -301,13 +316,7 @@ fi
 
 ##### 종속 패키지 체크 끝 #####
 
-##### 현재 디렉토리 알림 #####
-if [ -w "$(pwd)" ]; then
-    echo -e "\033[37mINFO: 다운로드 받은 미디어는 $(pwd) 에 저장됩니다. \033[m"
-else
-    echo -e "\033[31mERR: 현재 $(pwd) 디렉토리에 쓰기 권한이 없습니다. \033[m"
-    exit 1
-fi
+currentDirAlert
 
 ##### Main Loop #####
 while true; do
@@ -389,7 +398,20 @@ while true; do
         fi
         cd - &> /dev/null
     elif [ "$n" == "5" ]; then
-        echo -e "\033[31mERR: $n 기능을 현재 준비중입니다. \033[m"
+        echo -e "\033[37mINFO: 변경할 디렉토리의 절대 경로를 입력하세요. \033[m"
+        echo -e "\033[33mWARN: 캡슐화 되지 않은 간격 문자는 예기치 않은 동작을 발생시킬 수 있습니다. \n\t이스케이프 문자 또는 큰따옴표로 경로가 분리되지 않도록 주의하시기 바랍니다. \033[m"
+        if [ "$(id -u)" == 0 ]; then
+            echo -n "# "
+        else
+            echo -n "$ "
+        fi
+        read n
+        checkDir "$n"
+        if [ "$checked" == "1" ]; then
+            currentDirAlert
+        else
+            echo -e "\033[37mINFO: 디렉토리가 변경되지 않았으며, 계속 $(pwd) 에 저장됩니다. \033[m"
+        fi
     elif [ "$n" == "6" ]; then
         if [ $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") -gt 0 ]; then
             echo -e "\033[33mWARN: 아직 다운로드 중인 미디어가 $(ps | grep $yt_dlp | grep -vEc "grep|$0 $yt_dlp") 개 있습니다. \n\t이 작업을 나중에 취소하고 싶을 경우 터미널에서 수동으로 작업을 종료하세요.\033[m"
