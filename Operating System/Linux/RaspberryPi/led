@@ -5,6 +5,10 @@ if [ ! -r /sys/class/leds/led1/trigger ]; then
     exit 1
 fi
 
+if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+    echo "Ethernet controller LEDs will not be controlled. Download the required source from https://github.com/dumpsite/lan951x-led-ctl" >&2
+fi
+
 echo -n "Waiting for system to finish booting"
 for ((i=0;i<3;i++)); do
     sleep 3.33
@@ -51,6 +55,6 @@ for (( ; ; )); do
         fi
     fi
 
-    sleep 10
+    sleep $(shuf -i 5-15 -n 1)
 done
 
