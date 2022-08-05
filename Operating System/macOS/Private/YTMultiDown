@@ -408,15 +408,15 @@ while true; do
             continue
         fi
 
-        echo -e "\033[37mINFO: 변경할 디렉토리의 절대 경로를 입력하세요. \033[m"
-        echo -e "\033[33mWARN: 캡슐화 되지 않은 간격 문자는 예기치 않은 동작을 발생시킬 수 있습니다. \n\t이스케이프 문자 또는 큰따옴표로 경로가 분리되지 않도록 주의하시기 바랍니다. \033[m"
+        echo -e "\033[37mINFO: 변경할 디렉토리 경로를 입력하세요. \033[m"
         if [ "$(id -u)" == 0 ]; then
             echo -n "# "
         else
             echo -n "$ "
         fi
         read n
-        checkDir "$n"
+        convertLocation=`echo "$n" | sed "s#~#\$HOME#"`
+        checkDir "$convertLocation"
         if [ "$checked" == "1" ]; then
             currentDirAlert
         else
