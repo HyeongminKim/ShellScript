@@ -9,13 +9,6 @@ if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
     echo "Ethernet controller LEDs will not be controlled. Download the required source from https://github.com/dumpsite/lan951x-led-ctl" >&2
 fi
 
-echo -n "Waiting for system to finish booting"
-for ((i=0;i<3;i++)); do
-    sleep 3.33
-    echo -n "."
-done
-echo ""
-
 for (( ; ; )); do
     echo "Checking internet connection to www.google.com..."
     ping -c 1 -W 1 -q "www.google.com" &> /dev/null
