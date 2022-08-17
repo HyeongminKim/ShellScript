@@ -38,6 +38,14 @@ fi
 #     echo -e "\e[m"
 # fi
 
+if [ -d /mnt/c/Windows/System32 ]; then
+    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -CheckHealth
+    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -ScanHealth
+    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -RestoreHealth
+    /mnt/c/Windows/System32/sfc.exe -scannow
+    # /mnt/c/Windows/System32/chkdsk.exe c: -f
+fi
+
 if [ -x ~/.local/bin/gitVI_update ]; then
     ~/.local/bin/gitVI_update
     if [ $? != 0 ]; then
