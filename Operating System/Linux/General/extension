@@ -38,19 +38,16 @@ fi
 #     echo -e "\e[m"
 # fi
 
-if [ -d /mnt/c/Windows/System32 ]; then
-    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -CheckHealth
-    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -ScanHealth
-    /mnt/c/Windows/System32/Dism.exe -Online -Cleanup-Image -RestoreHealth
-    /mnt/c/Windows/System32/sfc.exe -scannow
-    # /mnt/c/Windows/System32/chkdsk.exe c: -f
-fi
-
 if [ -x ~/.local/bin/gitVI_update ]; then
     ~/.local/bin/gitVI_update
     if [ $? != 0 ]; then
         errorCount=$((errorCount+1))
     fi
+fi
+
+if [ -r ~/Documents/Release/ShellScript/Operating\ System/Windows/BatchScript/CheckDisk.bat -a -r ~/.shellscript/wsl-sudo/wsl-sudo.py -a -d /mnt/c/Windows/System32 ]; then
+    winPath=$(wslpath -w ~/Documents/Release/ShellScript/Operating\ System/Windows/BatchScript/CheckDisk.bat)
+    python3 ~/.shellscript/wsl-sudo/wsl-sudo.py cmd.exe /c "$winPath"
 fi
 
 /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
