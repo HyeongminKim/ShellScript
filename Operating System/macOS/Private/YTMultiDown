@@ -123,20 +123,27 @@ function tts() {
 
 function addMedia() {
     tts "다운로드 받을 미디어 정보를 입력하세요. "
-    echo -e "\033[37mNOTE: 입력란이 비어있을 경우 이전 메뉴로 이동합니다. \033[m"
+    echo -e "\033[37mNOTE: 입력란이 비어있을 경우 자동으로 파일 이름을 지정합니다. \033[m"
     echo -n "저장할 파일 이름: "
     read fileName
-    if [ "$fileName" == "" ]; then
-        return
-    fi
 
+    echo -e "\033[37mNOTE: 입력란이 비어있을 경우 이전 메뉴로 이동합니다. \033[m"
     echo -n "원본 URL: "
     read originURL
     if [ "$originURL" == "" ]; then
         return
     else
-        fileName=$(echo "$fileName" | sed -e "s/\//_/g; s/</(/g; s/>/)/g")
+        if [ "$fileName" == "" ]; then
+            getFileName=$($yt_dlp -e "$originURL" --skip-download)
+            if [ "$getFileName" != "" ]; then
+                fileName="$getFileName"
+            else
+                fileName="Untitled"
+            fi
         fi
+
+        fileName=$(echo "$fileName" | sed -e "s/\//_/g; s/</(/g; s/>/)/g")
+    fi
     mediaDownloader "$originURL" "$fileName" &
 }
 
