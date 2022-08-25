@@ -428,6 +428,7 @@ while true; do
         fi
 
         echo -e "\033[37mINFO: 변경할 디렉토리 경로를 입력하세요. \033[m"
+        pwd
         if [ "$(id -u)" == 0 ]; then
             echo -n "# "
         else
