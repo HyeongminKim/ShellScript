@@ -5,6 +5,7 @@ OMZ_INSTALLED="false"
 export PATH=$PATH:/usr/local/mysql/bin/
 export PATH="/usr/local/opt/ncurses/bin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
+export PATH="/Volumes/Flutter/bin:$PATH"
 
 # Path to your oh-my-zsh installation.
 if [ -d $HOME/.oh-my-zsh ]; then
