@@ -53,7 +53,6 @@ fi
 if [[ "$OMZ_INSTALLED" == "true" ]]; then
     export DISABLE_AUTO_UPDATE="true"
     export ZSH_DISABLE_COMPFIX="true"
-    export SKIP_PACKAGE_UPDATER="true"
 fi
 
 # Uncomment the following line to change how often to auto-update (in days).
@@ -101,7 +100,7 @@ brewall() {
         if [ $? -eq 0 ]; then
             if [ $# -eq 0 ]; then
                 if [ -x ~/.shellscript/updater ]; then
-                    ~/.shellscript/updater
+                    bash -c "export SKIP_PACKAGE_UPDATER=\"true\"; ~/.shellscript/updater"
                 fi
                 echo -e '\a'
             fi
