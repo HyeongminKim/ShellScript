@@ -106,18 +106,6 @@ aptall() {
     fi
 }
 
-open() {
-    if [ -x ~/.local/bin/open ]; then
-        ~/.local/bin/open $@
-    fi
-}
-
-powermgr() {
-    if [ -x ~/.local/bin/powermgr ]; then
-        ~/.local/bin/powermgr $@
-    fi
-}
-
 wudo() {
     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
         python3 ~/.shellscript/wsl-sudo/wsl-sudo.py $@

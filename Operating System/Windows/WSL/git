@@ -1,0 +1,11 @@
+#!/bin/bash
+
+currentPath="$(pwd)"
+
+echo "$(readlink -f "$currentPath")" | grep "/mnt/" &> /dev/null
+if [ $? != 0 ]; then
+    /usr/bin/git $@
+else
+    /usr/bin/git_win $@
+fi
+
