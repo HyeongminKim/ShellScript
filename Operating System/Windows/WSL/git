@@ -4,8 +4,23 @@ currentPath="$(pwd)"
 
 echo "$(readlink -f "$currentPath")" | grep "/mnt/" &> /dev/null
 if [ $? != 0 ]; then
-    /usr/bin/git $@
+    if [ -x /usr/bin/git ]; then
+        /usr/bin/git --version | grep "windows" &> /dev/null
+        if [ $? == 0 ]; then
+            exit 1
+        else
+            /usr/bin/git $@
+        fi
+    fi
+    
 else
-    /usr/bin/git_win $@
+    if [ -x /usr/bin/git_win ]; then
+        /usr/bin/git_win --version | grep "windows" &> /dev/null
+        if [ $? == 0 ]; then
+            /usr/bin/git_win $@
+        else
+            exit 1
+        fi
+    fi
 fi
 
