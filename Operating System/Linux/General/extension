@@ -2,6 +2,14 @@
 
 errorCount=0
 
+which aptitude &> /dev/null
+if [ $? == 0 ]; then
+    sudo aptitude safe-upgrade
+    if [ $? != 0 ]; then
+        errorCount=$((errorCount+1))
+    fi
+fi
+
 pip3 list --outdated --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
 if [ $? != 0 ]; then
     if [ $LANG == "ko_KR.UTF-8" ]; then
