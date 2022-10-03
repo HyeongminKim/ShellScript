@@ -30,21 +30,41 @@ for (( ; ; )); do
             exit 2
         fi
     else
-        echo "You have an internet connection."
-        if [ -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
-            sudo sh -c 'sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=0 --spd=0'
-        else
-            if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
-                echo "Unable to find lan951x-led-ctl script. The required script doesn't exist." >&2
-            elif [ ! -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
-                echo "Unable to run lan951x-led-ctl script. Please check the permission." >&2
+        ping -c 1 -W 1 -q "192.168.0.50" &> /dev/null
+        if [ "$?" != "0" ]; then
+            echo "You have an internet connection. However the printer server is not responding."
+            if [ -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                sudo sh -c 'sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=1 --spd=0'
+            else
+                if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                    echo "Unable to find lan951x-led-ctl script. The required script doesn't exist." >&2
+                elif [ ! -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                    echo "Unable to run lan951x-led-ctl script. Please check the permission." >&2
+                fi
             fi
-        fi
-        if [ -r /sys/class/leds/led1/trigger ]; then
-            sudo sh -c 'echo panic > /sys/class/leds/led1/trigger'
+            if [ -r /sys/class/leds/led1/trigger ]; then
+                sudo sh -c 'echo panic > /sys/class/leds/led1/trigger'
+            else
+                echo "The Raspberry Pi system seems to be corrupted. Unable to access system files." >&2
+                exit 2
+            fi
         else
-            echo "The Raspberry Pi system seems to be corrupted. Unable to access system files." >&2
-            exit 2
+            echo "You have an internet connection."
+            if [ -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                sudo sh -c 'sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=0 --spd=0'
+            else
+                if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                    echo "Unable to find lan951x-led-ctl script. The required script doesn't exist." >&2
+                elif [ ! -x /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
+                    echo "Unable to run lan951x-led-ctl script. Please check the permission." >&2
+                fi
+            fi
+            if [ -r /sys/class/leds/led1/trigger ]; then
+                sudo sh -c 'echo panic > /sys/class/leds/led1/trigger'
+            else
+                echo "The Raspberry Pi system seems to be corrupted. Unable to access system files." >&2
+                exit 2
+            fi
         fi
     fi
 
