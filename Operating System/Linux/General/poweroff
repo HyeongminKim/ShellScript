@@ -21,4 +21,8 @@ for((i=60; i>=0; i--)); do
 done
 
 echo ""
-/usr/sbin/poweroff
+if [ "$(id -u)" == "0" ]; then
+    /usr/sbin/poweroff
+else
+    sudo /usr/sbin/poweroff
+fi
