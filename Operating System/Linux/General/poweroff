@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [ ! -x /usr/sbin/poweroff -o "$(uname)" != "Linux" ]; then
+if [ -x /usr/sbin/poweroff -o ! "$(uname)" != "Linux" ]; then
     exit 1
 fi
 
-echo -e "\033[0;1mAre you sure you want to shut down your computer now?\033[m"
+echo -e "\033[0;1mAre you sure you want to shut down your computer now?\n\t\t\033[m(cancel/poweroff)\n"
 echo -e "\033[33;6mWARN\033[0;6m: Running this command will disconnect all remote connections."
-echo -e "\tYou can restart the system later by interacting with the device's power button or using the WOL function.\033[m\n"
+echo -e "\tYou can restart the system later by interacting with the device's power button or using the WOL function.\033[m"
 echo -n "If you do nothing, the computer will shut down automatically in 00 seconds."
 
 for((i=60; i>=0; i--)); do
@@ -17,7 +17,13 @@ for((i=60; i>=0; i--)); do
     else
         echo -en "\b\b\b\b\b\b\b\b\b\b$i seconds."
     fi
-    sleep 1
+    read -t 1 userAbort
+    if [ "$userAbort" == "shut down" -o "$userAbort" == "poweroff" ]; then
+        break
+    elif [ "$userAbort" == "cancel" -o "$userAbort" == "exit" ]; then
+        echo "Abort."
+        exit 2
+    fi
 done
 
 echo ""
