@@ -23,11 +23,12 @@ function NET_LEDController() {
         return
     fi
 
-    sudo sh -c "sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --lnk=$1 --spd=$2"
+    sudo sh -c "sudo /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl --fdx=s --lnk=$1 --spd=$2"
 }
 
 while true; do
     echo "Checking internet connection to www.google.com..."
+    NET_LEDController 's' 's'
     ping -c 1 -W 1 -q "www.google.com" &> /dev/null
     if [ "$?" != "0" ]; then
         ping -c 1 -W 1 -q "192.168.0.50" &> /dev/null
