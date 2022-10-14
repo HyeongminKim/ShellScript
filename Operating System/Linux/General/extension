@@ -10,14 +10,17 @@ if [ $? == 0 ]; then
     fi
 fi
 
-pip3 list --outdated --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
-if [ $? != 0 ]; then
-    if [ $LANG == "ko_KR.UTF-8" ]; then
-        echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
-    else
-        echo "An error occured when updating pip3."
+which pip3 &> /dev/null
+if [ $? == 0 ]; then
+    pip3 list --outdated --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
+    if [ $? != 0 ]; then
+        if [ $LANG == "ko_KR.UTF-8" ]; then
+            echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
+        else
+            echo "An error occured when updating pip3."
+        fi
+        errorCount=$((errorCount+1))
     fi
-    errorCount=$((errorCount+1))
 fi
 
 do-release-upgrade
@@ -33,9 +36,12 @@ if [ $? == 0 ]; then
     fi
 fi
 
-pip3 cache purge
-if [ $? != 0 ]; then
-    errorCount=$((errorCount+1))
+which pip3 &> /dev/null
+if [ $? == 0 ]; then
+    pip3 cache purge
+    if [ $? != 0 ]; then
+        errorCount=$((errorCount+1))
+    fi
 fi
 
 if [ -d /mnt/c/Users/$USER/AppData/Local/Microsoft/WindowsApps ]; then
@@ -58,12 +64,15 @@ if [ -r ~/Documents/Release/ShellScript/Operating\ System/Windows/BatchScript/Ch
     python3 ~/.shellscript/wsl-sudo/wsl-sudo.py cmd.exe /c "$winPath"
 fi
 
-/bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
+which zsh &> /dev/null
 if [ $? == 0 ]; then
-    /bin/zsh -c "source ~/.zshrc; omz update"
-    echo $!
-    if [ $? != 0 ]; then
-        errorCount=$((errorCount+1))
+    /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
+    if [ $? == 0 ]; then
+        /bin/zsh -c "source ~/.zshrc; omz update"
+        echo $!
+        if [ $? != 0 ]; then
+            errorCount=$((errorCount+1))
+        fi
     fi
 fi
 
