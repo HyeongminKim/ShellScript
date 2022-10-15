@@ -44,8 +44,9 @@ if [ $? == 0 ]; then
     fi
 fi
 
-if [ -d /mnt/c/Users/$USER/AppData/Local/Microsoft/WindowsApps ]; then
-    /mnt/c/Users/$USER/AppData/Local/Microsoft/WindowsApps/winget.exe upgrade --all
+which winget.exe
+if [ $? == 0 ]; then
+    winget.exe upgrade --all
     if [ $? != 0 ]; then
         errorCount=$((errorCount+1))
     fi
