@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-if ! [ $2 -eq 1 -o $# -eq 2 ]; then
+if ! [ $# -eq 1 -o $# -eq 2 ]; then
     echo "usage: $0 <width> <height>"
     echo "The $0 list command will show the available resolutions on this display."
     exit 1
