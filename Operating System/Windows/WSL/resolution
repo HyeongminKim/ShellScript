@@ -2,7 +2,7 @@
 
 which QRes.exe &> /dev/null
 if [ $? -ne 0 ]; then
-    echo "error: PowerShell not found. Please install powershell before use this script." >&2
+    echo "error: QRes not found. Please install QRes before use this script." >&2
     which open &> /dev/null
     if [ $? -eq 0 ]; then
         open "https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml"
@@ -12,13 +12,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-if ! [ $# -eq 2 ]; then
+if ! [ $2 -eq 1 -o $# -eq 2 ]; then
     echo "usage: $0 <width> <height>"
+    echo "The $0 list command will show the available resolutions on this display."
     exit 1
 fi
 
-QRes.exe -X $1 -Y $2 -R 60
-if [ $? -ne 0 ]; then
+if [ $# -eq 1 -a "$1" == "list" ]; then
     QRes.exe -L
+else
+    QRes.exe -X $1 -Y $2 -R 60
+    if [ $? -ne 0 ]; then
+        QRes.exe -L
+    fi
 fi
 
