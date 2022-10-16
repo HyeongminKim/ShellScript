@@ -20,10 +20,14 @@ fi
 
 if [ $# -eq 1 -a "$1" == "list" ]; then
     QRes.exe -L
-else
+elif [ $# -eq 2 ]; then
     QRes.exe -X $1 -Y $2 -R 60
     if [ $? -ne 0 ]; then
         QRes.exe -L
     fi
+else
+    echo "usage: $0 <width> <height>"
+    echo "The $0 list command will show the available resolutions on this display."
+    exit 1
 fi
 
