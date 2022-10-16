@@ -1,0 +1,24 @@
+#!/bin/bash
+
+which QRes.exe &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "error: PowerShell not found. Please install powershell before use this script." >&2
+    which open &> /dev/null
+    if [ $? -eq 0 ]; then
+        open "https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml"
+    else
+        echo "https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml" >&2
+    fi
+    exit 1
+fi
+
+if ! [ $# -eq 2 ]; then
+    echo "usage: $0 <width> <height>"
+    exit 1
+fi
+
+QRes.exe -X $1 -Y $2 -R 60
+if [ $? -ne 0 ]; then
+    QRes.exe -L
+fi
+
