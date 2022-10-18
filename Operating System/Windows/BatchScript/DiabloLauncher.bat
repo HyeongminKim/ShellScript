@@ -1,6 +1,7 @@
 @ECHO OFF
 title Diablo Bundle Launcher
 chcp 65001 > NUL
+color 07
 
 set checkenv="true"
 set textStyle="false"
@@ -12,6 +13,7 @@ timeout 1 > NUL
 if NOT exist "C:\Windows\System32\wsl.exe" (
     echo.
     echo Unable to execute screen resolution program. Please install Windows Terminal.
+    color 47
     timeout 2 > NUL
     exit /b 1
 )
@@ -23,6 +25,7 @@ timeout 1 > NUL
 if %ERRORLEVEL% == 1 (
     echo.
     echo Unable to execute screen resolution program. Please install program or check permission.
+    color 47
     timeout 2 > NUL
     exit /b 1
 )
@@ -50,6 +53,7 @@ if NOT exist "%BLIZZARD_GAME_PATH%" (
         echo Unable to locate Diablo installed path: %BLIZZARD_GAME_PATH%. 
     )
     echo Please check Diablo installed correctly or System Environment Variable.
+    color 47
     timeout 2 > NUL
     exit /b 1
 )
@@ -84,6 +88,7 @@ timeout 1 > NUL
 if %DAS% == "false" (
     if %DAT% == "false" (
         echo Current launchable Diablo not detected. Please install Diablo first. Exiting...
+        color 47
         timeout 2 > NUL
         exit /b 1
     )
@@ -93,15 +98,18 @@ echo.
 
 if %checkenv% == "false" (
     echo Some check returns warning! Please review above output.
+    color 60
     pause
 
     echo | set /p=Please wait until init progress is done.
     timeout 2 > NUL
 ) else (
     echo | set /p=All check passed! Please wait until init progress is done.
+    color 17
     timeout 2 > NUL
 )
 cls
+color 07
 
 if %textStyle% == "true" (
     "C:\Windows\System32\wsl.exe" "figlet" "Diablo" "Launcher"
@@ -138,15 +146,14 @@ if "%program%" == "II" (
         echo Diablo II Resurrected
     )
     echo.
-    echo Diablo II Resurrected now launching... The screen resolution will now setting the recommand value.
-
-    echo Please launch Diablo II Resurrected click BLUE PLAY BUTTON...
+    echo Battle.net now launching... The screen resolution will now setting the recommand value.
 
     "C:\Windows\System32\wsl.exe" "resolution" "2560" "1440"
+    echo Please launch Diablo II Resurrected click BLUE PLAY BUTTON...
 
-    set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
     cd "%BLIZZARD_GAME_PATH%\Diablo II Resurrected"
     "%BLIZZARD_GAME_PATH%\Diablo II Resurrected\Diablo II Resurrected Launcher.exe"
+    set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
 
     pause > NUL
     echo The screen resolution will now setting default value.
@@ -167,14 +174,14 @@ if "%program%" == "II" (
         echo Diablo III
     )
     echo.
-    echo Diablo III now launching... The screen resolution will now setting the recommand value.
-    echo Please launch Diablo III click BLUE PLAY BUTTON...
+    echo Battle.net now launching... The screen resolution will now setting the recommand value.
 
     "C:\Windows\System32\wsl.exe" "resolution" "2560" "1440"
+    echo Please launch Diablo III click BLUE PLAY BUTTON...
 
-    set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
     cd "%BLIZZARD_GAME_PATH%\Diablo III"
     "%BLIZZARD_GAME_PATH%\Diablo III\Diablo III Launcher.exe"
+    set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
 
     pause > NUL
     echo The screen resolution will now setting default value.
@@ -192,6 +199,7 @@ if "%program%" == "" (
 ) else (
     echo Unable to start Diablo version: %program%. Please check installed correctly. Exiting...
 )
+color 47
 timeout 2 > NUL
 exit /b 1
 
