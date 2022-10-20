@@ -62,7 +62,7 @@ if NOT exist "%getGameDir%" (
     timeout 2 > NUL
     exit /b 1
 )
-echo Done.
+echo %getGameDir%.
 
 echo | set /p=Verifying Diablo II Resurrected directory (5/8) ... 
 timeout 1 > NUL
@@ -144,7 +144,7 @@ if "%ALTERED_RES_Y%" == "" (
     timeout 2 > NUL
     exit /b 1
 )
-echo Done.
+echo %ORIGIN_RES_X%x%ORIGIN_RES_Y%-%ALTERED_RES_X%x%ALTERED_RES_Y%.
 echo.
 
 if %checkenv% == "false" (
