@@ -52,6 +52,8 @@ if NOT exist "%getGameDir%" (
     echo.
     if "%getGameDir%" == "" (
         echo Unable to locate Diablo installed path. Please set System Environment Variable: DiabloLauncher
+        echo Please set DiabloLauncher like this: GameDir;OriginX;OriginY;AlteredX;AlteredY
+        echo DiabloLauncher path example: C:\Program Files\Battle.net;5120;2880;2560;1440
     ) else (
         echo Unable to locate Diablo installed path: %getGameDir%. 
     )
@@ -109,6 +111,8 @@ for /f "delims=';' tokens=2,3,4,5" %%a in ("%DiabloLauncher%") do (
 if "%ORIGIN_RES_X%" == "" (
     echo.
     echo Unable to get origin screen resolution width. Please set System Environment Variable: DiabloLauncher
+    echo Please set DiabloLauncher like this: GameDir;OriginX;OriginY;AlteredX;AlteredY
+    echo DiabloLauncher path example: C:\Program Files\Battle.net;5120;2880;2560;1440
     color 47
     timeout 2 > NUL
     exit /b 1
@@ -116,6 +120,8 @@ if "%ORIGIN_RES_X%" == "" (
 if "%ORIGIN_RES_Y%" == "" (
     echo.
     echo Unable to get origin screen resolution height. Please set System Environment Variable: DiabloLauncher
+    echo Please set DiabloLauncher like this: GameDir;OriginX;OriginY;AlteredX;AlteredY
+    echo DiabloLauncher path example: C:\Program Files\Battle.net;5120;2880;2560;1440
     color 47
     timeout 2 > NUL
     exit /b 1
@@ -123,6 +129,8 @@ if "%ORIGIN_RES_Y%" == "" (
 if "%ALTERED_RES_X%" == "" (
     echo.
     echo Unable to switch screen resolution width. Please set System Environment Variable: DiabloLauncher
+    echo Please set DiabloLauncher like this: GameDir;OriginX;OriginY;AlteredX;AlteredY
+    echo DiabloLauncher path example: C:\Program Files\Battle.net;5120;2880;2560;1440
     color 47
     timeout 2 > NUL
     exit /b 1
@@ -130,6 +138,8 @@ if "%ALTERED_RES_X%" == "" (
 if "%ALTERED_RES_Y%" == "" (
     echo.
     echo Unable to switch screen resolution height. Please set System Environment Variable: DiabloLauncher
+    echo Please set DiabloLauncher like this: GameDir;OriginX;OriginY;AlteredX;AlteredY
+    echo DiabloLauncher path example: C:\Program Files\Battle.net;5120;2880;2560;1440
     color 47
     timeout 2 > NUL
     exit /b 1
