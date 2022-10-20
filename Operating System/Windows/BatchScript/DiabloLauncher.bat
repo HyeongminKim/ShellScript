@@ -8,7 +8,7 @@ set textStyle="false"
 set DAS="false"
 set DAT="false"
 
-echo | set /p=Checking Windows Terminal (1/7) ... 
+echo | set /p=Checking Windows Terminal (1/8) ... 
 timeout 1 > NUL
 if NOT exist "C:\Windows\System32\wsl.exe" (
     echo.
@@ -19,7 +19,7 @@ if NOT exist "C:\Windows\System32\wsl.exe" (
 )
 echo Done.
 
-echo | set /p=Verifying resolution program (2/7) ... 
+echo | set /p=Verifying resolution program (2/8) ... 
 timeout 1 > NUL
 "C:\Windows\System32\wsl.exe" "resolution" "list" > NUL
 if %ERRORLEVEL% == 1 (
@@ -31,7 +31,7 @@ if %ERRORLEVEL% == 1 (
 )
 echo Done.
 
-echo | set /p=Checking text styling (3/7) ... 
+echo | set /p=Checking text styling (3/8) ... 
 timeout 1 > NUL
 "C:\Windows\System32\wsl.exe" "which" "figlet" > NUL
 if %ERRORLEVEL% == 1 (
@@ -43,14 +43,17 @@ if %ERRORLEVEL% == 1 (
     echo Done.
 )
 
-echo | set /p=Checking Battle.net game directory (4/7) ... 
+echo | set /p=Checking Battle.net game directory (4/8) ... 
 timeout 1 > NUL
-if NOT exist "%BLIZZARD_GAME_PATH%" (
+for /f "delims=';' tokens=1" %%a in ("%DiabloLauncher%") do (
+    set getGameDir=%%a
+)
+if NOT exist "%getGameDir%" (
     echo.
-    if "%BLIZZARD_GAME_PATH%" == "" (
-        echo Unable to locate Diablo installed path. Please set System Environment Variable: BLIZZARD_GAME_PATH
+    if "%getGameDir%" == "" (
+        echo Unable to locate Diablo installed path. Please set System Environment Variable: DiabloLauncher
     ) else (
-        echo Unable to locate Diablo installed path: %BLIZZARD_GAME_PATH%. 
+        echo Unable to locate Diablo installed path: %getGameDir%. 
     )
     echo Please check Diablo installed correctly or System Environment Variable.
     color 47
@@ -59,9 +62,9 @@ if NOT exist "%BLIZZARD_GAME_PATH%" (
 )
 echo Done.
 
-echo | set /p=Verifying Diablo II Resurrected directory (5/7) ... 
+echo | set /p=Verifying Diablo II Resurrected directory (5/8) ... 
 timeout 1 > NUL
-if NOT exist "%BLIZZARD_GAME_PATH%\Diablo II Resurrected" (
+if NOT exist "%getGameDir%\Diablo II Resurrected" (
     echo.
     echo Unable to locate Diablo II Resurrected installed path.
     echo Please check Diablo II Resurrected installed correctly.
@@ -71,9 +74,9 @@ if NOT exist "%BLIZZARD_GAME_PATH%\Diablo II Resurrected" (
     echo Done.
 )
 
-echo | set /p=Verifying Diablo III directory (6/7) ... 
+echo | set /p=Verifying Diablo III directory (6/8) ... 
 timeout 1 > NUL
-if NOT exist "%BLIZZARD_GAME_PATH%\Diablo III" (
+if NOT exist "%getGameDir%\Diablo III" (
     echo.
     echo Unable to locate Diablo III installed path. 
     echo Please check Diablo III installed correctly.
@@ -83,7 +86,7 @@ if NOT exist "%BLIZZARD_GAME_PATH%\Diablo III" (
     echo Done.
 )
 
-echo | set /p=Checking Diablo installed correctly (7/7) ... 
+echo | set /p=Checking Diablo installed correctly (7/8) ... 
 timeout 1 > NUL
 if %DAS% == "false" (
     if %DAT% == "false" (
@@ -94,6 +97,24 @@ if %DAS% == "false" (
     )
 )
 echo Done.
+
+echo | set /p=Checking screen resolution vector (8/8) ... 
+timeout 1 > NUL
+for /f "delims=';' tokens=2,3,4,5" %%a in ("%DiabloLauncher%") do (
+    set ORIGIN_RES_X=%%a
+    set ORIGIN_RES_Y=%%b
+    set ALTERED_RES_X=%%c
+    set ALTERED_RES_Y=%%d
+)
+if "%ORIGIN_RES_X%" == "" (
+    echo.
+    echo Unable to switch screen resolution size. Please set System Environment Variable: DiabloLauncher
+    color 47
+    timeout 2 > NUL
+    exit /b 1
+) else (
+    echo Done.
+)
 echo.
 
 if %checkenv% == "false" (
@@ -148,16 +169,16 @@ if "%program%" == "II" (
     echo.
     echo Battle.net now launching... The screen resolution will now setting the recommand value.
 
-    "C:\Windows\System32\wsl.exe" "resolution" "2560" "1440"
+    "C:\Windows\System32\wsl.exe" "resolution" "%ALTERED_RES_X%" "%ALTERED_RES_Y%"
     echo Please launch Diablo II Resurrected click BLUE PLAY BUTTON...
 
-    cd "%BLIZZARD_GAME_PATH%\Diablo II Resurrected"
-    "%BLIZZARD_GAME_PATH%\Diablo II Resurrected\Diablo II Resurrected Launcher.exe"
+    cd "%getGameDir%\Diablo II Resurrected"
+    "%getGameDir%\Diablo II Resurrected\Diablo II Resurrected Launcher.exe"
     set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
 
     pause > NUL
     echo The screen resolution will now setting default value.
-    "C:\Windows\System32\wsl.exe" "resolution" "5120" "2880"
+    "C:\Windows\System32\wsl.exe" "resolution" "%ORIGIN_RES_X%" "%ORIGIN_RES_Y%"
 
     timeout 2 > NUL
     exit /b 0
@@ -176,16 +197,16 @@ if "%program%" == "II" (
     echo.
     echo Battle.net now launching... The screen resolution will now setting the recommand value.
 
-    "C:\Windows\System32\wsl.exe" "resolution" "2560" "1440"
+    "C:\Windows\System32\wsl.exe" "resolution" "%ALTERED_RES_X%" "%ALTERED_RES_Y%"
     echo Please launch Diablo III click BLUE PLAY BUTTON...
 
-    cd "%BLIZZARD_GAME_PATH%\Diablo III"
-    "%BLIZZARD_GAME_PATH%\Diablo III\Diablo III Launcher.exe"
+    cd "%getGameDir%\Diablo III"
+    "%getGameDir%\Diablo III\Diablo III Launcher.exe"
     set /p program=If you want RESETTING NORMAL SCREEN RESOLUTION and STOP THE GAME please PRESS ANY KEY...
 
     pause > NUL
     echo The screen resolution will now setting default value.
-    "C:\Windows\System32\wsl.exe" "resolution" "5120" "2880"
+    "C:\Windows\System32\wsl.exe" "resolution" "%ORIGIN_RES_X%" "%ORIGIN_RES_Y%"
 
     timeout 2 > NUL
     exit /b 0
