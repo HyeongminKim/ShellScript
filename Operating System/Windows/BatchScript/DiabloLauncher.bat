@@ -108,13 +108,33 @@ for /f "delims=';' tokens=2,3,4,5" %%a in ("%DiabloLauncher%") do (
 )
 if "%ORIGIN_RES_X%" == "" (
     echo.
-    echo Unable to switch screen resolution size. Please set System Environment Variable: DiabloLauncher
+    echo Unable to get origin screen resolution width. Please set System Environment Variable: DiabloLauncher
     color 47
     timeout 2 > NUL
     exit /b 1
-) else (
-    echo Done.
+) 
+if "%ORIGIN_RES_Y%" == "" (
+    echo.
+    echo Unable to get origin screen resolution height. Please set System Environment Variable: DiabloLauncher
+    color 47
+    timeout 2 > NUL
+    exit /b 1
 )
+if "%ALTERED_RES_X%" == "" (
+    echo.
+    echo Unable to switch screen resolution width. Please set System Environment Variable: DiabloLauncher
+    color 47
+    timeout 2 > NUL
+    exit /b 1
+) 
+if "%ALTERED_RES_Y%" == "" (
+    echo.
+    echo Unable to switch screen resolution height. Please set System Environment Variable: DiabloLauncher
+    color 47
+    timeout 2 > NUL
+    exit /b 1
+)
+echo Done.
 echo.
 
 if %checkenv% == "false" (
