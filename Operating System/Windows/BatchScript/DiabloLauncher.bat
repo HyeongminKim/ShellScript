@@ -144,7 +144,7 @@ if "%ALTERED_RES_Y%" == "" (
     timeout 2 > NUL
     exit /b 1
 )
-echo %ORIGIN_RES_X%x%ORIGIN_RES_Y%-%ALTERED_RES_X%x%ALTERED_RES_Y%.
+echo %ORIGIN_RES_X%x%ORIGIN_RES_Y% - %ALTERED_RES_X%x%ALTERED_RES_Y%.
 echo.
 
 if %checkenv% == "false" (
