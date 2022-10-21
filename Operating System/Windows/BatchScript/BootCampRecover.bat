@@ -32,8 +32,14 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
 
     mkdir %TEMP%\BootCamp_Driver
     brigadier -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-    if NOT %ERRORLEVEL% == 0 (
+    if NOT "%ERRORLEVEL%" == "0" (
         echo Unexpected error occurred. The BootCamp driver wasn't successfully downloaded.
+        rmdir /s /q %TEMP%\BootCamp_Driver
+        if NOT "%ERRORLEVEL%" == "0" (
+            echo Unable to delete downloaded driver directory. Please delete it manually.
+            explorer %TEMP%\BootCamp_Driver
+            timeout 2 > NUL
+        )
         pause
         exit /b 1
     )
@@ -58,7 +64,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
     pause
 
     rmdir /s /q %TEMP%\BootCamp_Driver
-    if NOT %ERRORLEVEL% == 0 (
+    if NOT "%ERRORLEVEL%" == "0" (
         echo Unable to delete downloaded driver directory. Please delete it manually.
         explorer %TEMP%\BootCamp_Driver
         timeout 2 > NUL
