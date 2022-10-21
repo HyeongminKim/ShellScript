@@ -8,8 +8,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         exit /b 1
     )
 
-    where brigadier > NUL
-    if NOT %ERRORLEVEL% == 0 (
+    if NOT exist "C:\Windows\System32\brigadier.exe" (
         echo error: brigadier not found. Please install brigadier to continue.
         explorer https://github.com/timsutton/brigadier
         timeout 2 > NUL
@@ -27,12 +26,8 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         echo Please set Mac model in COMPUTER_MODEL_ID.
         echo For example COMPUTER_MODEL_ID=iMac3,1
         explorer https://support.apple.com/en-us/HT201634
-        set /p "COMPUTER_MODEL_ID=Please enter your Mac model: "
-        if "%COMPUTER_MODEL_ID%" == "" (
-            echo Required COMPUTER_MODEL_ID value and should not empty. Please provide your mac model.
-            timeout 2 > NUL
-            exit /b 1
-        )
+        timeout 2 > NUL
+        exit /b 1
     )
 
     mkdir %TEMP%\BootCamp_Driver
