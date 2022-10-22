@@ -14,36 +14,42 @@ if "%PROCESSOR_ARCHITECTURE%" NEQ "AMD64" (
 if NOT exist "%TEMP%\BootCamp_Driver" (
     if "%SAFEBOOT_OPTION%" NEQ "" (
         echo Unable to find BootCamp Dirver. Please enter normal mode and download BootCamp drivers...
-        timeout 2 > NUL
+        pause
         exit /b 1
     )
 
     if NOT exist "C:\Windows\System32\brigadier.exe" (
         echo error: Unable to locate brigadier. Please install brigadier to continue.
         explorer https://github.com/timsutton/brigadier
-        timeout 2 > NUL
+        pause
+        exit /b 1
+    )
+
+    where winget > NUL
+    if "%ERRORLEVEL%" NEQ "0" (
+        echo error: Unable to locate winget. Please install winget to continue.
+        explorer https://github.com/microsoft/winget-cli
+        pause
         exit /b 1
     )
 
     brigadier --help > NUL
     if "%ERRORLEVEL%" NEQ "0" (
         echo error: Unable to launch brigadier. Please check execute permission.
-        timeout 2 > NUL
+        pause
         exit /b 1
     )
 
     if NOT exist "C:\Program Files\7-Zip\7z.exe" (
         echo error: 7-Zip not found. Please install 7-Zip to continue.
-        explorer https://7-zip.org
-        timeout 2 > NUL
-        exit /b 1
+        winget install 7zip.7zip
     )
 
     if "%COMPUTER_MODEL_ID%" == "" (
         echo Please set Mac model in COMPUTER_MODEL_ID.
         echo For example COMPUTER_MODEL_ID=iMac3,1
         explorer https://support.apple.com/en-us/HT201634
-        timeout 2 > NUL
+        pause
         exit /b 1
     )
 
@@ -60,7 +66,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
             echo Unable to delete downloaded driver directory. Please delete it manually.
             explorer %TEMP%\BootCamp_Driver
         )
-        timeout 2 > NUL
+        pause
         exit /b 1
 
         :driverExist
@@ -78,13 +84,13 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
                 explorer %TEMP%\BootCamp_Driver
             )
         )
-        timeout 2 > NUL
+        pause
         exit /b 1
     )
 ) else (
     if "%SAFEBOOT_OPTION%" NEQ "MINIMAL" (
         echo BootCamp driver already exist. Please enter safe mode to upgrade drivers...
-        timeout 2 > NUL
+        pause
         exit /b 1
     )
 
@@ -101,11 +107,12 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
     if "%ERRORLEVEL%" NEQ "0" (
         echo Unable to delete downloaded driver directory. Please delete it manually.
         explorer %TEMP%\BootCamp_Driver
-        timeout 2 > NUL
+        pause
         exit /b 1
     ) else (
         echo Please uncheck safe boot options.
         msconfig
+        pause
         exit
     )
 )
