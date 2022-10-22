@@ -11,10 +11,16 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         exit /b 1
     )
 
+    if NOT exist "C:\Windows\System32\brigadier.exe" (
+        echo error: Unable to locate brigadier. Please install brigadier to continue.
+        explorer https://github.com/timsutton/brigadier
+        timeout 2 > NUL
+        exit /b 1
+    )
+
     brigadier --help > NUL
     if "%ERRORLEVEL%" NEQ "0" (
-        echo error: Unable to launch brigadier. Please install brigadier to continue.
-        explorer https://github.com/timsutton/brigadier
+        echo error: Unable to launch brigadier. Please check execute permission.
         timeout 2 > NUL
         exit /b 1
     )
