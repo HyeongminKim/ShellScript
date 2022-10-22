@@ -1,15 +1,19 @@
 @ECHO OFF
 title BootCamp Recover
+chcp 1252 > NUL
+
+set driverExist="false"
 
 if NOT exist "%TEMP%\BootCamp_Driver" (
     if NOT "%SAFEBOOT_OPTION%" == "" (
-        echo Please enter normal mode to download drivers...
+        echo Unable to find BootCamp Dirver. Please enter normal mode and download BootCamp drivers...
         timeout 2 > NUL
         exit /b 1
     )
 
-    if NOT exist "C:\Windows\System32\brigadier.exe" (
-        echo error: brigadier not found. Please install brigadier to continue.
+    brigadier --help > NUL
+    if NOT "%ERRORLEVEL%" == "0" (
+        echo error: Unable to launch brigadier. Please install brigadier to continue.
         explorer https://github.com/timsutton/brigadier
         timeout 2 > NUL
         exit /b 1
@@ -32,24 +36,41 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
 
     mkdir %TEMP%\BootCamp_Driver
     brigadier -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-    if NOT "%ERRORLEVEL%" == "0" (
-        echo Unexpected error occurred. The BootCamp driver wasn't successfully downloaded.
-        rmdir /s /q %TEMP%\BootCamp_Driver
+    if "%ERRORLEVEL%" == "0" (
+        for /F %%i in ('dir /b /a "%TEMP%\BootCamp_Driver\*"') do (
+            goto driverExist
+        )
+
+        echo Unable to save driver. Please check permission in %TEMP%\BootCamp_Driver.
+        rmdir /s /q %TEMP%\BootCamp_Driver > NUL
         if NOT "%ERRORLEVEL%" == "0" (
             echo Unable to delete downloaded driver directory. Please delete it manually.
             explorer %TEMP%\BootCamp_Driver
-            timeout 2 > NUL
         )
+        timeout 2 > NUL
+        exit /b 1
+
+        :driverExist
+        echo Please set boot options to safe mode "Minimal" and enter safe mode.
+        msconfig
         pause
+        exit
+    ) else (
+        echo Unable to launch brigadier. The brigadier exit code is %ERRORLEVEL%.
+        explorer https://github.com/timsutton/brigadier/issues
+        if exist "%TEMP%\BootCamp_Driver" (
+            rmdir /s /q %TEMP%\BootCamp_Driver > NUL
+            if NOT "%ERRORLEVEL%" == "0" (
+                echo Unable to delete empty driver directory. Please delete it manually.
+                explorer %TEMP%\BootCamp_Driver
+            )
+        )
+        timeout 2 > NUL
         exit /b 1
     )
-
-    echo Please set boot options to safe mode "Minimal" and enter safe mode.
-    msconfig
-    pause
 ) else (
     if NOT "%SAFEBOOT_OPTION%" == "MINIMAL" (
-        echo Please enter safe mode to upgrade drivers...
+        echo BootCamp driver already exist. Please enter safe mode to upgrade drivers...
         timeout 2 > NUL
         exit /b 1
     )
@@ -63,16 +84,16 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
     devmgmt.msc
     pause
 
-    rmdir /s /q %TEMP%\BootCamp_Driver
+    rmdir /s /q %TEMP%\BootCamp_Driver > NUL
     if NOT "%ERRORLEVEL%" == "0" (
         echo Unable to delete downloaded driver directory. Please delete it manually.
         explorer %TEMP%\BootCamp_Driver
         timeout 2 > NUL
+        exit /b 1
+    ) else (
+        echo Please uncheck safe boot options.
+        msconfig
+        exit
     )
-
-    echo Please uncheck safe boot options.
-    msconfig
 )
-
-exit
 
