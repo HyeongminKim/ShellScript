@@ -5,14 +5,14 @@ chcp 1252 > NUL
 set driverExist="false"
 
 if NOT exist "%TEMP%\BootCamp_Driver" (
-    if NOT "%SAFEBOOT_OPTION%" == "" (
+    if "%SAFEBOOT_OPTION%" NEQ "" (
         echo Unable to find BootCamp Dirver. Please enter normal mode and download BootCamp drivers...
         timeout 2 > NUL
         exit /b 1
     )
 
     brigadier --help > NUL
-    if NOT "%ERRORLEVEL%" == "0" (
+    if "%ERRORLEVEL%" NEQ "0" (
         echo error: Unable to launch brigadier. Please install brigadier to continue.
         explorer https://github.com/timsutton/brigadier
         timeout 2 > NUL
@@ -43,7 +43,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
 
         echo Unable to save driver. Please check permission in %TEMP%\BootCamp_Driver.
         rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-        if NOT "%ERRORLEVEL%" == "0" (
+        if "%ERRORLEVEL%" NEQ "0" (
             echo Unable to delete downloaded driver directory. Please delete it manually.
             explorer %TEMP%\BootCamp_Driver
         )
@@ -60,7 +60,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         explorer https://github.com/timsutton/brigadier/issues
         if exist "%TEMP%\BootCamp_Driver" (
             rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-            if NOT "%ERRORLEVEL%" == "0" (
+            if "%ERRORLEVEL%" NEQ "0" (
                 echo Unable to delete empty driver directory. Please delete it manually.
                 explorer %TEMP%\BootCamp_Driver
             )
@@ -69,7 +69,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         exit /b 1
     )
 ) else (
-    if NOT "%SAFEBOOT_OPTION%" == "MINIMAL" (
+    if "%SAFEBOOT_OPTION%" NEQ "MINIMAL" (
         echo BootCamp driver already exist. Please enter safe mode to upgrade drivers...
         timeout 2 > NUL
         exit /b 1
@@ -85,7 +85,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
     pause
 
     rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-    if NOT "%ERRORLEVEL%" == "0" (
+    if "%ERRORLEVEL%" NEQ "0" (
         echo Unable to delete downloaded driver directory. Please delete it manually.
         explorer %TEMP%\BootCamp_Driver
         timeout 2 > NUL
