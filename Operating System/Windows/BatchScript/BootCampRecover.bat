@@ -60,7 +60,17 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
             goto driverExist
         )
 
-        echo Unable to save driver. Please check permission in %TEMP%\BootCamp_Driver.
+        echo Application Error: A dependency program has unexpectedly terminated.
+        echo Description: The required process was terminated due to an unhandled exception.
+        echo Exception Info: InvalidOperationException.
+        echo StackTrace:
+        echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
+        echo     at [cmd] echo
+        echo     at [cmd] if
+        echo     at [cmd] if
+        echo     at BootCampRecover.bat
+        echo If you want to see more infomation, Please visit Event Viewer program.
+        echo.
         rmdir /s /q %TEMP%\BootCamp_Driver > NUL
         if "%ERRORLEVEL%" NEQ "0" (
             echo Unable to delete downloaded driver directory. Please delete it manually.
@@ -70,7 +80,7 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
         exit /b 1
 
         :driverExist
-        echo Please set boot options to safe mode "Minimal" and enter safe mode.
+        echo Please set boot options to safe mode [Minimal] and enter safe mode.
         msconfig
         pause
         exit
