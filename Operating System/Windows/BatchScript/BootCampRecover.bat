@@ -4,6 +4,13 @@ chcp 1252 > NUL
 
 set driverExist="false"
 
+if "%PROCESSOR_ARCHITECTURE%" NEQ "AMD64" (
+    echo The brigadier program doesn't fully support 32-bit OS yet.
+    explorer https://github.com/timsutton/brigadier/issues/2
+    timeout 2 > NUL
+    exit /b 1
+)
+
 if NOT exist "%TEMP%\BootCamp_Driver" (
     if "%SAFEBOOT_OPTION%" NEQ "" (
         echo Unable to find BootCamp Dirver. Please enter normal mode and download BootCamp drivers...
