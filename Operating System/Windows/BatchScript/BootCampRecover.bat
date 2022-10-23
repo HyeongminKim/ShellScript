@@ -60,21 +60,24 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
             goto driverExist
         )
 
-        echo Application Error: A dependency program has unexpectedly terminated.
-        echo Description: The required process was terminated due to an unhandled exception.
-        echo Exception Info: InvalidOperationException.
-        echo StackTrace:
-        echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-        echo     at [cmd] echo
-        echo     at [cmd] if
-        echo     at [cmd] if
-        echo     at BootCampRecover.bat
-        echo If you want to see more infomation, Please visit Event Viewer program.
-        echo.
+        echo Unable to download driver. The brigadier couldn't save drivers to %TEMP%\BootCamp_Driver directory.
         rmdir /s /q %TEMP%\BootCamp_Driver > NUL
         if "%ERRORLEVEL%" NEQ "0" (
+            echo Please check the %TEMP%\BootCamp_Driver directory permission.
             echo Unable to delete downloaded driver directory. Please delete it manually.
             explorer %TEMP%\BootCamp_Driver
+        ) else (
+            echo Runtime Error: A dependency program has unexpectedly terminated.
+            echo Description: The required process was terminated due to an unhandled exception.
+            echo Exception Info: InvalidOperationException.
+            echo StackTrace:
+            echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
+            echo     at [cmd] echo
+            echo     at [cmd] if
+            echo     at [cmd] if
+            echo     at BootCampRecover.bat
+            echo If you want to see more infomation, Please visit Event Viewer program.
+            echo.
         )
         pause
         exit /b 1
