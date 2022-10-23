@@ -54,6 +54,12 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
     )
 
     mkdir %TEMP%\BootCamp_Driver
+    if "%ERRORLEVEL%" NEQ "0" (
+        echo Unable to create %TEMP%\BootCamp_Driver directory. Please check the %TEMP% directory permission.
+        pause
+        exit /b 1
+    )
+
     brigadier -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
     if "%ERRORLEVEL%" == "0" (
         for /F %%i in ('dir /b /a "%TEMP%\BootCamp_Driver\*"') do (
