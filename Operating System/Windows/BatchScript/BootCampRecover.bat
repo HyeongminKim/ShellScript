@@ -115,35 +115,22 @@ devmgmt.msc
 pause
 
 rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-if "%ERRORLEVEL%" NEQ "0" (
-    echo Unable to delete downloaded driver directory. Please delete it manually.
-    explorer %TEMP%\BootCamp_Driver
-    pause
-    exit /b 1
-) else (
-    echo Please uncheck safe boot options.
-    msconfig
-    pause
-    exit
-)
+echo Please uncheck safe boot options.
+msconfig
+pause
+exit
 
 :fatalError
 rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-if "%ERRORLEVEL%" NEQ "0" (
-    echo Please check the %TEMP%\BootCamp_Driver directory permission.
-    echo Unable to delete downloaded driver directory. Please delete it manually.
-    explorer %TEMP%\BootCamp_Driver
-) else (
-    echo Runtime Error: A dependency program has unexpectedly terminated.
-    echo Description: The required process was terminated due to an unhandled exception.
-    echo Exception Info: InvalidOperationException.
-    echo StackTrace:
-    echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-    echo     at [cmd] if
-    echo     at BootCampRecover.bat
-    echo Attached Report
-    powershell "Get-EventLog -LogName 'Application' -Newest 1 | Select-Object -Property *"
-    echo.
-)
+echo Runtime Error: A dependency program has unexpectedly terminated.
+echo Description: The required process was terminated due to an unhandled exception.
+echo Exception Info: InvalidOperationException.
+echo StackTrace:
+echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
+echo     at [cmd] if
+echo     at BootCampRecover.bat
+echo Attached Report
+powershell "Get-EventLog -LogName 'Application' -Newest 1 | Select-Object -Property *"
+echo.
 pause
 exit /b 1
