@@ -81,8 +81,7 @@ if "%COMPUTER_MODEL_ID%" == "" (
 mkdir %TEMP%\BootCamp_Driver
 if "%ERRORLEVEL%" NEQ "0" (
     echo Unable to create %TEMP%\BootCamp_Driver directory. Please check the %TEMP% directory permission.
-    pause
-    exit /b 1
+    goto fatalError
 )
 
 brigadier -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
@@ -92,25 +91,7 @@ if "%ERRORLEVEL%" == "0" (
     )
 
     echo Unable to download driver. The brigadier couldn't save drivers to %TEMP%\BootCamp_Driver directory.
-    rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-    if "%ERRORLEVEL%" NEQ "0" (
-        echo Please check the %TEMP%\BootCamp_Driver directory permission.
-        echo Unable to delete downloaded driver directory. Please delete it manually.
-        explorer %TEMP%\BootCamp_Driver
-    ) else (
-        echo Runtime Error: A dependency program has unexpectedly terminated.
-        echo Description: The required process was terminated due to an unhandled exception.
-        echo Exception Info: InvalidOperationException.
-        echo StackTrace:
-        echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-        echo     at [cmd] if
-        echo     at BootCampRecover.bat
-        echo Attached Report
-        powershell "Get-EventLog -LogName 'Application' -Newest 1 | Select-Object -Property *"
-        echo.
-    )
-    pause
-    exit /b 1
+    goto fatalError
 
     :driverExist
     echo Please set boot options to safe mode [Minimal] and enter safe mode.
@@ -154,3 +135,23 @@ if "%ERRORLEVEL%" NEQ "0" (
     exit
 )
 
+:fatalError
+rmdir /s /q %TEMP%\BootCamp_Driver > NUL
+if "%ERRORLEVEL%" NEQ "0" (
+    echo Please check the %TEMP%\BootCamp_Driver directory permission.
+    echo Unable to delete downloaded driver directory. Please delete it manually.
+    explorer %TEMP%\BootCamp_Driver
+) else (
+    echo Runtime Error: A dependency program has unexpectedly terminated.
+    echo Description: The required process was terminated due to an unhandled exception.
+    echo Exception Info: InvalidOperationException.
+    echo StackTrace:
+    echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
+    echo     at [cmd] if
+    echo     at BootCampRecover.bat
+    echo Attached Report
+    powershell "Get-EventLog -LogName 'Application' -Newest 1 | Select-Object -Property *"
+    echo.
+)
+pause
+exit /b 1
