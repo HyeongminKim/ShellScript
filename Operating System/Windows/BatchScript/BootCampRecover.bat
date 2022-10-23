@@ -80,7 +80,8 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
             echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
             echo     at [cmd] if
             echo     at BootCampRecover.bat
-            echo If you want to see more infomation, Please visit Event Viewer program.
+            echo Attached Report
+            powershell "Get-EventLog -LogName 'Application' -Newest 1 | Select-Object -Property *"
             echo.
         )
         pause
