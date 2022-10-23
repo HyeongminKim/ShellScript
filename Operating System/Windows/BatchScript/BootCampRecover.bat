@@ -81,7 +81,8 @@ if "%COMPUTER_MODEL_ID%" == "" (
 mkdir %TEMP%\BootCamp_Driver
 if "%ERRORLEVEL%" NEQ "0" (
     echo Unable to create %TEMP%\BootCamp_Driver directory. Please check the %TEMP% directory permission.
-    goto fatalError
+    pause
+    exit /b 1
 )
 
 brigadier -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
@@ -100,16 +101,7 @@ if "%ERRORLEVEL%" == "0" (
     exit
 ) else (
     echo Unable to launch brigadier. The brigadier exit code is %ERRORLEVEL%.
-    explorer https://github.com/timsutton/brigadier/issues
-    if exist "%TEMP%\BootCamp_Driver" (
-        rmdir /s /q %TEMP%\BootCamp_Driver > NUL
-        if "%ERRORLEVEL%" NEQ "0" (
-            echo Unable to delete empty driver directory. Please delete it manually.
-            explorer %TEMP%\BootCamp_Driver
-        )
-    )
-    pause
-    exit /b 1
+    goto fatalError
 )
 
 :shouldInstallDriver
