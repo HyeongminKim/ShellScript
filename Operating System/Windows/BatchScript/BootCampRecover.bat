@@ -78,8 +78,6 @@ if NOT exist "%TEMP%\BootCamp_Driver" (
             echo Exception Info: InvalidOperationException.
             echo StackTrace:
             echo     at brigadier.exe -m %COMPUTER_MODEL_ID% -o %TEMP%\BootCamp_Driver
-            echo     at [cmd] echo
-            echo     at [cmd] if
             echo     at [cmd] if
             echo     at BootCampRecover.bat
             echo If you want to see more infomation, Please visit Event Viewer program.
