@@ -65,13 +65,6 @@ if "%ERRORLEVEL%" NEQ "0" (
     exit /b 1
 )
 
-brigadier --help > NUL
-if "%ERRORLEVEL%" NEQ "0" (
-    echo error: Unable to launch brigadier. Please check execute permission.
-    pause
-    exit /b 1
-)
-
 if NOT exist "C:\Program Files\7-Zip\7z.exe" (
     echo error: 7-Zip not found. Please install 7-Zip to continue.
     winget install 7zip.7zip
