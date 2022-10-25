@@ -18,9 +18,11 @@ root = Tk()
 root.title('디아블로 런처')
 root.geometry("520x450+100+100")
 root.resizable(False, False)
+root.attributes('-toolwindow', True)
 launch = Tk()
 launch.geometry("300x125+200+200")
 launch.resizable(False, False)
+launch.attributes('-toolwindow', True)
 
 def ShowWindow():
     launch.after(1, lambda: launch.focus_force())
