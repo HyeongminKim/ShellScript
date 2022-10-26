@@ -162,6 +162,9 @@ def RequirementCheck():
     if not os.path.isfile('C:/Windows/System32/wsl.exe'):
         tkinter.messagebox.showerror('디아블로 런처', 'Windows Subsystem for Linux 가 설치되지 않았습니다. wsl --install 명령을 사용하여 WSL을 설치한 후 다시 시도하세요.')
         exit(1)
+    if not os.path.isfile('C:/Windows/System32/QRes.exe'):
+        tkinter.messagebox.showerror('디아블로 런처', 'QRes가 설치되지 않았습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
+        exit(1)
     if os.system('wsl.exe resolution list') != 0:
         tkinter.messagebox.showerror('디아블로 런처', '해상도 변경이 지원되지 않습니다. 자세한 사항은 GitHub를 참조하세요.')
         exit(1)
