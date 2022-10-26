@@ -159,7 +159,7 @@ def SetEnvironmentValue():
     envWindow.mainloop()
 
 def RequirementCheck():
-    if not os.path.isfile('C:/Windows/System32/wsl.exe'):
+    if os.system('wsl.exe echo test') != 0:
         tkinter.messagebox.showerror('디아블로 런처', 'Windows Subsystem for Linux 가 설치되지 않았습니다. wsl --install 명령을 사용하여 WSL을 설치한 후 다시 시도하세요.')
         exit(1)
     if not os.path.isfile('C:/Windows/System32/QRes.exe'):
