@@ -8,11 +8,11 @@ set textStyle="false"
 set DAS="false"
 set DAT="false"
 
-echo | set /p=Checking Windows Terminal (1/8) ... 
+echo | set /p=Checking WSL (1/8) ... 
 timeout 1 > NUL
 if NOT exist "C:\Windows\System32\wsl.exe" (
     echo.
-    echo Unable to execute screen resolution program. Please install Windows Terminal.
+    echo Unable to execute screen resolution program. Please install WSL.
     color 47
     timeout 2 > NUL
     exit /b 1
