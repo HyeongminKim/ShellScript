@@ -50,6 +50,7 @@ def DiabloII_Launcher():
     os.system(f'wsl.exe resolution {alteredX} {alteredY}')
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
     tkinter.messagebox.showinfo('Diablo II Resurrected', '디아블로 II Resurrected가 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
+    refreshBtn['state'] = "disabled"
     HideWindow()
     UpdateStatusValue()
 
@@ -61,6 +62,8 @@ def DiabloIII_Launcher():
     os.system(f'wsl.exe resolution {alteredX} {alteredY}')
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
     tkinter.messagebox.showinfo('Diablo III', '디아블로 III이 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
+    refreshBtn['state'] = "disabled"
+    HideWindow()
     UpdateStatusValue()
 
 def LaunchGameAgent():
@@ -70,6 +73,7 @@ def LaunchGameAgent():
         diabloExecuted = False
         switchButton['text'] = '디아블로 실행...'
         os.system(f'wsl.exe resolution {originX} {originY}')
+        refreshBtn['state'] = "normal"
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
@@ -99,14 +103,16 @@ def EmgergencyReboot():
         forceReboot = False
         emergencyButton['text'] = '긴급 재시동 (게임 저장 후 실행 요망)'
         switchButton['state'] = "normal"
+        refreshBtn['state'] = "normal"
         os.system(f'shutdown -a')
     else:
         forceReboot = True
         emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-        switchButton['state'] = "disabled"
         os.system(f'wsl.exe resolution {originX} {originY}')
         UpdateStatusValue()
         os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
+        switchButton['state'] = "disabled"
+        refreshBtn['state'] = "disabled"
 
 
 def GetEnvironmentValue():
