@@ -47,8 +47,8 @@ def DiabloII_Launcher():
     global launch
     diabloExecuted = True
     switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-    os.system(f'wsl.exe resolution {alteredX} {alteredY}')
-    os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
+    os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
     tkinter.messagebox.showinfo('Diablo II Resurrected', '디아블로 II Resurrected가 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
     refreshBtn['state'] = "disabled"
     HideWindow()
@@ -59,8 +59,8 @@ def DiabloIII_Launcher():
     global launch
     diabloExecuted = True
     switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-    os.system(f'wsl.exe resolution {alteredX} {alteredY}')
-    os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
+    os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
     tkinter.messagebox.showinfo('Diablo III', '디아블로 III이 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
     refreshBtn['state'] = "disabled"
     HideWindow()
@@ -72,7 +72,7 @@ def LaunchGameAgent():
     if diabloExecuted:
         diabloExecuted = False
         switchButton['text'] = '디아블로 실행...'
-        os.system(f'wsl.exe resolution {originX} {originY}')
+        os.system(f'QRes -X {originX} -Y {originY} -R 60')
         refreshBtn['state'] = "normal"
         UpdateStatusValue()
     else:
@@ -108,7 +108,7 @@ def EmgergencyReboot():
     else:
         forceReboot = True
         emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-        os.system(f'wsl.exe resolution {originX} {originY}')
+        os.system(f'QRes -X {originX} -Y {originY} -R 60')
         UpdateStatusValue()
         os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
         switchButton['state'] = "disabled"
@@ -159,14 +159,8 @@ def SetEnvironmentValue():
     envWindow.mainloop()
 
 def RequirementCheck():
-    if os.system('wsl.exe echo test') != 0:
-        tkinter.messagebox.showerror('디아블로 런처', 'Windows Subsystem for Linux 가 설치되지 않았습니다. wsl --install 명령을 사용하여 WSL을 설치한 후 다시 시도하세요.')
-        exit(1)
     if not os.path.isfile('C:/Windows/System32/QRes.exe'):
         tkinter.messagebox.showerror('디아블로 런처', 'QRes가 설치되지 않았습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
-        exit(1)
-    if os.system('wsl.exe resolution list') != 0:
-        tkinter.messagebox.showerror('디아블로 런처', '해상도 변경이 지원되지 않습니다. 자세한 사항은 GitHub를 참조하세요.')
         exit(1)
     if data is None:
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
@@ -177,10 +171,10 @@ def UpdateStatusValue():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
-        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\nWSL 지원됨: {'예' if os.path.isfile('C:/Windows/System32/wsl.exe') else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('wsl.exe resolution list') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: 사용할 수 없음 \n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n"
+        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: 사용할 수 없음 \n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n"
         switchButton['state'] = "disabled"
     else:
-        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\nWSL 지원됨: {'예' if os.path.isfile('C:/Windows/System32/wsl.exe') else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('wsl.exe resolution list') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: {f'{alteredX}x{alteredY}' if diabloExecuted else f'{originX}x{originY}'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n"
+        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: {f'{alteredX}x{alteredY}' if diabloExecuted else f'{originX}x{originY}'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n"
         switchButton['state'] = "normal"
 
 
@@ -192,7 +186,11 @@ switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAge
 emergencyButton = Button(root, text='긴급 재시동 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
 now = datetime.now()
 cnt_time = now.strftime("%H:%M:%S")
-status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\nWSL 지원됨: {'예' if os.path.isfile('C:/Windows/System32/wsl.exe') else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('wsl.exe resolution list') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None != 0 else '사용할 수 없음'}\n현재 디스플레이 해상도: {f'{alteredX}x{alteredY}' if diabloExecuted else f'{originX}x{originY}'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n")
+if data is None:
+    status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: 사용할 수 없음 \n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n")
+else:
+    status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: {f'{alteredX}x{alteredY}' if diabloExecuted else f'{originX}x{originY}'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n")
+switchButton['state'] = "normal"
 refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
 info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n긴급 재시동은 해상도를 복구한 후 시스템을 재시동합니다.')
 notice = Label(root, text='Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n그 외 버전 또는 게임은 호환이 되지 않을 수 있습니다.\n\n이 디아블로 런처에 관하여\n디아블로 게임 및 런처: (c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\n본 프로그램: Copyright (c) 2022 Hyeongmin Kim')
