@@ -51,7 +51,6 @@ def DiabloII_Launcher():
     switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
     os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
-    tkinter.messagebox.showinfo('Diablo II Resurrected', '디아블로 II Resurrected가 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
     refreshBtn['state'] = "disabled"
     HideWindow()
     UpdateStatusValue()
@@ -63,7 +62,6 @@ def DiabloIII_Launcher():
     switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
     os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
-    tkinter.messagebox.showinfo('Diablo III', '디아블로 III이 실행되었습니다. 파란색 "플레이" 버튼을 클릭하여 게임을 실행해 주세요.')
     refreshBtn['state'] = "disabled"
     HideWindow()
     UpdateStatusValue()
