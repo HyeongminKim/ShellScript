@@ -158,6 +158,17 @@ def SetEnvironmentValue():
 
     envWindow.mainloop()
 
+def RequirementCheck():
+    if not os.path.isfile('C:/Windows/System32/wsl.exe'):
+        tkinter.messagebox.showerror('디아블로 런처', 'Windows Subsystem for Linux 가 설치되지 않았습니다. wsl --install 명령을 사용하여 WSL을 설치한 후 다시 시도하세요.')
+        exit(1)
+    if os.system('wsl.exe resolution list') != 0:
+        tkinter.messagebox.showerror('디아블로 런처', '해상도 변경이 지원되지 않습니다. 자세한 사항은 GitHub를 참조하세요.')
+        exit(1)
+    if data is None:
+        tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
+
+
 def UpdateStatusValue():
     GetEnvironmentValue()
     now = datetime.now()
@@ -169,7 +180,10 @@ def UpdateStatusValue():
         status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니오'}\nWSL 지원됨: {'예' if os.path.isfile('C:/Windows/System32/wsl.exe') else '아니오'}\n해상도 변경 지원됨: {'아니오' if os.system('wsl.exe resolution list') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '사용할 수 없음'}\n현재 디스플레이 해상도: {f'{alteredX}x{alteredY}' if diabloExecuted else f'{originX}x{originY}'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '사용할 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니오'}\n디아블로 실행: {'예' if diabloExecuted else ' 아니오 '}\n"
         switchButton['state'] = "normal"
 
+
 GetEnvironmentValue()
+RequirementCheck()
+
 welcome = Label(root, text='')
 switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
 emergencyButton = Button(root, text='긴급 재시동 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
