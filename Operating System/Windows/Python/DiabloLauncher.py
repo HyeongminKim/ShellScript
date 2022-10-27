@@ -160,7 +160,11 @@ def SetEnvironmentValue():
         else:
             os.environ['DiabloLauncher'] = envText.get()
             UpdateStatusValue()
-            envWindow.destroy()
+            if data is not None and not os.path.isdir(gamePath):
+                tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+                envWindow.after(1, lambda: envWindow.focus_force())
+            elif data is not None and os.path.isdir(gamePath):
+                envWindow.destroy()
 
     commitBtn = tkinter.Button(envWindow, text='수정', command=commit)
     commitBtn.pack()
@@ -172,7 +176,8 @@ def RequirementCheck():
         tkinter.messagebox.showerror('디아블로 런처', 'QRes가 설치되지 않았습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
     if data is None:
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
-
+    elif data is not None and not os.path.isdir(gamePath):
+        tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리가 존재하지 않습니다.')
 
 def UpdateStatusValue():
     GetEnvironmentValue()
