@@ -5,6 +5,7 @@ from datetime import datetime
 import tkinter.messagebox
 import os
 import subprocess
+import time
 
 diabloExecuted = False
 forceReboot = False
@@ -12,6 +13,8 @@ rebootWaitTime = 10
 
 data = None
 now = datetime.now()
+gameStart = None
+gameEnd = None
 cnt_time = now.strftime("%H:%M:%S")
 gamePath = None
 originX = None
@@ -60,6 +63,7 @@ root.protocol("WM_DELETE_WINDOW", ExitProgram)
 def DiabloII_Launcher():
     global diabloExecuted
     global launch
+    global gameStart
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
@@ -70,12 +74,14 @@ def DiabloII_Launcher():
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
     refreshBtn['state'] = "disabled"
+    gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
 
 def DiabloIII_Launcher():
     global diabloExecuted
     global launch
+    global gameStart
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
@@ -85,19 +91,36 @@ def DiabloIII_Launcher():
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
     refreshBtn['state'] = "disabled"
+    gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
 
 def LaunchGameAgent():
     global diabloExecuted
     global launch
+    global gameEnd
     if diabloExecuted:
         diabloExecuted = False
+        gameEnd = time.time()
         switchButton['text'] = '디아블로 실행...'
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
             if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
                 tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         refreshBtn['state'] = "normal"
+
+        elapsedTime = gameEnd - gameStart
+        hours = int(elapsedTime / 3600)
+        elapsedTime = elapsedTime % 3600
+        minutes = int(elapsedTime / 60)
+        elapsedTime = elapsedTime % 60
+        seconds = int(elapsedTime)
+
+        if hours > 0:
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.')
+        elif minutes > 0:
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.')
+        else:
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {seconds}초 입니다.')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
