@@ -48,8 +48,11 @@ def DiabloII_Launcher():
     global diabloExecuted
     global launch
     diabloExecuted = True
-    switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-    os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
+        os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    else:
+        switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
     refreshBtn['state'] = "disabled"
     HideWindow()
@@ -59,8 +62,11 @@ def DiabloIII_Launcher():
     global diabloExecuted
     global launch
     diabloExecuted = True
-    switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-    os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
+        os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+    else:
+        switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
     refreshBtn['state'] = "disabled"
     HideWindow()
@@ -72,7 +78,8 @@ def LaunchGameAgent():
     if diabloExecuted:
         diabloExecuted = False
         switchButton['text'] = '디아블로 실행...'
-        os.system(f'QRes -X {originX} -Y {originY} -R 60')
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            os.system(f'QRes -X {originX} -Y {originY} -R 60')
         refreshBtn['state'] = "normal"
         UpdateStatusValue()
     else:
@@ -108,7 +115,8 @@ def EmgergencyReboot():
     else:
         forceReboot = True
         emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-        os.system(f'QRes -X {originX} -Y {originY} -R 60')
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            os.system(f'QRes -X {originX} -Y {originY} -R 60')
         UpdateStatusValue()
         os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
         switchButton['state'] = "disabled"
@@ -162,7 +170,6 @@ def SetEnvironmentValue():
 def RequirementCheck():
     if not os.path.isfile('C:/Windows/System32/QRes.exe'):
         tkinter.messagebox.showerror('디아블로 런처', 'QRes가 설치되지 않았습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
-        exit(1)
     if data is None:
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
 
