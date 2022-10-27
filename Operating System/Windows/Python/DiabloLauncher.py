@@ -184,21 +184,41 @@ def SetEnvironmentValue():
     tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
-    envWindow.geometry("320x50+200+200")
+    envWindow.geometry("320x170+200+200")
     envWindow.resizable(False, False)
     envWindow.attributes('-toolwindow', True)
 
-    envText = tkinter.Entry(envWindow, width=50)
-    envText.pack()
+    envGameDir = tkinter.Entry(envWindow, width=50)
+    envOriginX = tkinter.Entry(envWindow, width=50)
+    envOriginY = tkinter.Entry(envWindow, width=50)
+    envOriginFR = tkinter.Entry(envWindow, width=50)
+    envAlteredX= tkinter.Entry(envWindow, width=50)
+    envAlteredY = tkinter.Entry(envWindow, width=50)
+    envAlteredFR = tkinter.Entry(envWindow, width=50)
+
+    envGameDir.pack()
+    envOriginX.pack()
+    envOriginY.pack()
+    envOriginFR.pack()
+    envAlteredX.pack()
+    envAlteredY.pack()
+    envAlteredFR.pack()
+
     if data is not None:
-        envText.insert(0, data)
+        envGameDir.insert(0, gamePath)
+        envOriginX.insert(0, originX)
+        envOriginY.insert(0, originY)
+        envOriginFR.insert(0, originFR)
+        envAlteredX.insert(0, alteredX)
+        envAlteredY.insert(0, alteredY)
+        envAlteredFR.insert(0, alteredFR)
 
     def commit():
-        if envText.get() == '':
-            tkinter.messagebox.showwarning('환경변수 편집기', '환경변수가 제공되지 않았습니다.')
+        if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR == '':
+            tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
             envWindow.after(1, lambda: envWindow.focus_force())
         else:
-            os.environ['DiabloLauncher'] = envText.get()
+            os.environ['DiabloLauncher'] = f'{envGameDir.get()};{envOriginX.get()};{envOriginY.get()};{envOriginFR.get()};{envAlteredX.get()};{envAlteredY.get()};{envAlteredFR.get()};'
             UpdateStatusValue()
             if data is not None and not os.path.isdir(gamePath):
                 tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
