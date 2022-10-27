@@ -176,7 +176,7 @@ def GetEnvironmentValue():
         temp = None
         gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
     except Exception as error:
-        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다. 필수 파라미터가 누락되지 않았는지 또는 ";" 문자가 올바르게 삽입되었는지 다시 한번 확인하시기 바랍니다. Exception code: {error}')
+        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다. 필수 파라미터가 누락되지 않았는지 다시 한번 확인하시기 바랍니다. Exception code: {error}')
         data = None
 
 def SetEnvironmentValue():
@@ -214,7 +214,7 @@ def SetEnvironmentValue():
         envAlteredFR.insert(0, alteredFR)
 
     def commit():
-        if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR == '':
+        if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
             tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
             envWindow.after(1, lambda: envWindow.focus_force())
         else:
