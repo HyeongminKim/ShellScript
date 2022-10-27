@@ -66,6 +66,10 @@ def DiabloII_Launcher():
     global gameStart
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if int(alteredX) < 1280 and int(alteredY) < 720:
+            tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+            diabloExecuted = False
+            return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
@@ -84,6 +88,11 @@ def DiabloIII_Launcher():
     global gameStart
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if int(alteredX) < 1024 and int(alteredY) < 768:
+            tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+            diabloExecuted = False
+            return
+
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
@@ -209,8 +218,14 @@ def GetEnvironmentValue():
         print(data)
         temp = None
         gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
+        print(int(originX))
+        print(int(originY))
+        print(float(originFR))
+        print(int(alteredX))
+        print(int(alteredY))
+        print(float(alteredFR))
     except Exception as error:
-        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다. 필수 파라미터가 누락되지 않았는지 다시 한번 확인하시기 바랍니다. Exception code: {error}')
+        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다. 필수 파라미터가 누락되지 않았는지, 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         data = None
 
 def SetEnvironmentValue():
