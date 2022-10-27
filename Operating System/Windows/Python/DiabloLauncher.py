@@ -108,25 +108,52 @@ def LaunchGameAgent():
         ShowWindow()
         launch.mainloop()
 
+def RebootAgent():
+    global forceReboot
+    forceReboot = True
+    emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if os.system(f'QRes -X {originX} -Y {originY} -R 60') != 0:
+            tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
+    HideWindow()
+    UpdateStatusValue()
+    os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
+    switchButton['state'] = "disabled"
+    refreshBtn['state'] = "disabled"
+
+def HaltAgent():
+    global forceReboot
+    forceReboot = True
+    emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if os.system(f'QRes -X {originX} -Y {originY} -R 60') != 0:
+            tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
+    HideWindow()
+    UpdateStatusValue()
+    os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
+    switchButton['state'] = "disabled"
+    refreshBtn['state'] = "disabled"
+
+
 def EmgergencyReboot():
+    global launch
     global forceReboot
     if forceReboot:
         forceReboot = False
-        emergencyButton['text'] = '긴급 재시동 (게임 저장 후 실행 요망)'
+        emergencyButton['text'] = '긴급 전원 작업 (게임 저장 후 실행 요망)'
         switchButton['state'] = "normal"
         refreshBtn['state'] = "normal"
         os.system(f'shutdown -a')
     else:
-        forceReboot = True
-        emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            if os.system(f'QRes -X {originX} -Y {originY} -R 60') != 0:
-                tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
-        UpdateStatusValue()
-        os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
-        switchButton['state'] = "disabled"
-        refreshBtn['state'] = "disabled"
-
+        launch.title('전원')
+        note = Label(launch, text='수행할 작업 선택')
+        reboot = Button(launch, text='재시동', width=20, height=5, command=RebootAgent)
+        halt = Button(launch, text='종료', width=20, height=5, command=HaltAgent)
+        note.pack()
+        reboot.pack(side=LEFT, padx=10)
+        halt.pack(side=RIGHT, padx=10)
+        ShowWindow()
+        launch.mainloop()
 
 def GetEnvironmentValue():
     global data
@@ -214,7 +241,7 @@ RequirementCheck()
 
 welcome = Label(root, text='')
 switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
-emergencyButton = Button(root, text='긴급 재시동 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
+emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
 now = datetime.now()
 cnt_time = now.strftime("%H:%M:%S")
 if data is None:
