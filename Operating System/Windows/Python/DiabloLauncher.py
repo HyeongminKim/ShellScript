@@ -50,7 +50,9 @@ def DiabloII_Launcher():
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-        os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+        if os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60') != 0:
+            tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
+
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
@@ -64,7 +66,8 @@ def DiabloIII_Launcher():
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-        os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60')
+        if os.system(f'QRes -X {alteredX} -Y {alteredY} -R 60') != 0:
+            tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
@@ -79,7 +82,8 @@ def LaunchGameAgent():
         diabloExecuted = False
         switchButton['text'] = '디아블로 실행...'
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            os.system(f'QRes -X {originX} -Y {originY} -R 60')
+            if os.system(f'QRes -X {originX} -Y {originY} -R 60') != 0:
+                tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         refreshBtn['state'] = "normal"
         UpdateStatusValue()
     else:
@@ -116,7 +120,8 @@ def EmgergencyReboot():
         forceReboot = True
         emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            os.system(f'QRes -X {originX} -Y {originY} -R 60')
+            if os.system(f'QRes -X {originX} -Y {originY} -R 60') != 0:
+                tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         UpdateStatusValue()
         os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
         switchButton['state'] = "disabled"
