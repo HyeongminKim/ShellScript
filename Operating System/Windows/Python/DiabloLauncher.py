@@ -172,8 +172,8 @@ def GetEnvironmentValue():
         print(data)
         temp = None
         gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
-    except:
-        tkinter.messagebox.showerror('디아블로 런처', '환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다.')
+    except Exception as error:
+        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 올바른 표현식은 gamePath;originX;originY;originFR;alteredX;alteredY;alteredFR; 입니다. 필수 파라미터가 누락되지 않았는지 또는 ";" 문자가 올바르게 삽입되었는지 다시 한번 확인하시기 바랍니다. Exception code: {error}')
         data = None
 
 def SetEnvironmentValue():
