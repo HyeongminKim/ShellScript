@@ -26,7 +26,7 @@ if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
     if local != remote:
         print(local + ' → ' + remote)
         tkinter.messagebox.showinfo('디아블로 런처', '디아블로 런처가 업데이트되었습니다. 프로그램을 종료 후 다시 실행하면 업데이트가 적용됩니다. ')
-elif os.system('ping -n 1 -t 1 www.google.com') != 0:
+elif os.system('ping -n 1 www.google.com') != 0:
     print('network error: can not pull git repo')
     tkinter.messagebox.showwarning('디아블로 런처', '업데이트 하는 도중 문제가 발생하였습니다. 인터넷 연결을 확인해 주세요.')
 
