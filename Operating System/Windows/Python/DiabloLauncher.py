@@ -259,6 +259,8 @@ def SetEnvironmentValue():
         envAlteredX.insert(0, alteredX)
         envAlteredY.insert(0, alteredY)
         envAlteredFR.insert(0, alteredFR)
+    else:
+        envGameDir.insert(0, 'C:\Program Files (x86)')
 
     def commit():
         if envGameDir.get() != '' and envOriginX.get() == '' and envOriginY.get() == '' and envOriginFR.get() == '' and envAlteredX.get() == '' and envAlteredY.get() == '' and envAlteredFR.get() == '':
