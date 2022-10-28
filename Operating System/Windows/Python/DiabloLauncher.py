@@ -261,11 +261,26 @@ def SetEnvironmentValue():
         envAlteredFR.insert(0, alteredFR)
 
     def commit():
-        if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
+        if envGameDir.get() != '' and envOriginX.get() == '' and envOriginY.get() == '' and envOriginFR.get() == '' and envAlteredX.get() == '' and envAlteredY.get() == '' and envAlteredFR.get() == '':
+            os.environ['DiabloLauncher'] = envGameDir.get()
+            UpdateStatusValue()
+            if data is not None and not os.path.isdir(gamePath):
+                tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+                envWindow.after(1, lambda: envWindow.focus_force())
+            elif data is not None and os.path.isdir(gamePath):
+                if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                    tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                    envWindow.after(1, lambda: envWindow.focus_force())
+                else:
+                    envWindow.destroy()
+        elif envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
             tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
             envWindow.after(1, lambda: envWindow.focus_force())
         else:
-            os.environ['DiabloLauncher'] = f'{envGameDir.get()};{envOriginX.get()};{envOriginY.get()};{envOriginFR.get()};{envAlteredX.get()};{envAlteredY.get()};{envAlteredFR.get()};'
+            if envGameDir.get().find(';') >= 0 or envOriginX.get().find(';') >= 0 or envOriginY.get().find(';') >= 0 or envOriginFR.get().find(';') >= 0 or envAlteredX.get().find(';') >= 0 or envAlteredY.get().find(';') >= 0 or envAlteredFR.get().find(';') >= 0:
+                tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 이 문제로 인하여 예기치 않은 디렉토리가 지정될 수 있습니다. 해당 문자는 레거시 에디터 편집방식으로 현재 버전에는 적용할 수 없습니다. 레거시 에디터를 사용하시려면 첫번째 텍스트 필드를 제외한 모든 텍스트 필드는 공란이어야 합니다.')
+                os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
+
             UpdateStatusValue()
             if data is not None and not os.path.isdir(gamePath):
                 tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
