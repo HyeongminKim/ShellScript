@@ -126,10 +126,8 @@ def LaunchGameAgent():
 
         if hours > 0:
             tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.')
-        elif minutes > 0:
+        elif minutes >= 5:
             tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.')
-        else:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {seconds}초 입니다.')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
