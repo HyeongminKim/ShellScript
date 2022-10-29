@@ -49,6 +49,9 @@ def HideWindow():
     for widget in launch.winfo_children():
         widget.destroy()
 
+def AlertWindow():
+    tkinter.messagebox.showwarning('디아블로 런처', '디아블로 실행 중에는 런처를 종료할 수 없습니다. 먼저 게임을 종료해 주시기 바랍니다.')
+
 def ExitProgram():
     launch.destroy()
     root.destroy()
@@ -62,10 +65,12 @@ def DiabloII_Launcher():
     global launch
     global gameStart
     diabloExecuted = True
+    root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1280 and int(alteredY) < 720:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
             return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
@@ -84,10 +89,12 @@ def DiabloIII_Launcher():
     global launch
     global gameStart
     diabloExecuted = True
+    root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1024 and int(alteredY) < 768:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
             return
 
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
@@ -107,6 +114,7 @@ def LaunchGameAgent():
     global gameEnd
     if diabloExecuted:
         diabloExecuted = False
+        root.protocol("WM_DELETE_WINDOW", ExitProgram)
         gameEnd = time.time()
         switchButton['text'] = '디아블로 실행...'
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
