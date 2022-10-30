@@ -84,7 +84,7 @@ def InterruptProgram(sig, frame):
     launch.destroy()
     root.destroy()
     exit(0)
-    
+
 launch.protocol("WM_DELETE_WINDOW", HideWindow)
 root.protocol("WM_DELETE_WINDOW", ExitProgram)
 signal.signal(signal.SIGINT, InterruptProgram)
@@ -96,15 +96,17 @@ def DiabloII_Launcher():
     diabloExecuted = True
     root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
-        if int(alteredX) < 1280 and int(alteredY) < 720:
+        if int(alteredX) < 1280 or int(alteredY) < 720:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
             return
-        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
-
+            diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            return
+        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
@@ -120,15 +122,17 @@ def DiabloIII_Launcher():
     diabloExecuted = True
     root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
-        if int(alteredX) < 1024 and int(alteredY) < 768:
+        if int(alteredX) < 1024 or int(alteredY) < 768:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
             return
-
-        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
+            diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            return
+        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
@@ -176,7 +180,7 @@ def LaunchGameAgent():
             diablo2['state'] = "disabled"
         else:
             diablo2['state'] = "normal"
-            
+
         if not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
             diablo3['state'] = "disabled"
         else:
@@ -273,7 +277,7 @@ def SetEnvironmentValue():
     envOriginX = tkinter.Entry(envWindow, width=50)
     envOriginY = tkinter.Entry(envWindow, width=50)
     envOriginFR = tkinter.Entry(envWindow, width=50)
-    envAlteredX= tkinter.Entry(envWindow, width=50)
+    envAlteredX = tkinter.Entry(envWindow, width=50)
     envAlteredY = tkinter.Entry(envWindow, width=50)
     envAlteredFR = tkinter.Entry(envWindow, width=50)
 
