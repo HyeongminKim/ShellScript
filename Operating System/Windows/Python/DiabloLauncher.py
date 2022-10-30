@@ -1,13 +1,26 @@
 #-*- coding:utf-8 -*-
 
-from tkinter import *
-from datetime import datetime
-import tkinter.messagebox
+import platform
 import os
-import subprocess
-import time
 import sys
 import signal
+import subprocess
+
+if platform.system() != 'Windows':
+    print(f'{platform.system()} system does not support yet.')
+    exit(1)
+else:
+    if platform.release() == '7' or platform.release() == '8' or platform.release == '10' or platform.release() == '11':
+        print ('support system detected. creating GUI')
+    else:
+        print (f'{platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.')
+        exit(1)
+
+from datetime import datetime
+import time
+
+from tkinter import *
+import tkinter.messagebox
 
 diabloExecuted = False
 forceReboot = False
