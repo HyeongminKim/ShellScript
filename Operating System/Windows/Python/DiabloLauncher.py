@@ -26,13 +26,6 @@ alteredX = None
 alteredY = None
 alteredFR = None
 
-local = os.popen('git rev-parse HEAD')
-if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
-    remote = os.popen('git rev-parse HEAD')
-    if local != remote:
-        print(local + ' → ' + remote)
-        exit(0)
-
 root = Tk()
 root.title('디아블로 런처')
 root.geometry("520x480+100+100")
@@ -43,6 +36,14 @@ launch.geometry("300x125+200+200")
 launch.resizable(False, False)
 launch.attributes('-toolwindow', True)
 root.after(1, lambda: root.focus_force())
+
+local = os.popen('git rev-parse HEAD')
+if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
+    remote = os.popen('git rev-parse HEAD')
+    if local != remote:
+        print(local + ' → ' + remote)
+        os.system('python DiabloLauncher.py &')
+        exit(0)
 
 def ShowWindow():
     launch.after(1, lambda: launch.focus_force())
