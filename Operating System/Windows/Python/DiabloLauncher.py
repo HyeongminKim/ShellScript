@@ -67,7 +67,7 @@ def HideWindow():
         widget.destroy()
 
 def AlertWindow():
-    msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='warning')
+    msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='question')
     if msg_box == 'yes':
         LaunchGameAgent()
         ExitProgram()
@@ -100,11 +100,15 @@ def DiabloII_Launcher():
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
             return
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
             return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
     else:
@@ -261,7 +265,7 @@ def GetEnvironmentValue():
         print(int(alteredY))
         print(float(alteredFR))
     except Exception as error:
-        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
+        tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         data = None
 
 def SetEnvironmentValue():
@@ -348,7 +352,12 @@ def SetEnvironmentValue():
 
 def RequirementCheck():
     if not os.path.isfile('C:/Windows/System32/QRes.exe'):
-        tkinter.messagebox.showerror('디아블로 런처', 'QRes가 설치되지 않았습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
+        msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
+        if msg_box == 'yes':
+            os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
+        else:
+            tkinter.messagebox.showwarning('디아블로 런처', 'QRes 설치를 취소하였습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
+
     if data is None:
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
     elif data is not None and not os.path.isdir(gamePath):
