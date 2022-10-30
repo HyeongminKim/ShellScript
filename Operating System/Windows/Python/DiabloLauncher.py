@@ -6,6 +6,8 @@ import tkinter.messagebox
 import os
 import subprocess
 import time
+import sys
+import signal
 
 diabloExecuted = False
 forceReboot = False
@@ -40,6 +42,7 @@ launch = Tk()
 launch.geometry("300x125+200+200")
 launch.resizable(False, False)
 launch.attributes('-toolwindow', True)
+root.after(1, lambda: root.focus_force())
 
 def ShowWindow():
     launch.after(1, lambda: launch.focus_force())
@@ -50,15 +53,27 @@ def HideWindow():
         widget.destroy()
 
 def AlertWindow():
-    tkinter.messagebox.showwarning('디아블로 런처', '디아블로 실행 중에는 런처를 종료할 수 없습니다. 먼저 게임을 종료해 주시기 바랍니다.')
+    msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='warning')
+    if msg_box == 'yes':
+        LaunchGameAgent()
+        ExitProgram()
+    else:
+        tkinter.messagebox.showwarning('디아블로 런처', '해상도가 조절된 상태에서는 런처를 종료할 수 없습니다. 먼저 해상도를 기본 설정으로 변경해 주시기 바랍니다.')
 
 def ExitProgram():
+    launch.destroy()
+    root.destroy()
+    exit(0)
+
+def InterruptProgram(sig, frame):
+    print('^C Keyboard Interrupt')
     launch.destroy()
     root.destroy()
     exit(0)
     
 launch.protocol("WM_DELETE_WINDOW", HideWindow)
 root.protocol("WM_DELETE_WINDOW", ExitProgram)
+signal.signal(signal.SIGINT, InterruptProgram)
 
 def DiabloII_Launcher():
     global diabloExecuted
