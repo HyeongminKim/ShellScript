@@ -10,7 +10,7 @@ if platform.system() != 'Windows':
     print(f'{platform.system()} system does not support yet.')
     exit(1)
 else:
-    if platform.release() == '7' or platform.release() == '8' or platform.release == '10' or platform.release() == '11':
+    if platform.release() == '7' or platform.release() == '8' or platform.release() == '10' or platform.release() == '11':
         print ('support system detected. creating GUI')
     else:
         print (f'{platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.')
