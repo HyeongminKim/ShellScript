@@ -101,6 +101,13 @@ def DiabloII_Launcher():
             HideWindow()
             UpdateStatusValue()
             return
+        if platform.release() != '10' and platform.release() != '11':
+            tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+            diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
+            return
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
             diabloExecuted = False
@@ -128,11 +135,22 @@ def DiabloIII_Launcher():
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
+            return
+        if platform.release() != '7' and platform.release() != '8' and platform.release() != '10' and platform.release() != '11':
+            tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+            diabloExecuted = False
+            root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
             return
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
+            HideWindow()
+            UpdateStatusValue()
             return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
         root.protocol("WM_DELETE_WINDOW", AlertWindow)
