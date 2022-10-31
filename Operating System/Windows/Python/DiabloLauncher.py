@@ -362,8 +362,6 @@ def RequirementCheck():
         msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
         if msg_box == 'yes':
             os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
-        else:
-            tkinter.messagebox.showwarning('디아블로 런처', 'QRes 설치를 취소하였습니다. 해상도를 변경하려면 QRes를 먼저 설치하여야 합니다.')
 
     if data is None:
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
