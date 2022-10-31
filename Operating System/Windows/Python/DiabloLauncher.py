@@ -45,6 +45,7 @@ root.geometry("520x480+100+100")
 root.resizable(False, False)
 root.attributes('-toolwindow', True)
 launch = Tk()
+launch.title('무제')
 launch.geometry("300x125+200+200")
 launch.resizable(False, False)
 launch.attributes('-toolwindow', True)
@@ -64,6 +65,7 @@ def HideWindow():
     root.after(1, lambda: root.focus_force())
     for widget in launch.winfo_children():
         widget.destroy()
+    launch.title('무제')
 
 def AlertWindow():
     msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='question')
