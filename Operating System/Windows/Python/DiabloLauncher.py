@@ -279,7 +279,10 @@ def SetEnvironmentValue():
     tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. "고급 시스템 설정"에 접근 시 관리자 권한을 요청하는 프롬프트가 나타날 수 있습니다. ')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
-    envWindow.geometry("320x170+200+200")
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        envWindow.geometry("320x170+200+200")
+    else:
+        envWindow.geometry("320x50+200+200")
     envWindow.resizable(False, False)
     envWindow.attributes('-toolwindow', True)
 
