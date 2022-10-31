@@ -54,7 +54,6 @@ local = os.popen('git rev-parse HEAD')
 if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
     remote = os.popen('git rev-parse HEAD')
     if local != remote:
-        print(f'{local} → {remote}')
         os.system('python DiabloLauncher.py &')
         exit(0)
 
