@@ -94,7 +94,6 @@ def DiabloII_Launcher():
     global launch
     global gameStart
     diabloExecuted = True
-    root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1280 or int(alteredY) < 720:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
@@ -111,6 +110,7 @@ def DiabloII_Launcher():
             UpdateStatusValue()
             return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
+        root.protocol("WM_DELETE_WINDOW", AlertWindow)
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
@@ -124,7 +124,6 @@ def DiabloIII_Launcher():
     global launch
     global gameStart
     diabloExecuted = True
-    root.protocol("WM_DELETE_WINDOW", AlertWindow)
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1024 or int(alteredY) < 768:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
@@ -137,6 +136,7 @@ def DiabloIII_Launcher():
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
             return
         switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
+        root.protocol("WM_DELETE_WINDOW", AlertWindow)
     else:
         switchButton['text'] = '게임 종료'
     os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
@@ -246,24 +246,30 @@ def EmgergencyReboot():
 def GetEnvironmentValue():
     global data
     global gamePath
-    global originX
-    global originY
-    global originFR
-    global alteredX
-    global alteredY
-    global alteredFR
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        global originX
+        global originY
+        global originFR
+        global alteredX
+        global alteredY
+        global alteredFR
 
     try:
         data = os.environ.get('DiabloLauncher')
         print(data)
         temp = None
-        gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
-        print(int(originX))
-        print(int(originY))
-        print(float(originFR))
-        print(int(alteredX))
-        print(int(alteredY))
-        print(float(alteredFR))
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
+        else:
+            gamePath, temp = data.split(';')
+
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            print(int(originX))
+            print(int(originY))
+            print(float(originFR))
+            print(int(alteredX))
+            print(int(alteredY))
+            print(float(alteredFR))
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         data = None
@@ -278,63 +284,76 @@ def SetEnvironmentValue():
     envWindow.attributes('-toolwindow', True)
 
     envGameDir = tkinter.Entry(envWindow, width=50)
-    envOriginX = tkinter.Entry(envWindow, width=50)
-    envOriginY = tkinter.Entry(envWindow, width=50)
-    envOriginFR = tkinter.Entry(envWindow, width=50)
-    envAlteredX = tkinter.Entry(envWindow, width=50)
-    envAlteredY = tkinter.Entry(envWindow, width=50)
-    envAlteredFR = tkinter.Entry(envWindow, width=50)
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        envOriginX = tkinter.Entry(envWindow, width=50)
+        envOriginY = tkinter.Entry(envWindow, width=50)
+        envOriginFR = tkinter.Entry(envWindow, width=50)
+        envAlteredX = tkinter.Entry(envWindow, width=50)
+        envAlteredY = tkinter.Entry(envWindow, width=50)
+        envAlteredFR = tkinter.Entry(envWindow, width=50)
 
     envGameDir.pack()
-    envOriginX.pack()
-    envOriginY.pack()
-    envOriginFR.pack()
-    envAlteredX.pack()
-    envAlteredY.pack()
-    envAlteredFR.pack()
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        envOriginX.pack()
+        envOriginY.pack()
+        envOriginFR.pack()
+        envAlteredX.pack()
+        envAlteredY.pack()
+        envAlteredFR.pack()
 
     if data is not None:
         envGameDir.insert(0, gamePath)
-        envOriginX.insert(0, originX)
-        envOriginY.insert(0, originY)
-        envOriginFR.insert(0, originFR)
-        envAlteredX.insert(0, alteredX)
-        envAlteredY.insert(0, alteredY)
-        envAlteredFR.insert(0, alteredFR)
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            envOriginX.insert(0, originX)
+            envOriginY.insert(0, originY)
+            envOriginFR.insert(0, originFR)
+            envAlteredX.insert(0, alteredX)
+            envAlteredY.insert(0, alteredY)
+            envAlteredFR.insert(0, alteredFR)
     else:
         envGameDir.insert(0, 'C:\Program Files (x86)')
 
     def commit():
-        if envGameDir.get() != '' and envOriginX.get() == '' and envOriginY.get() == '' and envOriginFR.get() == '' and envAlteredX.get() == '' and envAlteredY.get() == '' and envAlteredFR.get() == '':
-            os.environ['DiabloLauncher'] = envGameDir.get()
-            UpdateStatusValue()
-            if data is not None and not os.path.isdir(gamePath):
-                tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
-                envWindow.after(1, lambda: envWindow.focus_force())
-            elif data is not None and os.path.isdir(gamePath):
-                if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-                    tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            if envGameDir.get() != '' and envOriginX.get() == '' and envOriginY.get() == '' and envOriginFR.get() == '' and envAlteredX.get() == '' and envAlteredY.get() == '' and envAlteredFR.get() == '':
+                os.environ['DiabloLauncher'] = envGameDir.get()
+                UpdateStatusValue()
+                if data is not None and not os.path.isdir(gamePath):
+                    tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
                     envWindow.after(1, lambda: envWindow.focus_force())
-                else:
-                    envWindow.destroy()
-        elif envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
-            tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
-            envWindow.after(1, lambda: envWindow.focus_force())
+                elif data is not None and os.path.isdir(gamePath):
+                    if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                        tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                        envWindow.after(1, lambda: envWindow.focus_force())
+                    else:
+                        envWindow.destroy()
+            elif envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
+                tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
+                envWindow.after(1, lambda: envWindow.focus_force())
+            else:
+                if envGameDir.get().find(';') >= 0 or envOriginX.get().find(';') >= 0 or envOriginY.get().find(';') >= 0 or envOriginFR.get().find(';') >= 0 or envAlteredX.get().find(';') >= 0 or envAlteredY.get().find(';') >= 0 or envAlteredFR.get().find(';') >= 0:
+                    tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 이 문제로 인하여 예기치 않은 디렉토리가 지정될 수 있습니다. 해당 문자는 레거시 에디터 편집방식으로 현재 버전에는 적용할 수 없습니다. 레거시 에디터를 사용하시려면 첫번째 텍스트 필드를 제외한 모든 텍스트 필드는 공란이어야 합니다.')
+                    os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
         else:
-            if envGameDir.get().find(';') >= 0 or envOriginX.get().find(';') >= 0 or envOriginY.get().find(';') >= 0 or envOriginFR.get().find(';') >= 0 or envAlteredX.get().find(';') >= 0 or envAlteredY.get().find(';') >= 0 or envAlteredFR.get().find(';') >= 0:
-                tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 이 문제로 인하여 예기치 않은 디렉토리가 지정될 수 있습니다. 해당 문자는 레거시 에디터 편집방식으로 현재 버전에는 적용할 수 없습니다. 레거시 에디터를 사용하시려면 첫번째 텍스트 필드를 제외한 모든 텍스트 필드는 공란이어야 합니다.')
-                os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
-
-            UpdateStatusValue()
-            if data is not None and not os.path.isdir(gamePath):
-                tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
-                envWindow.after(1, lambda: envWindow.focus_force())
-            elif data is not None and os.path.isdir(gamePath):
-                if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-                    tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+            if envGameDir.get() != '':
+                os.environ['DiabloLauncher'] = envGameDir.get()
+                UpdateStatusValue()
+                if data is not None and not os.path.isdir(gamePath):
+                    tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
                     envWindow.after(1, lambda: envWindow.focus_force())
-                else:
-                    envWindow.destroy()
+                elif data is not None and os.path.isdir(gamePath):
+                    if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                        tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                        envWindow.after(1, lambda: envWindow.focus_force())
+                    else:
+                        envWindow.destroy()
+            elif envGameDir.get() == '':
+                tkinter.messagebox.showwarning('환경변수 편집기', '게임 디렉토리 환경변수가 누락되었습니다.')
+                envWindow.after(1, lambda: envWindow.focus_force())
+            else:
+                if envGameDir.get().find(';') >= 0:
+                    tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 현재 환경에서는 개행문자를 사용할 수 없습니다.')
+                    os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};'
 
     def openEnvSetting():
         tkinter.messagebox.showwarning('디아블로 런처', '업데이트된 환경변수를 반영하기 위해 프로그램을 종료합니다. 환경변수 편집을 모두 완료한 후 다시 실행해 주세요.')
@@ -370,17 +389,27 @@ def UpdateStatusValue():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
-        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n"
+        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n"
         switchButton['state'] = "disabled"
     else:
-        if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n"
-        elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
-            status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n"
-        elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n"
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n"
+            elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n"
+            elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n"
+            else:
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n"
         else:
-            status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n"
+            if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n"
+            elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n"
+            elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n"
+            else:
+                status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n"
         switchButton['state'] = "normal"
 
 
@@ -393,17 +422,27 @@ emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실
 now = datetime.now()
 cnt_time = now.strftime("%H:%M:%S")
 if data is None:
-    status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
+    status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
     switchButton['state'] = "disabled"
 else:
-    if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
-    elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
-        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
-    elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
+        elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
+        elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+        else:
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
     else:
-        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
+        if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
+        elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
+        elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+        else:
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
     switchButton['state'] = "normal"
 refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
 info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
