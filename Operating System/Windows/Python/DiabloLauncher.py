@@ -334,6 +334,17 @@ def SetEnvironmentValue():
                 if envGameDir.get().find(';') >= 0 or envOriginX.get().find(';') >= 0 or envOriginY.get().find(';') >= 0 or envOriginFR.get().find(';') >= 0 or envAlteredX.get().find(';') >= 0 or envAlteredY.get().find(';') >= 0 or envAlteredFR.get().find(';') >= 0:
                     tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 이 문제로 인하여 예기치 않은 디렉토리가 지정될 수 있습니다. 해당 문자는 레거시 에디터 편집방식으로 현재 버전에는 적용할 수 없습니다. 레거시 에디터를 사용하시려면 첫번째 텍스트 필드를 제외한 모든 텍스트 필드는 공란이어야 합니다.')
                     os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
+                    os.environ['DiabloLauncher'] = envGameDir.get()
+                    UpdateStatusValue()
+                    if data is not None and not os.path.isdir(gamePath):
+                        tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+                        envWindow.after(1, lambda: envWindow.focus_force())
+                    elif data is not None and os.path.isdir(gamePath):
+                        if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                            tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                            envWindow.after(1, lambda: envWindow.focus_force())
+                        else:
+                            envWindow.destroy()
         else:
             if envGameDir.get() != '':
                 os.environ['DiabloLauncher'] = envGameDir.get()
@@ -354,6 +365,17 @@ def SetEnvironmentValue():
                 if envGameDir.get().find(';') >= 0:
                     tkinter.messagebox.showwarning('환경변수 편집기', '개행문자 ";" 가 포함되었으며 해당 문자는 모두 무시됩니다. 현재 환경에서는 개행문자를 사용할 수 없습니다.')
                     os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};'
+                    os.environ['DiabloLauncher'] = envGameDir.get()
+                    UpdateStatusValue()
+                    if data is not None and not os.path.isdir(gamePath):
+                        tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+                        envWindow.after(1, lambda: envWindow.focus_force())
+                    elif data is not None and os.path.isdir(gamePath):
+                        if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                            tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                            envWindow.after(1, lambda: envWindow.focus_force())
+                        else:
+                            envWindow.destroy()
 
     def openEnvSetting():
         tkinter.messagebox.showwarning('디아블로 런처', '업데이트된 환경변수를 반영하기 위해 프로그램을 종료합니다. 환경변수 편집을 모두 완료한 후 다시 실행해 주세요.')
@@ -442,7 +464,7 @@ else:
         elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
             status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
         else:
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
+            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: \n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
     switchButton['state'] = "normal"
 refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
 info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
