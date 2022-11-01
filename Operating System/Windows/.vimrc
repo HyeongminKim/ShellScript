@@ -41,7 +41,6 @@ Plugin 'snipMate'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'Yggdroot/indentLine'
 Plugin 'haya14busa/incsearch.vim'
-Plugin 'wakatime/vim-wakatime'
 
 call vundle#end()
 
