@@ -62,7 +62,7 @@ def UpdateProgram():
                 exit(0)
     elif os.system('ping -n 1 -w 1 www.google.com &') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
-    else:
+    elif os.system('git pull --rebase origin master') != 0:
         os.system('git status &')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
 
