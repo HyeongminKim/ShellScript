@@ -5,6 +5,7 @@ import os
 import sys
 import signal
 import subprocess
+from multiprocessing import Process
 
 if platform.system() != 'Windows':
     print(f'{platform.system()} system does not support yet.')
@@ -40,32 +41,44 @@ alteredY = None
 alteredFR = None
 
 root = Tk()
-root.title(f"디아블로 런처 (rev. {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()})")
-root.geometry("520x480+100+100")
-root.resizable(False, False)
-root.attributes('-toolwindow', True)
+root.withdraw()
 launch = Tk()
-launch.title('무제')
-launch.geometry("300x125+200+200")
-launch.resizable(False, False)
-launch.attributes('-toolwindow', True)
-root.after(1, lambda: root.focus_force())
+launch.withdraw()
 
-local = os.popen('git rev-parse HEAD')
-if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
-    remote = os.popen('git rev-parse HEAD')
-    if local != remote:
-        os.system('python DiabloLauncher.py &')
-        exit(0)
+switchButton = None
+emergencyButton = None
+status = None
+refreshBtn = None
+
+def UpdateProgram():
+    global root
+    local = os.popen('git rev-parse HEAD')
+    if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
+        remote = os.popen('git rev-parse HEAD')
+        if local != remote:
+            msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
+            if msg_box == 'yes':
+                os.system('python DiabloLauncher.py &')
+                exit(0)
+    elif os.system('ping -n 1 -w 1 www.google.com &') != 0:
+        tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
+    else:
+        os.system('git status &')
+        tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
 
 def ShowWindow():
+    global launch
+    launch.deiconify()
     launch.after(1, lambda: launch.focus_force())
 
 def HideWindow():
+    global root
+    global launch
     root.after(1, lambda: root.focus_force())
     for widget in launch.winfo_children():
         widget.destroy()
     launch.title('무제')
+    launch.withdraw()
 
 def AlertWindow():
     msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='question')
@@ -76,24 +89,27 @@ def AlertWindow():
         tkinter.messagebox.showwarning('디아블로 런처', '해상도가 조절된 상태에서는 런처를 종료할 수 없습니다. 먼저 해상도를 기본 설정으로 변경해 주시기 바랍니다.')
 
 def ExitProgram():
+    global root
+    global launch
     launch.destroy()
     root.destroy()
     exit(0)
 
 def InterruptProgram(sig, frame):
+    global root
+    global launch
     print('^C Keyboard Interrupt')
     launch.destroy()
     root.destroy()
     exit(0)
 
-launch.protocol("WM_DELETE_WINDOW", HideWindow)
-root.protocol("WM_DELETE_WINDOW", ExitProgram)
-signal.signal(signal.SIGINT, InterruptProgram)
-
 def DiabloII_Launcher():
     global diabloExecuted
+    global root
     global launch
     global gameStart
+    global switchButton
+    global refreshBtn
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1280 or int(alteredY) < 720:
@@ -129,8 +145,11 @@ def DiabloII_Launcher():
 
 def DiabloIII_Launcher():
     global diabloExecuted
+    global root
     global launch
     global gameStart
+    global switchButton
+    global refreshBtn
     diabloExecuted = True
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
         if int(alteredX) < 1024 or int(alteredY) < 768:
@@ -166,7 +185,10 @@ def DiabloIII_Launcher():
 
 def LaunchGameAgent():
     global diabloExecuted
+    global root
     global launch
+    global switchButton
+    global refreshBtn
     global gameEnd
     if diabloExecuted:
         diabloExecuted = False
@@ -214,6 +236,9 @@ def LaunchGameAgent():
 
 def RebootAgent():
     global forceReboot
+    global emergencyButton
+    global switchButton
+    global refreshBtn
     forceReboot = True
     emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
@@ -227,6 +252,9 @@ def RebootAgent():
 
 def HaltAgent():
     global forceReboot
+    global emergencyButton
+    global switchButton
+    global refreshBtn
     forceReboot = True
     emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
     if os.path.isfile('C:/Windows/System32/QRes.exe'):
@@ -242,6 +270,9 @@ def HaltAgent():
 def EmgergencyReboot():
     global launch
     global forceReboot
+    global emergencyButton
+    global switchButton
+    global refreshBtn
     if forceReboot:
         forceReboot = False
         emergencyButton['text'] = '긴급 전원 작업 (게임 저장 후 실행 요망)'
@@ -337,7 +368,7 @@ def SetEnvironmentValue():
 
     def commit():
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            if envGameDir.get() == '' and envOriginX.get() == '' and envOriginY.get() == '' and envOriginFR.get() == '' and envAlteredX.get() == '' and envAlteredY.get() == '' and envAlteredFR.get() == '':
+            if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
@@ -390,6 +421,8 @@ def RequirementCheck():
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
 
 def UpdateStatusValue():
+    global status
+    global switchButton
     GetEnvironmentValue()
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
@@ -418,48 +451,79 @@ def UpdateStatusValue():
         switchButton['state'] = "normal"
 
 
-GetEnvironmentValue()
-RequirementCheck()
+def init():
+    global root
+    global launch
+    global switchButton
+    global emergencyButton
+    global status
+    global refreshBtn
+    root.title(f"디아블로 런처 (rev. {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()})")
+    root.geometry("520x480+100+100")
+    root.deiconify()
+    root.resizable(False, False)
+    root.attributes('-toolwindow', True)
+    launch.title('무제')
+    launch.geometry("300x125+200+200")
+    launch.resizable(False, False)
+    launch.attributes('-toolwindow', True)
+    root.after(1, lambda: root.focus_force())
 
-welcome = Label(root, text='')
-switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
-emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
-now = datetime.now()
-cnt_time = now.strftime("%H:%M:%S")
-if data is None:
-    status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
-    switchButton['state'] = "disabled"
-else:
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
-        if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
-        elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
-        elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
-        else:
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
+    launch.protocol("WM_DELETE_WINDOW", HideWindow)
+    root.protocol("WM_DELETE_WINDOW", ExitProgram)
+    signal.signal(signal.SIGINT, InterruptProgram)
+
+    GetEnvironmentValue()
+    RequirementCheck()
+
+    welcome = Label(root, text='')
+    switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
+    emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
+    now = datetime.now()
+    cnt_time = now.strftime("%H:%M:%S")
+    if data is None:
+        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
+        switchButton['state'] = "disabled"
     else:
-        if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
-        elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
-        elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
+            elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
+            elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+            else:
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
         else:
-            status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: \n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
-    switchButton['state'] = "normal"
-refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
-info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
-notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, {subprocess.check_output('python --version', shell=True, encoding='utf-8').strip()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
+            if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
+            elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II\n")
+            elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: III\n")
+            else:
+                status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: \n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
+        switchButton['state'] = "normal"
+    refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
+    info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
+    notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, {subprocess.check_output('python --version', shell=True, encoding='utf-8').strip()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
 
-welcome.pack()
-switchButton.pack()
-emergencyButton.pack()
-status.pack()
-refreshBtn.pack()
-info.pack()
-notice.pack()
+    welcome.pack()
+    switchButton.pack()
+    emergencyButton.pack()
+    status.pack()
+    refreshBtn.pack()
+    info.pack()
+    notice.pack()
 
-root.mainloop()
+    root.mainloop()
+
+if __name__ == '__main__':
+    mainThread = Process(target=init)
+    updateThread = Process(target=UpdateProgram)
+
+    mainThread.start()
+    updateThread.start()
+    mainThread.join()
+    updateThread.join()
 
