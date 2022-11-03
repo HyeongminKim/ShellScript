@@ -3,20 +3,33 @@
 import platform
 
 if platform.system() != 'Windows':
-    print(f'{platform.system()} system does not support yet.')
+    print(f'\033[31m[ERR] {platform.system()} system does not support yet.\033[m')
     exit(1)
 else:
     if platform.release() == '7' or platform.release() == '8' or platform.release() == '10' or platform.release() == '11':
-        print ('support system detected. creating GUI')
+        print('[INFO] support OS detected.')
     else:
-        print (f'{platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.')
+        print(f'\033[31m[ERR] {platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.\033[m')
         exit(1)
+
+import multiprocessing
+
+if multiprocessing.cpu_count() < 2:
+    print(f'\033[31m[ERR] CPU {multiprocessing.cpu_count()} core does not support. Please check Diablo Requirements and Specifications.\033[m')
+    exit(1)
+else:
+    print('[INFO] support CPU detected. creating GUI...')
+
+try:
+    import psutil
+    print('[INFO] psutil moudle loaded.')
+except ModuleNotFoundError:
+    print('\033[33m[WARN] psutil moudle not found. Please install psutil with following command: pip install psutil\033[m')
 
 import os
 import sys
 import signal
 import subprocess
-from multiprocessing import Process
 
 from datetime import datetime
 import time
@@ -307,7 +320,7 @@ def GetEnvironmentValue():
 
     try:
         data = os.environ.get('DiabloLauncher')
-        print(data)
+        print(f'[INFO] {data}')
         temp = None
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
@@ -315,12 +328,13 @@ def GetEnvironmentValue():
             gamePath, temp = data.split(';')
 
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            print(int(originX))
-            print(int(originY))
-            print(float(originFR))
-            print(int(alteredX))
-            print(int(alteredY))
-            print(float(alteredFR))
+            print(f'[INFO] {gamePath}')
+            print(f'[INFO] {int(originX)}')
+            print(f'[INFO] {int(originY)}')
+            print(f'[INFO] {float(originFR)}')
+            print(f'[INFO] {int(alteredX)}')
+            print(f'[INFO] {int(alteredY)}')
+            print(f'[INFO] {float(alteredFR)}')
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         data = None
@@ -520,8 +534,8 @@ def init():
     root.mainloop()
 
 if __name__ == '__main__':
-    mainThread = Process(target=init)
-    updateThread = Process(target=UpdateProgram)
+    mainThread = multiprocessing.Process(target=init)
+    updateThread = multiprocessing.Process(target=UpdateProgram)
 
     mainThread.start()
     updateThread.start()
