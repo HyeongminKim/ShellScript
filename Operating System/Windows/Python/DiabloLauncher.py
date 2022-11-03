@@ -124,21 +124,27 @@ def UpdateProgram():
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
             if msg_box == 'yes':
                 print('[INFO] Launching new version DiabloLauncher...')
-                os.system('taskkill /im python.exe && python DiabloLauncher.py &')
+                os.system('python DiabloLauncher.py &')
                 print('[INFO] Successfully updated. DiabloLauncher now exiting...')
+                os.system(f'taskkill /T /PID {os.getppid()}')
             else:
                 print('[INFO] Please restart DiabloLauncher to apply any updates...')
+                exit(2)
         else:
             print('[INFO] DiabloLauncher Up to date.')
+            exit(0)
     elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
         print('\033[31m[ERR] Program update failed. Please check your internet connection.\033[m')
+        exit(1)
     elif os.system('git pull --rebase origin master > NUL 2>&1') != 0:
         os.system('git status')
-        tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
+        tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 오류가 발생하였습니다. 자세한 사항은 로그를 참조해 주세요. ')
         print('\033[31m[ERR] Program update failed. Please see the output.\033[m')
+        exit(1)
     else:
         print('[INFO] DiabloLauncher Up to date')
+        exit(0)
 
 def DiabloII_Launcher():
     global diabloExecuted
