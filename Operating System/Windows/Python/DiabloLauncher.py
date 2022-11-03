@@ -67,6 +67,7 @@ refreshBtn = None
 def UpdateProgram():
     global root
     local = os.popen('git rev-parse HEAD')
+    print('[INFO] Checking program updates...\033[1;30m')
     if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
         remote = os.popen('git rev-parse HEAD')
         if local != remote:
@@ -79,6 +80,7 @@ def UpdateProgram():
     elif os.system('git pull --rebase origin master') != 0:
         os.system('git status &')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
+    print('\033[m', end='')
 
 def ShowWindow():
     global launch
@@ -323,8 +325,10 @@ def GetEnvironmentValue():
         print(f'[INFO] {data}')
         temp = None
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            print('[INFO] QRes detected')
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
         else:
+            print('[INFO] QRes not detected')
             gamePath, temp = data.split(';')
 
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
@@ -337,6 +341,7 @@ def GetEnvironmentValue():
             print(f'[INFO] {float(alteredFR)}')
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
+        print(f'\033[31m[ERR] Unknown data or parameter style: {data}\n\t{error}\033[m')
         data = None
 
 def SetEnvironmentValue():
@@ -385,25 +390,31 @@ def SetEnvironmentValue():
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
             if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
+                print(f'\033[33m[WARN] some env can not be None.\033[m')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
                 os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
+                print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
         else:
             if envGameDir.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '게임 디렉토리 환경변수가 누락되었습니다.')
+                print(f'\033[33m[WARN] gamePath can not be None.\033[m')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
                 os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};'
+                print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
 
         UpdateStatusValue()
         if data is not None and not os.path.isdir(gamePath):
             tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+            print(f'\033[33m[WARN] {gamePath} no such directory.\033[m')
             envWindow.after(1, lambda: envWindow.focus_force())
         elif data is not None and os.path.isdir(gamePath):
             if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                 tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
+                print(f'\033[33m[WARN] {gamePath} not contains game directory.\033[m')
                 envWindow.after(1, lambda: envWindow.focus_force())
             else:
                 envWindow.destroy()
@@ -424,15 +435,19 @@ def SetEnvironmentValue():
 
 def RequirementCheck():
     if not os.path.isfile('C:/Windows/System32/QRes.exe'):
+        print('\033[33m[WARN] QRes not installed or not in C:\\Windows\\System32.\033[m')
         msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
         if msg_box == 'yes':
             os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
 
     if data is None:
+        print('\033[33m[WARN] parameter not set.\033[m')
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
     elif data is not None and not os.path.isdir(gamePath):
+        print('\033[33m[WARN] directory not exist.\033[m')
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리가 존재하지 않습니다.')
     elif not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+        print('\033[33m[WARN] game directory not exist.\033[m')
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
 
 def UpdateStatusValue():
