@@ -38,6 +38,7 @@ except Exception as error:
     exit(1)
 
 diabloExecuted = False
+
 forceReboot = False
 rebootWaitTime = 10
 
@@ -47,6 +48,7 @@ gameStart = None
 gameEnd = None
 cnt_time = now.strftime("%H:%M:%S")
 gamePath = None
+resolutionProgram = False
 originX = None
 originY = None
 originFR = None
@@ -78,6 +80,17 @@ def HideWindow():
     launch.title('무제')
     launch.withdraw()
 
+def UpdateResProgram():
+    global resolutionProgram
+    print('[INFO] QRes install check')
+    userLocalApp = os.environ.get('LocalAppData')
+    print(f'[INFO] {userLocalApp}')
+    if os.path.isfile('C:/Windows/System32/Qres.exe') or os.path.isfile(f'{userLocalApp}/Program/Common/QRes.exe)'):
+        print(f"[INFO] QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
+        resolutionProgram = True
+    else:
+        print('[INFO] QRes did not installed')
+
 def AlertWindow():
     msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='question')
     if msg_box == 'yes':
@@ -105,28 +118,28 @@ def UpdateProgram():
     global root
     global launch
     local = os.popen('git rev-parse HEAD')
-    print('[INFO] Checking program updates...\033[1;30m')
-    if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
+    print('[INFO] Checking program updates...')
+    if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
         remote = os.popen('git rev-parse HEAD')
         if local != remote:
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
             if msg_box == 'yes':
-                print('\033[m[INFO] Launching new version DiabloLauncher...')
+                print('[INFO] Launching new version DiabloLauncher...')
                 os.system('taskkill /im python.exe && python DiabloLauncher.py &')
-                print('\033[m[INFO] Successfully updated. DiabloLauncher now exiting...')
+                print('[INFO] Successfully updated. DiabloLauncher now exiting...')
             else:
-                print('\033[m[INFO] Please restart DiabloLauncher to apply any updates...')
+                print('[INFO] Please restart DiabloLauncher to apply any updates...')
         else:
-            print('\033[m[INFO] DiabloLauncher Up to date.')
-    elif os.system('ping -n 1 -w 1 www.google.com') != 0:
+            print('[INFO] DiabloLauncher Up to date.')
+    elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
         print('\033[31m[ERR] Program update failed. Please check your internet connection.\033[m')
-    elif os.system('git pull --rebase origin master') != 0:
+    elif os.system('git pull --rebase origin master > NUL 2>&1') != 0:
         os.system('git status')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
         print('\033[31m[ERR] Program update failed. Please see the output.\033[m')
     else:
-        print('\033[m[INFO] DiabloLauncher Up to date')
+        print('[INFO] DiabloLauncher Up to date')
 
 def DiabloII_Launcher():
     global diabloExecuted
@@ -136,7 +149,7 @@ def DiabloII_Launcher():
     global switchButton
     global refreshBtn
     diabloExecuted = True
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         if int(alteredX) < 1280 or int(alteredY) < 720:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
@@ -176,7 +189,7 @@ def DiabloIII_Launcher():
     global switchButton
     global refreshBtn
     diabloExecuted = True
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         if int(alteredX) < 1024 or int(alteredY) < 768:
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
@@ -220,7 +233,7 @@ def LaunchGameAgent():
         root.protocol("WM_DELETE_WINDOW", ExitProgram)
         gameEnd = time.time()
         switchButton['text'] = '디아블로 실행...'
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
                 tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         refreshBtn['state'] = "normal"
@@ -266,7 +279,7 @@ def RebootAgent():
     global refreshBtn
     forceReboot = True
     emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     HideWindow()
@@ -282,7 +295,7 @@ def HaltAgent():
     global refreshBtn
     forceReboot = True
     emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
             tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     HideWindow()
@@ -306,7 +319,7 @@ def EmgergencyReboot():
         os.system(f'shutdown -a')
     else:
         launch.title('전원')
-        if diabloExecuted and os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram and diabloExecuted:
             note = Label(launch, text=f'수행할 작업 시작전 {originX}x{originY} 해상도로 복구 후 계속')
         else:
             note = Label(launch, text='수행할 작업 선택')
@@ -321,7 +334,7 @@ def EmgergencyReboot():
 def GetEnvironmentValue():
     global data
     global gamePath
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         global originX
         global originY
         global originFR
@@ -333,14 +346,16 @@ def GetEnvironmentValue():
         data = os.environ.get('DiabloLauncher')
         print(f'[INFO] {data}')
         temp = None
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
-            print('[INFO] QRes detected')
+        if resolutionProgram:
+            print('[INFO] QRes detected. parameter count should be 7')
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
+            print('[INFO] parameter conversion succeed')
         else:
-            print('[INFO] QRes not detected')
+            print('[INFO] QRes not detected. parameter count should be 1')
             gamePath, temp = data.split(';')
+            print('[INFO] parameter conversion succeed')
 
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             print(f'[INFO] {gamePath}')
             print(f'[INFO] {int(originX)}')
             print(f'[INFO] {int(originY)}')
@@ -361,7 +376,7 @@ def GetEnvironmentValue():
         alteredFR = None
     finally:
         print(f'[INFO] {data}')
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             print(f'[INFO] {gamePath}')
             print(f'[INFO] {originX}')
             print(f'[INFO] {originY}')
@@ -369,13 +384,14 @@ def GetEnvironmentValue():
             print(f'[INFO] {alteredX}')
             print(f'[INFO] {alteredY}')
             print(f'[INFO] {alteredFR}')
+        UpdateResProgram()
 
 def SetEnvironmentValue():
     global data
     tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. "고급 시스템 설정"에 접근 시 관리자 권한을 요청하는 프롬프트가 나타날 수 있습니다. ')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         envWindow.geometry("320x170+200+200")
     else:
         envWindow.geometry("320x50+200+200")
@@ -383,7 +399,7 @@ def SetEnvironmentValue():
     envWindow.attributes('-toolwindow', True)
 
     envGameDir = tkinter.Entry(envWindow, width=50)
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         envOriginX = tkinter.Entry(envWindow, width=50)
         envOriginY = tkinter.Entry(envWindow, width=50)
         envOriginFR = tkinter.Entry(envWindow, width=50)
@@ -392,7 +408,7 @@ def SetEnvironmentValue():
         envAlteredFR = tkinter.Entry(envWindow, width=50)
 
     envGameDir.pack()
-    if os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if resolutionProgram:
         envOriginX.pack()
         envOriginY.pack()
         envOriginFR.pack()
@@ -402,7 +418,7 @@ def SetEnvironmentValue():
 
     if data is not None:
         envGameDir.insert(0, gamePath)
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             envOriginX.insert(0, originX)
             envOriginY.insert(0, originY)
             envOriginFR.insert(0, originFR)
@@ -413,7 +429,7 @@ def SetEnvironmentValue():
         envGameDir.insert(0, 'C:\Program Files (x86)')
 
     def commit():
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
                 print(f'\033[33m[WARN] some env can not be None.\033[m')
@@ -463,7 +479,7 @@ def SetEnvironmentValue():
     envWindow.mainloop()
 
 def RequirementCheck():
-    if not os.path.isfile('C:/Windows/System32/QRes.exe'):
+    if not resolutionProgram:
         print('\033[33m[WARN] QRes not installed or not in C:\\Windows\\System32.\033[m')
         msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
         if msg_box == 'yes':
@@ -486,12 +502,10 @@ def UpdateStatusValue():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
-        print('\033[1;30m')
-        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n"
-        print('\033[m', end='')
+        status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L > NUL 2>&1') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n"
         switchButton['state'] = "disabled"
     else:
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                 status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n"
             elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
@@ -534,6 +548,7 @@ def init():
     root.protocol("WM_DELETE_WINDOW", ExitProgram)
     signal.signal(signal.SIGINT, InterruptProgram)
 
+    UpdateResProgram()
     GetEnvironmentValue()
     RequirementCheck()
 
@@ -543,12 +558,10 @@ def init():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
-        print('\033[1;30m')
-        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
-        print('\033[m', end='')
+        status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L > NUL 2>&1') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
         switchButton['state'] = "disabled"
     else:
-        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+        if resolutionProgram:
             if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                 status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 예\n해상도 벡터: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None else '알 수 없음'}\n현재 해상도: {f'{alteredX}x{alteredY} {alteredFR}Hz' if diabloExecuted else f'{originX}x{originY} {originFR}Hz'}\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: II, III\n")
             elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
