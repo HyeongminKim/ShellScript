@@ -43,6 +43,7 @@ forceReboot = False
 rebootWaitTime = 10
 
 data = None
+userLocalApp = os.environ.get('LocalAppData')
 now = datetime.now()
 gameStart = None
 gameEnd = None
@@ -83,8 +84,6 @@ def HideWindow():
 def UpdateResProgram():
     global resolutionProgram
     print('[INFO] QRes install check')
-    userLocalApp = os.environ.get('LocalAppData')
-    print(f'[INFO] {userLocalApp}')
     if os.path.isfile('C:/Windows/System32/Qres.exe') or os.path.isfile(f'{userLocalApp}/Program/Common/QRes.exe)'):
         print(f"[INFO] QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
         resolutionProgram = True
@@ -480,7 +479,9 @@ def SetEnvironmentValue():
 
 def RequirementCheck():
     if not resolutionProgram:
-        print('\033[33m[WARN] QRes not installed or not in C:\\Windows\\System32.\033[m')
+        print('\033[33m[WARN] QRes not installed or not in...\033[m')
+        print('\033[33m\t- C:\\Windows\\System32\033[m')
+        print(f'\033[33m\t- {userLocalApp}/Program/Common/QRes.exe)\033[m')
         msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
         if msg_box == 'yes':
             os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
