@@ -1,11 +1,6 @@
 #-*- coding:utf-8 -*-
 
 import platform
-import os
-import sys
-import signal
-import subprocess
-from multiprocessing import Process
 
 if platform.system() != 'Windows':
     print(f'{platform.system()} system does not support yet.')
@@ -16,6 +11,12 @@ else:
     else:
         print (f'{platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.')
         exit(1)
+
+import os
+import sys
+import signal
+import subprocess
+from multiprocessing import Process
 
 from datetime import datetime
 import time
