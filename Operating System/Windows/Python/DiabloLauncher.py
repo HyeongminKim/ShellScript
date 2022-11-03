@@ -120,6 +120,8 @@ def UpdateProgram():
         os.system('git status')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
         print('\033[31m[ERR] Program update failed. Please see the output.\033[m')
+    else:
+        print('\033[m[INFO] DiabloLauncher Up to date')
 
 def DiabloII_Launcher():
     global diabloExecuted
