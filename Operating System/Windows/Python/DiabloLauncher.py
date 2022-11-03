@@ -20,16 +20,11 @@ if multiprocessing.cpu_count() < 2:
 else:
     print('[INFO] support CPU detected. creating GUI...')
 
-try:
-    import psutil
-    print('[INFO] psutil moudle loaded.')
-except ModuleNotFoundError:
-    print('\033[33m[WARN] psutil moudle not found. Please install psutil with following command: pip install psutil\033[m')
-
 import os
 import sys
 import signal
 import subprocess
+import logging
 
 from datetime import datetime
 import time
@@ -63,24 +58,6 @@ switchButton = None
 emergencyButton = None
 status = None
 refreshBtn = None
-
-def UpdateProgram():
-    global root
-    local = os.popen('git rev-parse HEAD')
-    print('[INFO] Checking program updates...\033[1;30m')
-    if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
-        remote = os.popen('git rev-parse HEAD')
-        if local != remote:
-            msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
-            if msg_box == 'yes':
-                os.system('python DiabloLauncher.py &')
-                exit(0)
-    elif os.system('ping -n 1 -w 1 www.google.com &') != 0:
-        tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
-    elif os.system('git pull --rebase origin master') != 0:
-        os.system('git status &')
-        tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
-    print('\033[m', end='')
 
 def ShowWindow():
     global launch
@@ -118,6 +95,31 @@ def InterruptProgram(sig, frame):
     launch.destroy()
     root.destroy()
     exit(0)
+
+def UpdateProgram():
+    global root
+    global launch
+    local = os.popen('git rev-parse HEAD')
+    print('[INFO] Checking program updates...\033[1;30m')
+    if os.system('git pull --rebase origin master | findstr DiabloLauncher') == 0:
+        remote = os.popen('git rev-parse HEAD')
+        if local != remote:
+            msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
+            if msg_box == 'yes':
+                print('\033[m[INFO] Launching new version DiabloLauncher...')
+                os.system('taskkill /im python.exe && python DiabloLauncher.py &')
+                print('\033[m[INFO] Successfully updated. DiabloLauncher now exiting...')
+            else:
+                print('\033[m[INFO] Please restart DiabloLauncher to apply any updates...')
+        else:
+            print('\033[m[INFO] DiabloLauncher Up to date.')
+    elif os.system('ping -n 1 -w 1 www.google.com') != 0:
+        tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
+        print('\033[31m[ERR] Program update failed. Please check your internet connection.\033[m')
+    elif os.system('git pull --rebase origin master') != 0:
+        os.system('git status')
+        tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 문제가 있는 것 같습니다. 자세한 사항은 로그를 참조해 주세요. ')
+        print('\033[31m[ERR] Program update failed. Please see the output.\033[m')
 
 def DiabloII_Launcher():
     global diabloExecuted
@@ -457,7 +459,9 @@ def UpdateStatusValue():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
+        print('\033[1;30m')
         status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n"
+        print('\033[m', end='')
         switchButton['state'] = "disabled"
     else:
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
@@ -512,7 +516,9 @@ def init():
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
+        print('\033[1;30m')
         status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: 아니요\n해상도 변경 지원됨: {'아니요' if os.system('QRes -L') != 0 else '예'}\n해상도 벡터: 알 수 없음\n현재 해상도: 알 수 없음 \n게임 디렉토리: 알 수 없음\n디렉토리 존재여부: 아니요\n디아블로 실행: 알 수 없음\n실행가능 버전: 없음\n")
+        print('\033[m', end='')
         switchButton['state'] = "disabled"
     else:
         if os.path.isfile('C:/Windows/System32/QRes.exe'):
@@ -549,11 +555,16 @@ def init():
     root.mainloop()
 
 if __name__ == '__main__':
+    multiprocessing.log_to_stderr()
+    logger = multiprocessing.get_logger()
+    logger.setLevel(logging.INFO)
+
     mainThread = multiprocessing.Process(target=init)
     updateThread = multiprocessing.Process(target=UpdateProgram)
 
     mainThread.start()
     updateThread.start()
+
     mainThread.join()
     updateThread.join()
 
