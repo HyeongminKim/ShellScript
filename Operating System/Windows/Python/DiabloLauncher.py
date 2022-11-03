@@ -1,36 +1,41 @@
 #-*- coding:utf-8 -*-
 
-import platform
+try:
+    import platform
 
-if platform.system() != 'Windows':
-    print(f'\033[31m[ERR] {platform.system()} system does not support yet.\033[m')
-    exit(1)
-else:
-    if platform.release() == '7' or platform.release() == '8' or platform.release() == '10' or platform.release() == '11':
-        print('[INFO] support OS detected.')
+    if platform.system() != 'Windows':
+        print(f'\033[31m[ERR] {platform.system()} system does not support yet.\033[m')
+        exit(1)
     else:
-        print(f'\033[31m[ERR] {platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.\033[m')
+        if platform.release() == '7' or platform.release() == '8' or platform.release() == '10' or platform.release() == '11':
+            print('[INFO] support OS detected.')
+        else:
+            print(f'\033[31m[ERR] {platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.\033[m')
+            exit(1)
+
+    import multiprocessing
+    import sys
+
+    if multiprocessing.cpu_count() >= 2 and sys.maxsize > 2**32:
+        print(f'[INFO] supported {platform.processor()} CPU detected. creating GUI...')
+    else:
+        print(f"\033[31m[ERR] {platform.processor()} CPU does not support (core: {multiprocessing.cpu_count()}, {'x64' if sys.maxsize > 2**32 else 'x86'}).")
+        print('Please check Diablo Requirements and Specifications.\033[m')
         exit(1)
 
-import multiprocessing
+    import os
+    import signal
+    import subprocess
+    import logging
 
-if multiprocessing.cpu_count() < 2:
-    print(f'\033[31m[ERR] CPU {multiprocessing.cpu_count()} core does not support. Please check Diablo Requirements and Specifications.\033[m')
+    from datetime import datetime
+    import time
+
+    from tkinter import *
+    import tkinter.messagebox
+except Exception as error:
+    print(f'The DiabloLauncher stoped due to {error}')
     exit(1)
-else:
-    print('[INFO] support CPU detected. creating GUI...')
-
-import os
-import sys
-import signal
-import subprocess
-import logging
-
-from datetime import datetime
-import time
-
-from tkinter import *
-import tkinter.messagebox
 
 diabloExecuted = False
 forceReboot = False
@@ -347,6 +352,23 @@ def GetEnvironmentValue():
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         print(f'\033[31m[ERR] Unknown data or parameter style: {data}\n\t{error}\033[m')
         data = None
+        gamePath = None
+        originX = None
+        originY = None
+        originFR = None
+        alteredX = None
+        alteredY = None
+        alteredFR = None
+    finally:
+        print(f'[INFO] {data}')
+        if os.path.isfile('C:/Windows/System32/QRes.exe'):
+            print(f'[INFO] {gamePath}')
+            print(f'[INFO] {originX}')
+            print(f'[INFO] {originY}')
+            print(f'[INFO] {originFR}')
+            print(f'[INFO] {alteredX}')
+            print(f'[INFO] {alteredY}')
+            print(f'[INFO] {alteredFR}')
 
 def SetEnvironmentValue():
     global data
@@ -425,7 +447,10 @@ def SetEnvironmentValue():
 
     def openEnvSetting():
         tkinter.messagebox.showwarning('디아블로 런처', '업데이트된 환경변수를 반영하기 위해 프로그램을 종료합니다. 환경변수 편집을 모두 완료한 후 다시 실행해 주세요.')
+        print('[INFO] starting advanced system env editor...')
+        print('[INFO] This action will required UAC')
         os.system('sysdm.cpl ,3')
+        print('[INFO] advanced system env editor launched. DiabloLauncher now exiting...')
         exit(0)
 
     envSet = tkinter.Button(envWindow, text='고급 시스템 설정', command=openEnvSetting)
@@ -543,8 +568,11 @@ def init():
                 status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n해상도 벡터: 알 수 없음\n현재 해상도: \n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
         switchButton['state'] = "normal"
     refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
-    info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
-    notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, {subprocess.check_output('python --version', shell=True, encoding='utf-8').strip()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
+    if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
+        info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
+    else:
+        info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
+    notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
 
     welcome.pack()
     switchButton.pack()
