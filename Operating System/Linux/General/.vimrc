@@ -96,7 +96,7 @@ language messages en_US.UTF-8
 set term=screen-256color
 
 if has('gui_running')
-    set guifont=Cousine\ for\ Powerline:h12
+    set guifont=Cousine\ for\ Powerline\ 12
 endif
 
 let @a='xjhxjhxjhxjhxjh'
