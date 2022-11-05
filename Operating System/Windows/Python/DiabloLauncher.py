@@ -250,6 +250,7 @@ def LaunchGameAgent():
         elapsedTime = elapsedTime % 60
         seconds = int(elapsedTime)
 
+        #TODO: 게임 플레이 통계 파일 작성 스크립트 기능 추가
         if hours > 0:
             tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.')
         elif minutes >= 5:
