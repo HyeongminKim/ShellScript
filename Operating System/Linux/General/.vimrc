@@ -97,6 +97,10 @@ set term=screen-256color
 
 if has('gui_running')
     set guifont=Cousine\ for\ Powerline\ 12
+    if has("gui_gtk2")
+        set guifontwide=D2Coding\ 12
+        set guioptions-=T
+    endif
 endif
 
 let @a='xjhxjhxjhxjhxjh'
