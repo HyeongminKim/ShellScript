@@ -311,9 +311,9 @@ def LaunchGameAgent():
         print(f'[INFO] Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
         print(f'[INFO] Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
         if hours > 0:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n총 {count}번 실행 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds} 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds} 플레이 하였습니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n총 {count}번 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다.')
         elif minutes >= 5:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n총 {count}번 실행 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds} 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds} 플레이 하였습니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n총 {count}번 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다.')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
