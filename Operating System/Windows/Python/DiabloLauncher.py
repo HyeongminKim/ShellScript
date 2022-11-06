@@ -202,7 +202,7 @@ def LoadGameRunningTime():
     finally:
         runtimeFile.close()
         if data is not None and sum != 0:
-            return len(data), max, (sum / len(data))
+            return len(data), max, sum, (sum / len(data))
 
 def DiabloII_Launcher():
     global diabloExecuted
@@ -302,18 +302,20 @@ def LaunchGameAgent():
         refreshBtn['state'] = "normal"
 
         SaveGameRunningTime(gameEnd - gameStart)
-        count, max, avg = LoadGameRunningTime()
+        count, max, sum, avg = LoadGameRunningTime()
         hours, minutes, seconds = ConvertTime(gameEnd - gameStart)
         maxHours, maxMinutes, maxSeconds = ConvertTime(max)
         avgHours, avgMinutes, avgSeconds = ConvertTime(avg)
+        sumHours, sumMinutes, sumSeconds = ConvertTime(sum)
 
         print(f'[INFO] Running game time for this session: {hours}:{minutes}.{seconds}')
         print(f'[INFO] Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
         print(f'[INFO] Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
+        print(f'[INFO] Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
         if hours > 0:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n총 {count}번 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다.')
         elif minutes >= 5:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n총 {count}번 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다. ')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
