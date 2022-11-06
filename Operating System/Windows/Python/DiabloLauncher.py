@@ -43,6 +43,7 @@ forceReboot = False
 rebootWaitTime = 10
 
 data = None
+userApp = os.environ.get('AppData')
 userLocalApp = os.environ.get('LocalAppData')
 now = datetime.now()
 gameStart = None
@@ -146,6 +147,63 @@ def UpdateProgram():
         print('[INFO] DiabloLauncher Up to date')
         exit(0)
 
+def ConvertTime(milliseconds: float):
+    elapsedTime = milliseconds
+
+    hours = int(elapsedTime / 3600)
+    elapsedTime = elapsedTime % 3600
+    minutes = int(elapsedTime / 60)
+    elapsedTime = elapsedTime % 60
+    seconds = int(elapsedTime)
+
+    return hours, minutes, seconds
+
+def SaveGameRunningTime(playTime: float):
+    runtimeFile = None
+    try:
+        if not os.path.isfile(f'{userApp}/DiabloLauncher/runtime.log'):
+            if not os.path.isdir(f'{userApp}/DiabloLauncher'):
+                print(f'[INFO] DiabloLauncher directory does not exist. creating directory')
+                os.mkdir(f'{userApp}/DiabloLauncher')
+            print(f'[INFO] runtime.log file does not exist. creating target file with write mode')
+            runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'w')
+        else:
+            print(f'[INFO] runtime.log file already exist. opening target file with append mode')
+            runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'a')
+        print(f'[INFO] playTime: {playTime} will be write in {userApp}/DiabloLauncher/runtime.log')
+        runtimeFile.write(f'{str(playTime)}\n')
+    except Exception as error:
+        print(f'\033[31m[ERR] Failed to save Game-play logs: {error}\033[m')
+    finally:
+        runtimeFile.close()
+
+def LoadGameRunningTime():
+    data = []
+    max = 0
+    sum = 0
+    runtimeFile = None
+    try:
+        if os.path.isfile(f'{userApp}/DiabloLauncher/runtime.log'):
+            runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'r')
+            while True:
+                line = runtimeFile.readline()
+                if not line: break
+                print(f'[INFO] {line}')
+                data.append(line)
+            for line in data:
+                print(f'[INFO] {float(line)}')
+                if max < float(line):
+                    max = float(line)
+                sum += float(line)
+        else:
+            raise FileNotFoundError
+    except Exception as error:
+        print(f'\033[31m[ERR] Failed to load Game-play logs: {error}\033[m')
+    finally:
+        runtimeFile.close()
+        if data is not None and sum != 0:
+            return len(data), max, (sum / len(data))
+
 def DiabloII_Launcher():
     global diabloExecuted
     global root
@@ -243,18 +301,19 @@ def LaunchGameAgent():
                 tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         refreshBtn['state'] = "normal"
 
-        elapsedTime = gameEnd - gameStart
-        hours = int(elapsedTime / 3600)
-        elapsedTime = elapsedTime % 3600
-        minutes = int(elapsedTime / 60)
-        elapsedTime = elapsedTime % 60
-        seconds = int(elapsedTime)
+        SaveGameRunningTime(gameEnd - gameStart)
+        count, max, avg = LoadGameRunningTime()
+        hours, minutes, seconds = ConvertTime(gameEnd - gameStart)
+        maxHours, maxMinutes, maxSeconds = ConvertTime(max)
+        avgHours, avgMinutes, avgSeconds = ConvertTime(avg)
 
-        #TODO: 게임 플레이 통계 파일 작성 스크립트 기능 추가
+        print(f'[INFO] Running game time for this session: {hours}:{minutes}.{seconds}')
+        print(f'[INFO] Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
+        print(f'[INFO] Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
         if hours > 0:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n총 {count}번 실행 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds} 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds} 플레이 하였습니다.')
         elif minutes >= 5:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.')
+            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n총 {count}번 실행 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds} 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds} 플레이 하였습니다.')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
@@ -283,7 +342,10 @@ def RebootAgent():
     global emergencyButton
     global switchButton
     global refreshBtn
+    global gameEnd
+    SaveGameRunningTime(gameEnd - gameStart)
     forceReboot = True
+    gameEnd = time.time()
     emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
@@ -299,6 +361,8 @@ def HaltAgent():
     global emergencyButton
     global switchButton
     global refreshBtn
+    global gameEnd
+    SaveGameRunningTime(gameEnd - gameStart)
     forceReboot = True
     emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
     if resolutionProgram:
