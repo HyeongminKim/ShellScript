@@ -41,6 +41,7 @@ diabloExecuted = False
 
 forceReboot = False
 rebootWaitTime = 10
+loadWaitTime = 10
 
 data = None
 userApp = os.environ.get('AppData')
@@ -302,20 +303,44 @@ def LaunchGameAgent():
         refreshBtn['state'] = "normal"
 
         SaveGameRunningTime(gameEnd - gameStart)
+        loadStart = time.time()
         count, max, sum, avg = LoadGameRunningTime()
         hours, minutes, seconds = ConvertTime(gameEnd - gameStart)
         maxHours, maxMinutes, maxSeconds = ConvertTime(max)
         avgHours, avgMinutes, avgSeconds = ConvertTime(avg)
         sumHours, sumMinutes, sumSeconds = ConvertTime(sum)
+        loadEnd = time.time()
+
+        elapsedTime = loadEnd - loadStart
+        if elapsedTime > loadWaitTime:
+            print(f'\033[33m[WARN] The request timeout when loading game data {userApp}/DiabloLauncher/runtime.log file.\033[m')
+            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds. But, current timeout setting is {loadWaitTime} seconds.')
+            print(f'[INFO] NOTE: The {userApp}/DiabloLauncher/runtime.log contents cleared.')
+            if os.remove(f'{userApp}/DiabloLauncher/runtime.log') == 0:
+                print(f'[INFO] The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
+            else:
+                print(f'\033[31m[ERR] Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.\033[m')
+        elif elapsedTime > (loadWaitTime / 2):
+            print(f'\033[33m[WARN] The request job too slow when loading game data {userApp}/DiabloLauncher/runtime.log file.\033[m')
+            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds, and current timeout setting is {loadWaitTime} seconds.')
+            print(f'[INFO] NOTE: {userApp}/DiabloLauncher/runtime.log contents will clear when this issues raised again.')
+        else:
+            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds. ')
 
         print(f'[INFO] Running game time for this session: {hours}:{minutes}.{seconds}')
         print(f'[INFO] Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
         print(f'[INFO] Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
         print(f'[INFO] Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
-        if hours > 0:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다.')
-        elif minutes >= 5:
-            tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다. ')
+        if count >= 3:
+            if hours > 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다.')
+            elif minutes >= 5:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다. ')
+        else:
+            if hours > 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계를 표시하려면 좀 더 많은 기록이 있어야 합니다.')
+            elif minutes >= 5:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계를 표시하려면 좀 더 많은 기록이 있어야 합니다.')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
