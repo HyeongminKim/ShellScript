@@ -460,7 +460,7 @@ def GetEnvironmentValue():
 
 def SetEnvironmentValue():
     global data
-    tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. "고급 시스템 설정"에 접근 시 관리자 권한을 요청하는 프롬프트가 나타날 수 있습니다. ')
+    tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. ')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
     if resolutionProgram:
@@ -534,12 +534,16 @@ def SetEnvironmentValue():
                 envWindow.destroy()
 
     def openEnvSetting():
-        tkinter.messagebox.showwarning('디아블로 런처', '업데이트된 환경변수를 반영하기 위해 프로그램을 종료합니다. 환경변수 편집을 모두 완료한 후 다시 실행해 주세요.')
-        print('[INFO] starting advanced system env editor...')
-        print('[INFO] This action will required UAC')
-        os.system('sysdm.cpl ,3')
-        print('[INFO] advanced system env editor launched. DiabloLauncher now exiting...')
-        exit(0)
+        msg_box = tkinter.messagebox.askquestion('디아블로 런처', '"고급 시스템 설정"에 접근 시 관리자 권한을 요청하는 프롬프트가 나타날 수 있으며, 업데이트된 환경변수를 반영하기 위해 프로그램을 종료해야 합니다. 계속하시겠습니까?', icon='question')
+        if msg_box == 'yes':
+            print('[INFO] starting advanced system env editor...')
+            print('[INFO] This action will required UAC')
+            os.system('sysdm.cpl ,3')
+            tkinter.messagebox.showwarning('디아블로 런처', '시스템 환경변수 수정을 모두 완료한 후 다시 실행해 주세요.')
+            print('[INFO] advanced system env editor launched. DiabloLauncher now exiting...')
+            exit(0)
+        else:
+            envWindow.after(1, lambda: envWindow.focus_force())
 
     envSet = tkinter.Button(envWindow, text='고급 시스템 설정', command=openEnvSetting)
     envSet.pack(side=LEFT, padx=10)
