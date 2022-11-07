@@ -33,6 +33,7 @@ try:
 
     from tkinter import *
     import tkinter.messagebox
+    import tkinter.filedialog
 except Exception as error:
     print(f'The DiabloLauncher stoped due to {error}')
     exit(1)
@@ -495,7 +496,18 @@ def SetEnvironmentValue():
     envWindow.resizable(False, False)
     envWindow.attributes('-toolwindow', True)
 
-    envGameDir = tkinter.Entry(envWindow, width=50)
+    def openDirectoryDialog():
+        global envGameDir
+        temp = gamePath
+        print(f'[INFO] Opening directory dialog location: {gamePath if gamePath is not None else "C:/Program Files (x86)"}')
+        envGameDir = tkinter.filedialog.askdirectory(parent=envWindow, initialdir=f"{gamePath if gamePath is not None else 'C:/Program Files (x86)'}", title='Battle.net 게임 디렉토리 선택')
+        if envGameDir == "":
+            print(f'[INFO] Selected directory dialog location: None directory path provided. resetting {temp}')
+            envGameDir = temp
+        else:
+            print(f'[INFO] Selected directory dialog location: {envGameDir}')
+
+    envGameBtn = Button(envWindow, text=f'{"게임 디렉토리 변경..." if gamePath is not None else "게임 디렉토리 등록..."}', command=openDirectoryDialog)
     if resolutionProgram:
         envOriginX = tkinter.Entry(envWindow, width=50)
         envOriginY = tkinter.Entry(envWindow, width=50)
@@ -504,7 +516,7 @@ def SetEnvironmentValue():
         envAlteredY = tkinter.Entry(envWindow, width=50)
         envAlteredFR = tkinter.Entry(envWindow, width=50)
 
-    envGameDir.pack()
+    envGameBtn.pack()
     if resolutionProgram:
         envOriginX.pack()
         envOriginY.pack()
@@ -514,7 +526,6 @@ def SetEnvironmentValue():
         envAlteredFR.pack()
 
     if data is not None:
-        envGameDir.insert(0, gamePath)
         if resolutionProgram:
             envOriginX.insert(0, originX)
             envOriginY.insert(0, originY)
@@ -522,27 +533,25 @@ def SetEnvironmentValue():
             envAlteredX.insert(0, alteredX)
             envAlteredY.insert(0, alteredY)
             envAlteredFR.insert(0, alteredFR)
-    else:
-        envGameDir.insert(0, 'C:\Program Files (x86)')
 
     def commit():
         if resolutionProgram:
-            if envGameDir.get() == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
+            if envGameDir == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
                 print(f'\033[33m[WARN] some env can not be None.\033[m')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
-                os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
+                os.environ['DiabloLauncher'] = f'{envGameDir.replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
                 print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
         else:
-            if envGameDir.get() == '':
+            if envGameDir == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '게임 디렉토리 환경변수가 누락되었습니다.')
                 print(f'\033[33m[WARN] gamePath can not be None.\033[m')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
-                os.environ['DiabloLauncher'] = f'{envGameDir.get().replace(";", "")};'
+                os.environ['DiabloLauncher'] = f'{envGameDir.replace(";", "")};'
                 print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
 
         UpdateStatusValue()
