@@ -119,17 +119,17 @@ def InterruptProgram(sig, frame):
 def UpdateProgram():
     global root
     global launch
-    local = os.popen('git rev-parse HEAD')
+    local = os.popen('git rev-parse HEAD').read().strip()
     print('[INFO] Checking program updates...')
     if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
-        remote = os.popen('git rev-parse HEAD')
+        remote = os.popen('git rev-parse HEAD').read().strip()
         if local != remote:
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
             if msg_box == 'yes':
                 print('[INFO] Launching new version DiabloLauncher...')
-                os.system('python DiabloLauncher.py &')
+                os.popen('python DiabloLauncher.py')
                 print('[INFO] Successfully updated. DiabloLauncher now exiting...')
-                os.system(f'taskkill /T /PID {os.getppid()}')
+                os.popen(f'taskkill /T /PID {os.getppid()}')
             else:
                 print('[INFO] Please restart DiabloLauncher to apply any updates...')
                 exit(2)
@@ -240,7 +240,7 @@ def DiabloII_Launcher():
         root.protocol("WM_DELETE_WINDOW", AlertWindow)
     else:
         switchButton['text'] = '게임 종료'
-    os.system(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe" &')
+    os.popen(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
     refreshBtn['state'] = "disabled"
     gameStart = time.time()
     HideWindow()
@@ -280,7 +280,7 @@ def DiabloIII_Launcher():
         root.protocol("WM_DELETE_WINDOW", AlertWindow)
     else:
         switchButton['text'] = '게임 종료'
-    os.system(f'"{gamePath}/Diablo III/Diablo III Launcher.exe" &')
+    os.popen(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
     refreshBtn['state'] = "disabled"
     gameStart = time.time()
     HideWindow()
