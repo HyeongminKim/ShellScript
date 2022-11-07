@@ -490,9 +490,9 @@ def SetEnvironmentValue():
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
     if resolutionProgram:
-        envWindow.geometry("320x170+200+200")
+        envWindow.geometry("265x100+200+200")
     else:
-        envWindow.geometry("320x50+200+200")
+        envWindow.geometry("280x100+200+200")
     envWindow.resizable(False, False)
     envWindow.attributes('-toolwindow', True)
 
@@ -507,23 +507,43 @@ def SetEnvironmentValue():
         else:
             print(f'[INFO] Selected directory dialog location: {envGameDir}')
 
-    envGameBtn = Button(envWindow, text=f'{"게임 디렉토리 변경..." if gamePath is not None else "게임 디렉토리 등록..."}', command=openDirectoryDialog)
+    envGameBtn = Button(envWindow, text=f'{"게임 디렉토리 변경..." if gamePath is not None else "게임 디렉토리 등록..."}', command=openDirectoryDialog, width=30)
     if resolutionProgram:
-        envOriginX = tkinter.Entry(envWindow, width=50)
-        envOriginY = tkinter.Entry(envWindow, width=50)
-        envOriginFR = tkinter.Entry(envWindow, width=50)
-        envAlteredX = tkinter.Entry(envWindow, width=50)
-        envAlteredY = tkinter.Entry(envWindow, width=50)
-        envAlteredFR = tkinter.Entry(envWindow, width=50)
+        originXtext = Label(envWindow, text='기본 X')
+        originYtext = Label(envWindow, text=' Y')
+        originFRtext = Label(envWindow, text=' FR')
+        envOriginX = tkinter.Entry(envWindow, width=5)
+        envOriginY = tkinter.Entry(envWindow, width=5)
+        envOriginFR = tkinter.Entry(envWindow, width=4)
 
-    envGameBtn.pack()
+        alteredXtext = Label(envWindow, text='변경 X')
+        alteredYtext = Label(envWindow, text=' Y')
+        alteredFRtext = Label(envWindow, text=' FR')
+        envAlteredX = tkinter.Entry(envWindow, width=5)
+        envAlteredY = tkinter.Entry(envWindow, width=5)
+        envAlteredFR = tkinter.Entry(envWindow, width=4)
+    else:
+        infoText = Label(envWindow, text='나머지 환경변수는 QRes가 필요하므로 제외됨')
+
     if resolutionProgram:
-        envOriginX.pack()
-        envOriginY.pack()
-        envOriginFR.pack()
-        envAlteredX.pack()
-        envAlteredY.pack()
-        envAlteredFR.pack()
+        envGameBtn.grid(row=0, column=1, columnspan=5)
+
+        originXtext.grid(row=1, column=0)
+        envOriginX.grid(row=1, column=1)
+        originYtext.grid(row=1, column=2)
+        envOriginY.grid(row=1, column=3)
+        originFRtext.grid(row=1, column=4)
+        envOriginFR.grid(row=1, column=5)
+
+        alteredXtext.grid(row=2, column=0)
+        envAlteredX.grid(row=2, column=1)
+        alteredYtext.grid(row=2, column=2)
+        envAlteredY.grid(row=2, column=3)
+        alteredFRtext.grid(row=2, column=4)
+        envAlteredFR.grid(row=2, column=5)
+    else:
+        envGameBtn.pack()
+        infoText.pack()
 
     if data is not None:
         if resolutionProgram:
@@ -535,6 +555,13 @@ def SetEnvironmentValue():
             envAlteredFR.insert(0, alteredFR)
 
     def commit():
+        global envGameDir
+        try:
+            print(f'[INFO] {envGameDir}')
+        except NameError:
+            envGameDir = gamePath
+            print(f'[INFO] Selected directory dialog location: None directory path provided. resetting {envGameDir}')
+
         if resolutionProgram:
             if envGameDir == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
@@ -580,11 +607,14 @@ def SetEnvironmentValue():
             envWindow.after(1, lambda: envWindow.focus_force())
 
     envSet = tkinter.Button(envWindow, text='고급 시스템 설정', command=openEnvSetting)
-    envSet.pack(side=LEFT, padx=10)
-
     commitBtn = tkinter.Button(envWindow, text='적용', command=commit)
-    commitBtn.pack()
-    commitBtn.pack(side=RIGHT, padx=10)
+
+    if resolutionProgram:
+        envSet.grid(row=3, column=1, columnspan=2)
+        commitBtn.grid(row=3, column=4)
+    else:
+        envSet.pack(side=LEFT, padx=10)
+        commitBtn.pack(side=RIGHT, padx=10)
 
     envWindow.mainloop()
 
