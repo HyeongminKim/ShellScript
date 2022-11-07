@@ -584,9 +584,13 @@ def RequirementCheck():
         print('\033[33m[WARN] QRes not installed or not in...\033[m')
         print('\033[33m\t- C:\\Windows\\System32\033[m')
         print(f'\033[33m\t- {userLocalApp}/Program/Common/QRes.exe)\033[m')
-        msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
-        if msg_box == 'yes':
-            os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
+        if os.environ.get('IGN_RES_ALERT') != 'true':
+            msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
+            if msg_box == 'yes':
+                os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
+        else:
+            print('\033[33m[WARN] QRes install check dialog rejected due to "IGN_RES_ALERT" env prameter is true.\033[m')
+            print('\033[33m\t Please install QRes if would you like change display resolution.\n\tURL: \033[4;32mhttps://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml\033[0m')
 
     if data is None:
         print('\033[33m[WARN] parameter not set.\033[m')
