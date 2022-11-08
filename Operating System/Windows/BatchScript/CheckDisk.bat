@@ -7,9 +7,10 @@ if NOT %ERRORLEVEL% == 0 (
 )
 
 Dism -Online -Cleanup-Image -CheckHealth
-::Dism -Online -Cleanup-Image -ScanHealth
 
+::Dism -Online -Cleanup-Image -ScanHealth
 ::Dism -Online -Cleanup-Image -RestoreHealth
+
 sfc -scannow
 
 chkdsk C: /F

@@ -72,6 +72,16 @@ if [ $? == 0 ]; then
     fi
 fi
 
+if [ -r ~/Documents/Release/ShellScript/Operating\ System/Windows/BatchScript/CheckDisk.bat -a "$CHK_SYS_DSK" == "true" ]; then
+    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py -a -r /mnt/c/Windows/System32/cmd.exe ]; then
+        which python3 &> /dev/null
+        if [ $? == 0 ]; then
+            target=$(wslpath -m "/mnt/c/Users/$USER/Documents/Release/ShellScript/Operating System/Windows/BatchScript/CheckDisk.bat")
+            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py cmd.exe '/C' "$target"
+        fi
+    fi
+fi
+
 if [ $errorCount -gt 0 ]; then
     exit 1
 else
