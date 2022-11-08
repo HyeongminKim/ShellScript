@@ -112,9 +112,9 @@ def InterruptProgram(sig, frame):
     global root
     global launch
     print('^C Keyboard Interrupt')
-    launch.destroy()
-    root.destroy()
-    exit(0)
+    if diabloExecuted:
+        LaunchGameAgent()
+    ExitProgram()
 
 def UpdateProgram():
     global root
