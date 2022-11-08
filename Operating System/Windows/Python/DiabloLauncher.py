@@ -65,7 +65,7 @@ try:
     import tkinter.messagebox
     import tkinter.filedialog
 except Exception as error:
-    logformat(f'The DiabloLauncher stoped due to {error}')
+    logformat(errorLevel.FATL, f'The DiabloLauncher stoped due to {error}')
 
 diabloExecuted = False
 
