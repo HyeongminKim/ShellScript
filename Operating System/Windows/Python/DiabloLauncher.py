@@ -23,13 +23,13 @@ class errorLevel(Enum):
 
 def logformat(level: errorLevel, text: str):
     if level == errorLevel.INFO:
-        print(f'{color.GRAY}[INFO] {text}{color.RESET}')
+        print(f'{color.GRAY.value}[INFO] {text}{color.RESET.value}')
     elif level == errorLevel.WARN:
-        print(f'{color.YELLOW}[WARN] {text}{color.RESET}')
+        print(f'{color.YELLOW.value}[WARN] {text}{color.RESET.value}')
     elif level == errorLevel.ERR:
-        print(f'{color.RED}[ERR] {text}{color.RESET}')
+        print(f'{color.RED.value}[ERR] {text}{color.RESET.value}')
     elif level == errorLevel.FATL:
-        print(f'{color.MAGENTA}[FATL] {text}{color.RESET}')
+        print(f'{color.MAGENTA.value}[FATL] {text}{color.RESET.value}')
         exit(1)
     else:
         logformat(errorLevel.ERR, f'{level} is not known error level type.')
@@ -38,24 +38,20 @@ try:
     import platform
 
     if platform.system() != 'Windows':
-        print(f'\033[31m[ERR] {platform.system()} system does not support yet.\033[m')
-        exit(1)
+        logformat(errorLevel.FATL, f'{platform.system()} system does not support yet.')
     else:
         if platform.release() == '7' or platform.release() == '8' or platform.release() == '10' or platform.release() == '11':
-            print('[INFO] support OS detected.')
+            logformat(errorLevel.INFO, 'support OS detected.')
         else:
-            print(f'\033[31m[ERR] {platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.\033[m')
-            exit(1)
+            logformat(errorLevel.FATL, f'{platform.system()} {platform.release()} does not support. Please check Diablo Requirements and Specifications.')
 
     import multiprocessing
     import sys
 
     if multiprocessing.cpu_count() >= 2 and sys.maxsize > 2**32:
-        print(f'[INFO] supported {platform.processor()} CPU detected. creating GUI...')
+        logformat(errorLevel.INFO, f'supported {platform.processor()} CPU detected. creating GUI...')
     else:
-        print(f"\033[31m[ERR] {platform.processor()} CPU does not support (core: {multiprocessing.cpu_count()}, {'x64' if sys.maxsize > 2**32 else 'x86'}).")
-        print('Please check Diablo Requirements and Specifications.\033[m')
-        exit(1)
+        logformat(errorLevel.FATL, f"{platform.processor()} CPU does not support (core: {multiprocessing.cpu_count()}, {'x64' if sys.maxsize > 2**32 else 'x86'}).\n\tPlease check Diablo Requirements and Specifications.")
 
     import os
     import signal
@@ -69,8 +65,7 @@ try:
     import tkinter.messagebox
     import tkinter.filedialog
 except Exception as error:
-    print(f'\033[31m[ERR] The DiabloLauncher stoped due to {error}\033[m')
-    exit(1)
+    logformat(f'The DiabloLauncher stoped due to {error}')
 
 diabloExecuted = False
 
@@ -120,12 +115,12 @@ def HideWindow():
 
 def UpdateResProgram():
     global resolutionProgram
-    print('[INFO] QRes install check')
+    logformat(errorLevel.INFO, 'QRes install check')
     if os.path.isfile('C:/Windows/System32/Qres.exe') or os.path.isfile(f'{userLocalApp}/Program/Common/QRes.exe)'):
-        print(f"[INFO] QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
+        logformat(errorLevel.INFO, f"[INFO] QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
         resolutionProgram = True
     else:
-        print('[INFO] QRes did not installed')
+        logformat(errorLevel.INFO, 'QRes did not installed')
 
 def AlertWindow():
     msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'현재 디스플레이 해상도가 {alteredX}x{alteredY} 로 조정되어 있습니다. 게임이 실행 중인 상태에서 해상도 설정을 복구할 경우 퍼포먼스에 영향을 미칠 수 있습니다. 그래도 해상도 설정을 복구하시겠습니까?', icon='question')
@@ -145,7 +140,7 @@ def ExitProgram():
 def InterruptProgram(sig, frame):
     global root
     global launch
-    print('^C Keyboard Interrupt')
+    logformat(errorLevel.FATL, f'Keyboard Interrupt: {sig}')
     if diabloExecuted:
         LaunchGameAgent()
     ExitProgram()
@@ -154,33 +149,33 @@ def UpdateProgram():
     global root
     global launch
     local = os.popen('git rev-parse HEAD').read().strip()
-    print('[INFO] Checking program updates...')
+    logformat(errorLevel.INFO, 'Checking program updates...')
     if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
         remote = os.popen('git rev-parse HEAD').read().strip()
         if local != remote:
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
             if msg_box == 'yes':
-                print('[INFO] Launching new version DiabloLauncher...')
+                logformat(errorLevel.INFO, 'Launching new version DiabloLauncher...')
                 os.popen('python DiabloLauncher.py')
-                print('[INFO] Successfully updated. DiabloLauncher now exiting...')
+                logformat(errorLevel.INFO, 'Successfully updated. DiabloLauncher now exiting...')
                 os.popen(f'taskkill /T /PID {os.getppid()}')
             else:
-                print('[INFO] Please restart DiabloLauncher to apply any updates...')
+                logformat(errorLevel.WARN, 'Please restart DiabloLauncher to apply any updates...')
                 exit(2)
         else:
-            print('[INFO] DiabloLauncher Up to date.')
+            logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
             exit(0)
     elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
-        print('\033[31m[ERR] Program update failed. Please check your internet connection.\033[m')
+        logformat(errorLevel.ERR, 'Program update failed. Please check your internet connection.')
         exit(1)
     elif os.system('git pull --rebase origin master > NUL 2>&1') != 0:
         os.system('git status')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 오류가 발생하였습니다. 자세한 사항은 로그를 참조해 주세요. ')
-        print('\033[31m[ERR] Program update failed. Please see the output.\033[m')
+        logformat(errorLevel.ERR, 'Program update failed. Please see the output.')
         exit(1)
     else:
-        print('[INFO] DiabloLauncher Up to date')
+        logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
         exit(0)
 
 def ConvertTime(milliseconds: float):
@@ -199,17 +194,17 @@ def SaveGameRunningTime(playTime: float):
     try:
         if not os.path.isfile(f'{userApp}/DiabloLauncher/runtime.log'):
             if not os.path.isdir(f'{userApp}/DiabloLauncher'):
-                print(f'[INFO] DiabloLauncher directory does not exist. creating directory')
+                logformat(errorLevel.INFO, 'DiabloLauncher directory does not exist. creating directory')
                 os.mkdir(f'{userApp}/DiabloLauncher')
-            print(f'[INFO] runtime.log file does not exist. creating target file with write mode')
+            logformat(errorLevel.INFO, 'runtime.log file does not exist. creating target file with write mode')
             runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'w')
         else:
-            print(f'[INFO] runtime.log file already exist. opening target file with append mode')
+            logformat(errorLevel.INFO, 'runtime.log file already exist. opening target file with append mode')
             runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'a')
-        print(f'[INFO] playTime: {playTime} will be write in {userApp}/DiabloLauncher/runtime.log')
+        logformat(errorLevel.INFO, f'playTime: {playTime} will be write in {userApp}/DiabloLauncher/runtime.log')
         runtimeFile.write(f'{str(playTime)}\n')
     except Exception as error:
-        print(f'\033[31m[ERR] Failed to save Game-play logs: {error}\033[m')
+        logformat(errorLevel.ERR, f'Failed to save Game-play logs: {error}')
     finally:
         runtimeFile.close()
 
@@ -224,17 +219,17 @@ def LoadGameRunningTime():
             while True:
                 line = runtimeFile.readline()
                 if not line: break
-                print(f'[INFO] {line}')
+                logformat(errorLevel.INFO, f'{line}')
                 data.append(line)
             for line in data:
-                print(f'[INFO] {float(line)}')
+                logformat(errorLevel.INFO, f'{float(line)}')
                 if max < float(line):
                     max = float(line)
                 sum += float(line)
         else:
             raise FileNotFoundError
     except Exception as error:
-        print(f'\033[31m[ERR] Failed to load Game-play logs: {error}\033[m')
+        logformat(errorLevel.ERR, f'Failed to load Game-play logs: {error}')
     finally:
         runtimeFile.close()
         if data is not None and sum != 0:
@@ -348,24 +343,24 @@ def LaunchGameAgent():
 
         elapsedTime = loadEnd - loadStart
         if elapsedTime > loadWaitTime:
-            print(f'\033[33m[WARN] The request timeout when loading game data {userApp}/DiabloLauncher/runtime.log file.\033[m')
-            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds. But, current timeout setting is {loadWaitTime} seconds.')
-            print(f'[INFO] NOTE: The {userApp}/DiabloLauncher/runtime.log contents cleared.')
+            logformat(errorLevel.WARN, f'The request timeout when loading game data {userApp}/DiabloLauncher/runtime.log file.')
+            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds. But, current timeout setting is {loadWaitTime} seconds.')
+            logformat(errorLevel.INFO, f'NOTE: The {userApp}/DiabloLauncher/runtime.log contents cleared.')
             if os.remove(f'{userApp}/DiabloLauncher/runtime.log') == 0:
-                print(f'[INFO] The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
+                logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
             else:
-                print(f'\033[31m[ERR] Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.\033[m')
+                logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.')
         elif elapsedTime > (loadWaitTime / 2):
-            print(f'\033[33m[WARN] The request job too slow when loading game data {userApp}/DiabloLauncher/runtime.log file.\033[m')
-            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds, and current timeout setting is {loadWaitTime} seconds.')
-            print(f'[INFO] NOTE: {userApp}/DiabloLauncher/runtime.log contents will clear when this issues raised again.')
+            logformat(errorLevel.WARN, f'The request job too slow when loading game data {userApp}/DiabloLauncher/runtime.log file.')
+            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds, and current timeout setting is {loadWaitTime} seconds.')
+            logformat(errorLevel.INFO, f'NOTE: {userApp}/DiabloLauncher/runtime.log contents will clear when this issues raised again.')
         else:
-            print(f'[INFO] Loading game data elapsed time was {elapsedTime} seconds. ')
+            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds.')
 
-        print(f'[INFO] Running game time for this session: {hours}:{minutes}.{seconds}')
-        print(f'[INFO] Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
-        print(f'[INFO] Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
-        print(f'[INFO] Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
+        logformat(errorLevel.INFO, f'Running game time for this session: {hours}:{minutes}.{seconds}')
+        logformat(errorLevel.INFO, f'Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
+        logformat(errorLevel.INFO, f'Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
+        logformat(errorLevel.INFO, f'Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
         if count >= 3:
             if hours > 0:
                 tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다.')
@@ -387,13 +382,17 @@ def LaunchGameAgent():
         diablo2.pack(side=LEFT, padx=10)
         diablo3.pack(side=RIGHT, padx=10)
         if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+            logformat(errorLevel.INFO, 'Diablo II Resurrected launch button disabled, because launcher is not detected.')
             diablo2['state'] = "disabled"
         else:
+            logformat(errorLevel.INFO, 'Diablo II Resurrected launch button enabled.')
             diablo2['state'] = "normal"
 
         if not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            logformat(errorLevel.INFO, 'Diablo III launch button disabled, because launcher is not detected.')
             diablo3['state'] = "disabled"
         else:
+            logformat(errorLevel.INFO, 'Diablo III launch button enabled.')
             diablo3['state'] = "normal"
 
         ShowWindow()
@@ -476,28 +475,28 @@ def GetEnvironmentValue():
 
     try:
         data = os.environ.get('DiabloLauncher')
-        print(f'[INFO] {data}')
+        logformat(errorLevel.INFO, f'{data}')
         temp = None
         if resolutionProgram:
-            print('[INFO] QRes detected. parameter count should be 7')
+            logformat(errorLevel.INFO, 'QRes detected. parameter count should be 7')
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
-            print('[INFO] parameter conversion succeed')
+            logformat(errorLevel.INFO, 'parameter conversion succeed')
         else:
-            print('[INFO] QRes not detected. parameter count should be 1')
+            logformat(errorLevel.INFO, 'QRes not detected. parameter count should be 1')
             gamePath, temp = data.split(';')
-            print('[INFO] parameter conversion succeed')
+            logformat(errorLevel.INFO, 'parameter conversion succeed')
 
         if resolutionProgram:
-            print(f'[INFO] {gamePath}')
-            print(f'[INFO] {int(originX)}')
-            print(f'[INFO] {int(originY)}')
-            print(f'[INFO] {float(originFR)}')
-            print(f'[INFO] {int(alteredX)}')
-            print(f'[INFO] {int(alteredY)}')
-            print(f'[INFO] {float(alteredFR)}')
+            logformat(errorLevel.INFO, f'{gamePath}')
+            logformat(errorLevel.INFO, f'{int(originX)}')
+            logformat(errorLevel.INFO, f'{int(originY)}')
+            logformat(errorLevel.INFO, f'{float(originFR)}')
+            logformat(errorLevel.INFO, f'{int(alteredX)}')
+            logformat(errorLevel.INFO, f'{int(alteredY)}')
+            logformat(errorLevel.INFO, f'{float(alteredFR)}')
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
-        print(f'\033[31m[ERR] Unknown data or parameter style: {data}\n\t{error}\033[m')
+        logformat(errorLevel.ERR, f'Unknown data or parameter style: {data}\n\t{error}')
         data = None
         gamePath = None
         originX = None
@@ -507,15 +506,15 @@ def GetEnvironmentValue():
         alteredY = None
         alteredFR = None
     finally:
-        print(f'[INFO] {data}')
+        logformat(errorLevel.INFO, f'{data}')
         if resolutionProgram:
-            print(f'[INFO] {gamePath}')
-            print(f'[INFO] {originX}')
-            print(f'[INFO] {originY}')
-            print(f'[INFO] {originFR}')
-            print(f'[INFO] {alteredX}')
-            print(f'[INFO] {alteredY}')
-            print(f'[INFO] {alteredFR}')
+            logformat(errorLevel.INFO, f'{gamePath}')
+            logformat(errorLevel.INFO, f'{originX}')
+            logformat(errorLevel.INFO, f'{originY}')
+            logformat(errorLevel.INFO, f'{originFR}')
+            logformat(errorLevel.INFO, f'{alteredX}')
+            logformat(errorLevel.INFO, f'{alteredY}')
+            logformat(errorLevel.INFO, f'{alteredFR}')
         UpdateResProgram()
 
 def SetEnvironmentValue():
@@ -533,13 +532,13 @@ def SetEnvironmentValue():
     def openDirectoryDialog():
         global envGameDir
         temp = gamePath
-        print(f'[INFO] Opening directory dialog location: {gamePath if gamePath is not None else "C:/Program Files (x86)"}')
+        logformat(errorLevel.INFO, f'Opening directory dialog location: {gamePath if gamePath is not None else "C:/Program Files (x86)"}')
         envGameDir = tkinter.filedialog.askdirectory(parent=envWindow, initialdir=f"{gamePath if gamePath is not None else 'C:/Program Files (x86)'}", title='Battle.net 게임 디렉토리 선택')
         if envGameDir == "":
-            print(f'[INFO] Selected directory dialog location: None directory path provided. resetting {temp}')
+            logformat(errorLevel.INFO, f'Selected directory dialog location: None directory path provided. resetting {temp}')
             envGameDir = temp
         else:
-            print(f'[INFO] Selected directory dialog location: {envGameDir}')
+            logformat(errorLevel.INFO, f'Selected directory dialog location: {envGameDir}')
 
     envGameBtn = Button(envWindow, text=f'{"게임 디렉토리 변경..." if gamePath is not None else "게임 디렉토리 등록..."}', command=openDirectoryDialog, width=30)
     if resolutionProgram:
@@ -591,39 +590,39 @@ def SetEnvironmentValue():
     def commit():
         global envGameDir
         try:
-            print(f'[INFO] {envGameDir}')
+            logformat(errorLevel.INFO, f'{envGameDir}')
         except NameError:
             envGameDir = gamePath
-            print(f'[INFO] Selected directory dialog location: None directory path provided. resetting {envGameDir}')
+            logformat(errorLevel.INFO, f'Selected directory dialog location: None directory path provided. resetting {envGameDir}')
 
         if resolutionProgram:
             if envGameDir == '' or envOriginX.get() == '' or envOriginY.get() == '' or envOriginFR.get() == '' or envAlteredX.get() == '' or envAlteredY.get() == '' or envAlteredFR.get() == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '일부 환경변수가 누락되었습니다.')
-                print(f'\033[33m[WARN] some env can not be None.\033[m')
+                logformat(errorLevel.WARN, 'some env can not be None.')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
                 os.environ['DiabloLauncher'] = f'{envGameDir.replace(";", "")};{envOriginX.get().replace(";", "")};{envOriginY.get().replace(";", "")};{envOriginFR.get().replace(";", "")};{envAlteredX.get().replace(";", "")};{envAlteredY.get().replace(";", "")};{envAlteredFR.get().replace(";", "")};'
-                print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
+                logformat(errorLevel.INFO, f"gamePath = {os.environ.get('DiabloLauncher')}")
         else:
             if envGameDir == '':
                 tkinter.messagebox.showwarning('환경변수 편집기', '게임 디렉토리 환경변수가 누락되었습니다.')
-                print(f'\033[33m[WARN] gamePath can not be None.\033[m')
+                logformat(errorLevel.WARN, 'gamePath can not be None.')
                 envWindow.after(1, lambda: envWindow.focus_force())
                 return
             else:
                 os.environ['DiabloLauncher'] = f'{envGameDir.replace(";", "")};'
-                print(f"[INFO] gamePath = {os.environ.get('DiabloLauncher')}")
+                logformat(errorLevel.INFO, f"gamePath = {os.environ.get('DiabloLauncher')}")
 
         UpdateStatusValue()
         if data is not None and not os.path.isdir(gamePath):
             tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리가 존재하지 않습니다.')
-            print(f'\033[33m[WARN] {gamePath} no such directory.\033[m')
+            logformat(errorLevel.WARN, f'{gamePath} no such directory.')
             envWindow.after(1, lambda: envWindow.focus_force())
         elif data is not None and os.path.isdir(gamePath):
             if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                 tkinter.messagebox.showwarning('환경변수 편집기', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
-                print(f'\033[33m[WARN] {gamePath} not contains game directory.\033[m')
+                logformat(errorLevel.WARN, f'{gamePath} not contains game directory.')
                 envWindow.after(1, lambda: envWindow.focus_force())
             else:
                 envWindow.destroy()
@@ -631,11 +630,10 @@ def SetEnvironmentValue():
     def openEnvSetting():
         msg_box = tkinter.messagebox.askquestion('디아블로 런처', '"고급 시스템 설정"에 접근 시 관리자 권한을 요청하는 프롬프트가 나타날 수 있으며, 업데이트된 환경변수를 반영하기 위해 프로그램을 종료해야 합니다. 계속하시겠습니까?', icon='question')
         if msg_box == 'yes':
-            print('[INFO] starting advanced system env editor...')
-            print('[INFO] This action will required UAC')
+            logformat(errorLevel.INFO, 'starting advanced system env editor... This action will required UAC')
             os.system('sysdm.cpl ,3')
             tkinter.messagebox.showwarning('디아블로 런처', '시스템 환경변수 수정을 모두 완료한 후 다시 실행해 주세요.')
-            print('[INFO] advanced system env editor launched. DiabloLauncher now exiting...')
+            logformat(errorLevel.INFO, 'advanced system env editor launched. DiabloLauncher now exiting...')
             exit(0)
         else:
             envWindow.after(1, lambda: envWindow.focus_force())
@@ -654,25 +652,23 @@ def SetEnvironmentValue():
 
 def RequirementCheck():
     if not resolutionProgram:
-        print('\033[33m[WARN] QRes not installed or not in...\033[m')
-        print('\033[33m\t- C:\\Windows\\System32\033[m')
-        print(f'\033[33m\t- {userLocalApp}/Program/Common/QRes.exe\033[m')
+        logformat(errorLevel.WARN, f'QRes not installed or not in...\n\t- C:\\Windows\\System32\n\t- {userLocalApp}/Program/Common/QRes.exe')
         if os.environ.get('IGN_RES_ALERT') != 'true':
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
             if msg_box == 'yes':
                 os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
         else:
-            print('\033[33m[WARN] QRes install check dialog rejected due to "IGN_RES_ALERT" env prameter is true.\033[m')
-            print('\033[33m\t Please install QRes if would you like change display resolution.\n\tURL: \033[4;34mhttps://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml\033[0m')
+            logformat(errorLevel.WARN, f'QRes install check dialog rejected due to "IGN_RES_ALERT" env prameter is true.\n\tPlease install QRes if would you like change display resolution.')
+            print(f'\t{color.YELLOW}URL: {color.BLUE}https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml{color.RESET}')
 
     if data is None:
-        print('\033[33m[WARN] parameter not set.\033[m')
+        logformat(errorLevel.WARN, 'parameter not set.')
         tkinter.messagebox.showwarning('디아블로 런처', '환경변수가 설정되어 있지 않습니다. "환경변수 편집" 버튼을 클릭하여 임시로 모든 기능을 사용해 보십시오.')
     elif data is not None and not os.path.isdir(gamePath):
-        print('\033[33m[WARN] directory not exist.\033[m')
+        logformat(errorLevel.WARN, f'{gamePath} directory not exist.')
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리가 존재하지 않습니다.')
     elif not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-        print('\033[33m[WARN] game directory not exist.\033[m')
+        logformat(errorLevel.WARN, f'game not exist in {gamePath}.')
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
 
 def UpdateStatusValue():
