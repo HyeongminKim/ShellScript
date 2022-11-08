@@ -11,4 +11,9 @@ if NOT %ERRORLEVEL% == 0 (
 
 Dism -Online -Cleanup-Image -RestoreHealth
 sfc -scannow
-chkdsk
+
+chkdsk C: /F
+if exist "E:" (
+    chkdsk E: /F
+)
+
