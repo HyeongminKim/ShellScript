@@ -664,7 +664,7 @@ def RequirementCheck():
                 os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
         else:
             logformat(errorLevel.WARN, f'QRes install check dialog rejected due to "IGN_RES_ALERT" env prameter is true.\n\tPlease install QRes if would you like change display resolution.')
-            print(f'\t{color.YELLOW}URL: {color.BLUE}https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml{color.RESET}')
+            print(f"\t{color.YELLOW.value}URL:{color.BLUE.value} https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml{color.RESET.value}")
 
     if data is None:
         logformat(errorLevel.WARN, 'parameter not set.')
@@ -779,6 +779,8 @@ def init():
     root.mainloop()
 
 if __name__ == '__main__':
+    os.system('chcp 65001 > NUL')
+    logformat(errorLevel.INFO, f'Active code page: UTF-8 (0xfde9)')
     multiprocessing.log_to_stderr()
     logger = multiprocessing.get_logger()
     logger.setLevel(logging.INFO)
