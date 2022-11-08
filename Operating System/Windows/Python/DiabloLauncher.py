@@ -1,6 +1,9 @@
 #-*- coding:utf-8 -*-
 
 try:
+    import os
+    os.system('')
+
     from enum import Enum
 except Exception as error:
     print(f'[35m[FATL] The DiabloLauncher stoped due to {error}[0m')
@@ -53,7 +56,6 @@ try:
     else:
         logformat(errorLevel.FATL, f"{platform.processor()} CPU does not support (core: {multiprocessing.cpu_count()}, {'x64' if sys.maxsize > 2**32 else 'x86'}).\n\tPlease check Diablo Requirements and Specifications.")
 
-    import os
     import signal
     import subprocess
     import logging
