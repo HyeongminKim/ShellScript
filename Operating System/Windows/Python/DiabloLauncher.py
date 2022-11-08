@@ -1,6 +1,40 @@
 #-*- coding:utf-8 -*-
 
 try:
+    from enum import Enum
+except Exception as error:
+    print(f'[35m[FATL] The DiabloLauncher stoped due to {error}[0m')
+    exit(1)
+
+class color(Enum):
+    RESET = '[0m'
+    RED = '[31m'
+    GREEN = '[32m'
+    YELLOW = '[33m'
+    BLUE = '[34m'
+    MAGENTA = '[35m'
+    GRAY = '[90m'
+
+class errorLevel(Enum):
+    INFO = 0
+    WARN = 1
+    ERR = 2
+    FATL = 3
+
+def logformat(level: errorLevel, text: str):
+    if level == errorLevel.INFO:
+        print(f'{color.GRAY}[INFO] {text}{color.RESET}')
+    elif level == errorLevel.WARN:
+        print(f'{color.YELLOW}[WARN] {text}{color.RESET}')
+    elif level == errorLevel.ERR:
+        print(f'{color.RED}[ERR] {text}{color.RESET}')
+    elif level == errorLevel.FATL:
+        print(f'{color.MAGENTA}[FATL] {text}{color.RESET}')
+        exit(1)
+    else:
+        logformat(errorLevel.ERR, f'{level} is not known error level type.')
+
+try:
     import platform
 
     if platform.system() != 'Windows':
@@ -35,7 +69,7 @@ try:
     import tkinter.messagebox
     import tkinter.filedialog
 except Exception as error:
-    print(f'The DiabloLauncher stoped due to {error}')
+    print(f'\033[31m[ERR] The DiabloLauncher stoped due to {error}\033[m')
     exit(1)
 
 diabloExecuted = False
