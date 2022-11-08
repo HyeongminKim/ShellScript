@@ -406,9 +406,10 @@ def RebootAgent():
     global switchButton
     global refreshBtn
     global gameEnd
-    SaveGameRunningTime(gameEnd - gameStart)
     forceReboot = True
     gameEnd = time.time()
+    if diabloExecuted:
+        SaveGameRunningTime(gameEnd - gameStart)
     emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
@@ -425,8 +426,10 @@ def HaltAgent():
     global switchButton
     global refreshBtn
     global gameEnd
-    SaveGameRunningTime(gameEnd - gameStart)
     forceReboot = True
+    gameEnd = time.time()
+    if diabloExecuted:
+        SaveGameRunningTime(gameEnd - gameStart)
     emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
