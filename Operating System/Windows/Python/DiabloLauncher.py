@@ -117,7 +117,7 @@ def UpdateResProgram():
     global resolutionProgram
     logformat(errorLevel.INFO, 'QRes install check')
     if os.path.isfile('C:/Windows/System32/Qres.exe') or os.path.isfile(f'{userLocalApp}/Program/Common/QRes.exe)'):
-        logformat(errorLevel.INFO, f"[INFO] QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
+        logformat(errorLevel.INFO, f"QRes installed in {subprocess.check_output('where QRes', shell=True, encoding='utf-8').strip()}")
         resolutionProgram = True
     else:
         logformat(errorLevel.INFO, 'QRes did not installed')
