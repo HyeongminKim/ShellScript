@@ -151,10 +151,10 @@ def InterruptProgram(sig, frame):
 def UpdateProgram():
     global root
     global launch
-    local = os.popen('git rev-parse HEAD').read().strip()
+    local = os.popen('git rev-parse --short HEAD').read().strip()
     logformat(errorLevel.INFO, 'Checking program updates...')
     if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
-        remote = os.popen('git rev-parse HEAD').read().strip()
+        remote = os.popen('git rev-parse --short HEAD').read().strip()
         if local != remote:
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
             if msg_box == 'yes':
