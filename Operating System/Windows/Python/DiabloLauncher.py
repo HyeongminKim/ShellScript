@@ -100,6 +100,7 @@ switchButton = None
 emergencyButton = None
 status = None
 refreshBtn = None
+statusbar = None
 
 def ShowWindow():
     global launch
@@ -236,6 +237,19 @@ def LoadGameRunningTime():
         runtimeFile.close()
         if data is not None and sum != 0:
             return len(data), max, sum, (sum / len(data))
+        elif data is not None and sum == 0:
+            return len(data), max, 0, 0
+        else:
+            return 0, 0, 0, 0
+
+def ClearGameRunningTime():
+    if os.path.isfile(f'{userApp}/DiabloLauncher/runtime.log'):
+        if os.remove(f'{userApp}/DiabloLauncher/runtime.log') == 0:
+            logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
+        else:
+            logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.')
+    else:
+        logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. no such file or directory.')
 
 def DiabloII_Launcher():
     global diabloExecuted
@@ -335,44 +349,22 @@ def LaunchGameAgent():
         refreshBtn['state'] = "normal"
 
         SaveGameRunningTime(gameEnd - gameStart)
-        loadStart = time.time()
-        count, max, sum, avg = LoadGameRunningTime()
         hours, minutes, seconds = ConvertTime(gameEnd - gameStart)
-        maxHours, maxMinutes, maxSeconds = ConvertTime(max)
-        avgHours, avgMinutes, avgSeconds = ConvertTime(avg)
-        sumHours, sumMinutes, sumSeconds = ConvertTime(sum)
-        loadEnd = time.time()
-
-        elapsedTime = loadEnd - loadStart
-        if elapsedTime > loadWaitTime:
-            logformat(errorLevel.WARN, f'The request timeout when loading game data {userApp}/DiabloLauncher/runtime.log file.')
-            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds. But, current timeout setting is {loadWaitTime} seconds.')
-            logformat(errorLevel.INFO, f'NOTE: The {userApp}/DiabloLauncher/runtime.log contents cleared.')
-            if os.remove(f'{userApp}/DiabloLauncher/runtime.log') == 0:
-                logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
-            else:
-                logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.')
-        elif elapsedTime > (loadWaitTime / 2):
-            logformat(errorLevel.WARN, f'The request job too slow when loading game data {userApp}/DiabloLauncher/runtime.log file.')
-            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds, and current timeout setting is {loadWaitTime} seconds.')
-            logformat(errorLevel.INFO, f'NOTE: {userApp}/DiabloLauncher/runtime.log contents will clear when this issues raised again.')
-        else:
-            logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds.')
-
         logformat(errorLevel.INFO, f'Running game time for this session: {hours}:{minutes}.{seconds}')
-        logformat(errorLevel.INFO, f'Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
-        logformat(errorLevel.INFO, f'Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
-        logformat(errorLevel.INFO, f'Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
-        if count >= 3:
-            if hours > 0:
-                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다.')
-            elif minutes >= 5:
-                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계 작성 후 {count}번의 플레이 중, 최대 {maxHours}시간 {maxMinutes}분 {maxSeconds}초 플레이 하였고, 평균 {avgHours}시간 {avgMinutes}분 {avgSeconds}초 플레이 하였습니다. 총 플레이 시간은 {sumHours}시간 {sumMinutes}분 {sumSeconds}초 입니다. ')
-        else:
-            if hours > 0:
-                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {hours}시간 {minutes}분 {seconds}초 입니다.\n통계를 표시하려면 좀 더 많은 기록이 있어야 합니다.')
-            elif minutes >= 5:
-                tkinter.messagebox.showinfo('디아블로 런처', f'이번 게임플레이 시간은 {minutes}분 {seconds}초 입니다.\n통계를 표시하려면 좀 더 많은 기록이 있어야 합니다.')
+        if hours > 0:
+            if minutes > 0 and seconds > 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 {minutes}분 {seconds}초 동안 플레이 했습니다.')
+            elif minutes > 0 and seconds == 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 {minutes}분 동안 플레이 했습니다.')
+            elif minutes == 0 and seconds > 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 {seconds}초 동안 플레이 했습니다.')
+            elif minutes == 0 and seconds == 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 동안 플레이 했습니다. ')
+        elif minutes >= 5:
+            if seconds > 0:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {minutes}분 {seconds}초 동안 플레이 했습니다. ')
+            else:
+                tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {minutes}분 동안 플레이 했습니다. ')
         UpdateStatusValue()
     else:
         launch.title('디아블로 버전 선택')
@@ -705,7 +697,40 @@ def UpdateStatusValue():
             else:
                 status['text'] = f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n\n\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n"
         switchButton['state'] = "normal"
+        ReloadStatusBar()
 
+def ReloadStatusBar():
+    global statusbar
+    loadStart = time.time()
+    count, max, sum, avg = LoadGameRunningTime()
+    maxHours, maxMinutes, maxSeconds = ConvertTime(max)
+    avgHours, avgMinutes, avgSeconds = ConvertTime(avg)
+    sumHours, sumMinutes, sumSeconds = ConvertTime(sum)
+    loadEnd = time.time()
+
+    elapsedTime = loadEnd - loadStart
+    if elapsedTime > loadWaitTime:
+        logformat(errorLevel.WARN, f'The request timeout when loading game data {userApp}/DiabloLauncher/runtime.log file.')
+        logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds. But, current timeout setting is {loadWaitTime} seconds.')
+        logformat(errorLevel.INFO, f'NOTE: The {userApp}/DiabloLauncher/runtime.log contents cleared.')
+        ClearGameRunningTime()
+    elif elapsedTime > (loadWaitTime / 2):
+        logformat(errorLevel.WARN, f'The request job too slow when loading game data {userApp}/DiabloLauncher/runtime.log file.')
+        logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds, and current timeout setting is {loadWaitTime} seconds.')
+        logformat(errorLevel.INFO, f'NOTE: {userApp}/DiabloLauncher/runtime.log contents will clear when this issues raised again.')
+    else:
+        logformat(errorLevel.INFO, f'Loading game data elapsed time was {elapsedTime} seconds.')
+
+    logformat(errorLevel.INFO, f'Previous game time for max session: {maxHours}:{maxMinutes}.{maxSeconds}')
+    logformat(errorLevel.INFO, f'Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
+    logformat(errorLevel.INFO, f'Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
+
+    if count > 2:
+        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}:{maxMinutes}:{maxSeconds} | 평균: {avgHours}:{avgMinutes}:{avgSeconds} | 합계: {sumHours}:{sumMinutes}:{sumSeconds} |"
+    elif count > 0:
+        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}:{maxMinutes}:{maxSeconds} | 평균: 데이터 부족 | 합계: {sumHours}:{sumMinutes}:{sumSeconds} |"
+    else:
+        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: 데이터 부족 | 평균: 데이터 부족 | 합계: 데이터 부족 |"
 
 def init():
     global root
@@ -713,9 +738,10 @@ def init():
     global switchButton
     global emergencyButton
     global status
+    global statusbar
     global refreshBtn
-    root.title(f"디아블로 런처 (rev. {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()})")
-    root.geometry("520x480+100+100")
+    root.title("디아블로 런처")
+    root.geometry("520x500+100+100")
     root.deiconify()
     root.resizable(False, False)
     root.attributes('-toolwindow', True)
@@ -768,6 +794,8 @@ def init():
         info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
     notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
 
+    statusbar = Label(root, text=f'Initializing...', bd=1, relief=tkinter.SUNKEN, anchor=tkinter.W)
+
     welcome.pack()
     switchButton.pack()
     emergencyButton.pack()
@@ -775,6 +803,9 @@ def init():
     refreshBtn.pack()
     info.pack()
     notice.pack()
+    statusbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+
+    ReloadStatusBar()
 
     root.mainloop()
 
