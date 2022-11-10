@@ -728,11 +728,14 @@ def ReloadStatusBar():
     logformat(errorLevel.INFO, f'Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
 
     if count > 2:
-        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}:{maxMinutes}:{maxSeconds} | 평균: {avgHours}:{avgMinutes}:{avgSeconds} | 합계: {sumHours}:{sumMinutes}:{sumSeconds} |"
+        statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
+        statusbar['anchor'] = tkinter.CENTER
     elif count > 0:
-        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}:{maxMinutes}:{maxSeconds} | 평균: 데이터 부족 | 합계: {sumHours}:{sumMinutes}:{sumSeconds} |"
+        statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: 데이터 부족 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
+        statusbar['anchor'] = tkinter.CENTER
     else:
-        statusbar['text'] = f"revision: {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: 데이터 부족 | 평균: 데이터 부족 | 합계: 데이터 부족 |"
+        statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션 통계를 로드할 수 없음"
+        statusbar['anchor'] = tkinter.W
 
 def init():
     global root
@@ -796,7 +799,7 @@ def init():
         info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
     notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
 
-    statusbar = Label(root, text=f'Initializing...', bd=1, relief=tkinter.SUNKEN, anchor=tkinter.W)
+    statusbar = Label(root, text=f'Initializing...', bd=1, relief=tkinter.SUNKEN)
 
     welcome.pack()
     switchButton.pack()
