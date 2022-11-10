@@ -209,7 +209,8 @@ def SaveGameRunningTime(playTime: float):
     except Exception as error:
         logformat(errorLevel.ERR, f'Failed to save Game-play logs: {error}')
     finally:
-        runtimeFile.close()
+        if runtimeFile is not None:
+            runtimeFile.close()
 
 def LoadGameRunningTime():
     data = []
@@ -234,7 +235,8 @@ def LoadGameRunningTime():
     except Exception as error:
         logformat(errorLevel.ERR, f'Failed to load Game-play logs: {error}')
     finally:
-        runtimeFile.close()
+        if runtimeFile is not None:
+            runtimeFile.close()
         if data is not None and sum != 0:
             return len(data), max, sum, (sum / len(data))
         elif data is not None and sum == 0:
