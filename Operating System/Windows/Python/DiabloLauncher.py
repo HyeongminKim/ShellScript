@@ -162,11 +162,11 @@ def UpdateProgram():
             logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
     elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
-        logformat(errorLevel.FATL, 'Program update failed. Please check your internet connection.')
+        logformat(errorLevel.ERR, 'Program update failed. Please check your internet connection.')
     elif os.system('git pull --rebase origin master > NUL 2>&1') != 0:
         os.system('git status')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 오류가 발생하였습니다. 자세한 사항은 로그를 참조해 주세요. ')
-        logformat(errorLevel.FATL, 'Program update failed. Please see the output.')
+        logformat(errorLevel.ERR, 'Program update failed. Please see the output.')
     else:
         logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
 
@@ -796,16 +796,75 @@ def init():
         if msg_box:
             ClearGameRunningTime()
 
+    def ForceReload():
+        UpdateStatusValue()
+        ReloadStatusBar()
+
+    def ForceProgramUpdate():
+        logformat(errorLevel.WARN, f'Force program update will take effect Diablo Launcher make unstable probably.')
+        UpdateProgram()
+
+    def OpenGameStatusDir():
+        userApp = os.environ.get('AppData')
+        if os.path.isdir(f'{userApp}/DiabloLauncher'):
+            logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher directory exist. The target directory will now open.')
+            os.system(f'start {userApp}/DiabloLauncher')
+        else:
+            logformat(errorLevel.WARN, f'{userApp}/DiabloLauncher: no such file or directory. creating directory...')
+            os.mkdir(f'{userApp}/DiabloLauncher')
+            if os.path.isdir(f'{userApp}/DiabloLauncher'):
+                logformat(errorLevel.INFO, f'Successfully created {userApp}/DiabloLauncher directory. The target directory will now open.')
+                os.system(f'start {userApp}/DiabloLauncher')
+            else:
+                logformat(errorLevel.ERR, f'can not create {userApp}/DiabloLauncher directory. Access denied.')
+
     def OpenDevSite():
         os.system('explorer https://github.com/HyeongminKim/ShellScript')
 
+    def OpenDevIssues():
+        now = datetime.now()
+        cnt_time = now.strftime("%H:%M:%S")
+        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message='이슈를 제보할 경우 터미널에 출력된 전체 로그와 경고창, 프로그램 화면 등을 첨부하여 주세요. 만약 가능하다면 어떠한 이유로 문제가 발생하였으며, 문제가 재현 가능한지 등을 첨부하여 주시면 좀 더 빠른 대응이 가능합니다. 지금 이슈 제보 페이지를 방문하시겠습니까?')
+        if msg_box:
+            logformat(errorLevel.INFO, f"=== Generated Report at {cnt_time} ===")
+            logformat(errorLevel.INFO, f"Current agent: {platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}")
+            logformat(errorLevel.INFO, f"env data: {'configured' if data is not None else 'None'}")
+            logformat(errorLevel.INFO, f"QRes support: {'True' if resolutionProgram else 'False'}")
+            logformat(errorLevel.INFO, f"Resolution vector: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None and resolutionProgram else 'Unknown'}")
+            logformat(errorLevel.INFO, f"GameDir path: {f'{gamePath}' if gamePath is not None else 'Unknown'}")
+            if gamePath is not None:
+                if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                    logformat(errorLevel.INFO, "Installed Diablo version: II, III")
+                elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+                    logformat(errorLevel.INFO, "Installed Diablo version: II")
+                elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+                    logformat(errorLevel.INFO, "Installed Diablo version: III")
+                else:
+                    logformat(errorLevel.INFO, "Installed Diablo version: None")
+            else:
+                logformat(errorLevel.INFO, "Installed Diablo version: N/A")
+
+            logformat(errorLevel.INFO, f"GameDir exist: {'True' if gamePath is not None and os.path.isdir(gamePath) else 'False'}")
+            logformat(errorLevel.INFO, f"Diablo Executed: {'True' if diabloExecuted else 'False'}")
+            logformat(errorLevel.INFO, f"===== End Report ======")
+            logformat(errorLevel.WARN, 'NOTE: Please attach the terminal output after the code-page log')
+            os.system('explorer https://github.com/HyeongminKim/ShellScript/issues')
+
     menubar = Menu(root)
+    filesMenu = Menu(menubar, tearoff=0)
+    filesMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
+    menubar.add_cascade(label='파일', menu=filesMenu)
+
     toolsMenu = Menu(menubar, tearoff=0)
+    toolsMenu.add_command(label='새로 고침', command=ForceReload)
+    toolsMenu.add_command(label='런처 업데이트 확인', command=ForceProgramUpdate)
+    toolsMenu.add_separator()
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
 
     helpMenu = Menu(menubar, tearoff=0)
     helpMenu.add_command(label='GitHub 방문', command=OpenDevSite)
+    helpMenu.add_command(label='버그 신고...', command=OpenDevIssues)
     menubar.add_cascade(label='도움말', menu=helpMenu)
 
     welcome = Label(root, text='')
