@@ -156,30 +156,19 @@ def UpdateProgram():
     if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
         remote = os.popen('git rev-parse --short HEAD').read().strip()
         if local != remote:
-            msg_box = tkinter.messagebox.askquestion('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 지금 런처를 다시 시작하여 업데이트를 적용하시겠습니까?', icon='question')
-            if msg_box == 'yes':
-                logformat(errorLevel.INFO, 'Launching new version DiabloLauncher...')
-                os.popen('python DiabloLauncher.py')
-                logformat(errorLevel.INFO, 'Successfully updated. DiabloLauncher now exiting...')
-                os.popen(f'taskkill /T /PID {os.getppid()}')
-            else:
-                logformat(errorLevel.WARN, 'Please restart DiabloLauncher to apply any updates...')
-                exit(2)
+            tkinter.messagebox.showinfo('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 업데이트를 반영하시려면 프로그램을 다시 시작해 주세요.')
+            logformat(errorLevel.INFO, 'Successfully updated. Please restart DiabloLauncher to apply any updates...')
         else:
             logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
-            exit(0)
     elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
-        logformat(errorLevel.ERR, 'Program update failed. Please check your internet connection.')
-        exit(1)
+        logformat(errorLevel.FATL, 'Program update failed. Please check your internet connection.')
     elif os.system('git pull --rebase origin master > NUL 2>&1') != 0:
         os.system('git status')
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 오류가 발생하였습니다. 자세한 사항은 로그를 참조해 주세요. ')
-        logformat(errorLevel.ERR, 'Program update failed. Please see the output.')
-        exit(1)
+        logformat(errorLevel.FATL, 'Program update failed. Please see the output.')
     else:
         logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
-        exit(0)
 
 def ConvertTime(milliseconds: float):
     elapsedTime = milliseconds
