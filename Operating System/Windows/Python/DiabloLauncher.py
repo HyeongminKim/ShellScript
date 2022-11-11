@@ -761,7 +761,7 @@ def init():
     global statusbar
     global refreshBtn
     root.title("디아블로 런처")
-    root.geometry("520x520+100+100")
+    root.geometry("520x500+100+100")
     root.deiconify()
     root.resizable(False, False)
     root.attributes('-toolwindow', True)
