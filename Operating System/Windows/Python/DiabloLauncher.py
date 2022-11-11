@@ -727,6 +727,21 @@ def ReloadStatusBar():
     logformat(errorLevel.INFO, f'Previous game time for avg session: {avgHours}:{avgMinutes}.{avgSeconds}')
     logformat(errorLevel.INFO, f'Previous game time for sum session: {sumHours}:{sumMinutes}.{sumSeconds}')
 
+    if count >= 10 or maxHours >= 10 or avgHours >= 10 or sumHours >= 10:
+        root.title(f"디아블로 런처 (rev. {subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()})")
+        if sumHours >= 8766000:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: 로드할 수 없음"
+        elif sumHours >= 8766:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {int(sumHours / 8766)}년 {int(sumHours % 8766)}월"
+        elif sumHours >= 731:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {int(sumHours / 731)}월 {int(sumHours % 731)}주"
+        elif sumHours >= 168:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {int(sumHours / 168)}주 {int(sumHours % 168)}일"
+        elif sumHours >= 24:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {int(sumHours / 24)}일 {int(sumHours % 24)}시간"
+        else:
+            statusbar['text'] = f"세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
+        statusbar['anchor'] = tkinter.CENTER
     if count > 2:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
