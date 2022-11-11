@@ -99,7 +99,6 @@ launch.withdraw()
 switchButton = None
 emergencyButton = None
 status = None
-refreshBtn = None
 statusbar = None
 
 def ShowWindow():
@@ -252,7 +251,6 @@ def DiabloII_Launcher():
     global launch
     global gameStart
     global switchButton
-    global refreshBtn
     diabloExecuted = True
     logformat(errorLevel.INFO, 'Launching Diablo II Resurrected...')
     if resolutionProgram:
@@ -285,7 +283,6 @@ def DiabloII_Launcher():
     else:
         switchButton['text'] = '게임 종료'
     os.popen(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
-    refreshBtn['state'] = "disabled"
     gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
@@ -296,7 +293,6 @@ def DiabloIII_Launcher():
     global launch
     global gameStart
     global switchButton
-    global refreshBtn
     diabloExecuted = True
     logformat(errorLevel.INFO, 'Launching Diablo III...')
     if resolutionProgram:
@@ -329,7 +325,6 @@ def DiabloIII_Launcher():
     else:
         switchButton['text'] = '게임 종료'
     os.popen(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
-    refreshBtn['state'] = "disabled"
     gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
@@ -339,7 +334,6 @@ def LaunchGameAgent():
     global root
     global launch
     global switchButton
-    global refreshBtn
     global gameEnd
     if diabloExecuted:
         diabloExecuted = False
@@ -351,7 +345,6 @@ def LaunchGameAgent():
             if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
                 logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
                 tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
-        refreshBtn['state'] = "normal"
 
         SaveGameRunningTime(gameEnd - gameStart)
         hours, minutes, seconds = ConvertTime(gameEnd - gameStart)
@@ -401,7 +394,6 @@ def RebootAgent():
     global forceReboot
     global emergencyButton
     global switchButton
-    global refreshBtn
     global gameEnd
     forceReboot = True
     gameEnd = time.time()
@@ -418,13 +410,11 @@ def RebootAgent():
     os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
     logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
-    refreshBtn['state'] = "disabled"
 
 def HaltAgent():
     global forceReboot
     global emergencyButton
     global switchButton
-    global refreshBtn
     global gameEnd
     forceReboot = True
     gameEnd = time.time()
@@ -441,7 +431,6 @@ def HaltAgent():
     os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
     logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
-    refreshBtn['state'] = "disabled"
 
 
 def EmgergencyReboot():
@@ -449,13 +438,11 @@ def EmgergencyReboot():
     global forceReboot
     global emergencyButton
     global switchButton
-    global refreshBtn
     if forceReboot:
         forceReboot = False
         emergencyButton['text'] = '긴급 전원 작업 (게임 저장 후 실행 요망)'
         logformat(errorLevel.INFO, 'Aborting Emergency agent...')
         switchButton['state'] = "normal"
-        refreshBtn['state'] = "normal"
         os.system(f'shutdown -a')
         logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     else:
@@ -529,6 +516,13 @@ def GetEnvironmentValue():
 
 def SetEnvironmentValue():
     global data
+    if forceReboot:
+        tkinter.messagebox.showwarning('환경변수 편집기', '긴급 재시동 모드에서는 환경변수 편집기를 사용할 수 없습니다. 먼저 긴급 재시동을 취소해 주세요.')
+        return
+    elif diabloExecuted:
+        tkinter.messagebox.showwarning('환경변수 편집기', '디아블로가 실행중인 상태에서는 환경변수 편집기를 사용할 수 없습니다. 먼저 게임을 종료한 후에 다시 시도해 주세요.')
+        return
+
     tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. ')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
@@ -770,9 +764,8 @@ def init():
     global emergencyButton
     global status
     global statusbar
-    global refreshBtn
     root.title("디아블로 런처")
-    root.geometry("520x500+100+100")
+    root.geometry("520x420+100+100")
     root.deiconify()
     root.resizable(False, False)
     root.attributes('-toolwindow', True)
@@ -801,8 +794,10 @@ def init():
         ReloadStatusBar()
 
     def ForceProgramUpdate():
-        logformat(errorLevel.WARN, f'Force program update will take effect Diablo Launcher make unstable probably.')
-        UpdateProgram()
+        msg_box = tkinter.messagebox.askquestion('디아블로 런처', '디아블로 런처 초기 실행 이후에 업데이트를 수행할 경우 디아블로 런처가 불안정해질 수 있습니다. 계속 진행하시겠습니까?', icon='question')
+        if msg_box == 'yes':
+            logformat(errorLevel.WARN, f'Force program update will take effect Diablo Launcher make unstable probably.')
+            UpdateProgram()
 
     def OpenGameStatusDir():
         userApp = os.environ.get('AppData')
@@ -829,7 +824,10 @@ def init():
             logformat(errorLevel.INFO, f"=== Generated Report at {cnt_time} ===")
             logformat(errorLevel.INFO, f"Current agent: {platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}")
             logformat(errorLevel.INFO, f"env data: {'configured' if data is not None else 'None'}")
-            logformat(errorLevel.INFO, f"QRes support: {'True' if resolutionProgram else 'False'}")
+            if resolutionProgram:
+                logformat(errorLevel.INFO, f"QRes version: {subprocess.check_output('QRes /S | findstr QRes', shell=True, encoding='utf-8').strip()}")
+            else:
+                logformat(errorLevel.INFO, f"QRes version: None")
             logformat(errorLevel.INFO, f"Resolution vector: {f'{originX}x{originY} - {alteredX}x{alteredY}' if data is not None and resolutionProgram else 'Unknown'}")
             logformat(errorLevel.INFO, f"GameDir path: {f'{gamePath}' if gamePath is not None else 'Unknown'}")
             if gamePath is not None:
@@ -850,6 +848,27 @@ def init():
             logformat(errorLevel.WARN, 'NOTE: Please attach the terminal output after the code-page log')
             os.system('explorer https://github.com/HyeongminKim/ShellScript/issues')
 
+    def AboutThisApp():
+        about = Tk()
+        about.title("이 디아블로 런처에 관하여")
+        about.geometry("500x340+400+400")
+        about.deiconify()
+        about.resizable(False, False)
+        about.attributes('-toolwindow', True)
+
+        def openBlizzardLegalSite():
+            os.system('explorer https://www.blizzard.com/en-us/legal/9c9cb70b-d1ed-4e17-998a-16c6df46be7b/copyright-notices')
+        def openAppleLegalSite():
+            os.system('explorer https://www.apple.com/kr/legal/intellectual-property/guidelinesfor3rdparties.html')
+
+        text = Label(about, text=f"{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n\n--- Copyright ---\nDiablo II Resurrected, Diablo III\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\n\nDiablo Launcher\nCopyright (c) 2022 Hyeongmin Kim\n\n{subprocess.check_output('QRes /S | findstr QRes', shell=True, encoding='utf-8').strip()}\n{subprocess.check_output('QRes /S | findstr Copyright', shell=True, encoding='utf-8').strip()}\n\n이 디아블로 런처에서 언급된 특정 상표는 각 소유권자들의 자산입니다.\n디아블로(Diablo), 블리자드(Blizzard)는 Blizzard Entertainment, Inc.의 등록 상표입니다.\nBootCamp, macOS는 Apple, Inc.의 등록 상표입니다.\n\n자세한 사항은 아래 버튼을 클릭해 주세요")
+        blizzard = Button(about, text='블리자드 저작권 고지', command=openBlizzardLegalSite)
+        apple = Button(about, text='애플컴퓨터 저작권 고지', command=openAppleLegalSite)
+        text.pack()
+        blizzard.pack(pady=4)
+        apple.pack()
+        about.mainloop()
+
     menubar = Menu(root)
     filesMenu = Menu(menubar, tearoff=0)
     filesMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
@@ -857,7 +876,9 @@ def init():
 
     toolsMenu = Menu(menubar, tearoff=0)
     toolsMenu.add_command(label='새로 고침', command=ForceReload)
-    toolsMenu.add_command(label='런처 업데이트 확인', command=ForceProgramUpdate)
+    toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
+    toolsMenu.add_separator()
+    toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
@@ -865,11 +886,12 @@ def init():
     helpMenu = Menu(menubar, tearoff=0)
     helpMenu.add_command(label='GitHub 방문', command=OpenDevSite)
     helpMenu.add_command(label='버그 신고...', command=OpenDevIssues)
-    menubar.add_cascade(label='도움말', menu=helpMenu)
+    helpMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp)
+    menubar.add_cascade(label='정보', menu=helpMenu)
 
     welcome = Label(root, text='')
     switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
-    emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실행 요망)', command=EmgergencyReboot)
+    emergencyButton = Button(root, text='긴급 전원 작업 (게임 저장 후 실행 요망)', height=2,command=EmgergencyReboot)
     now = datetime.now()
     cnt_time = now.strftime("%H:%M:%S")
     if data is None:
@@ -895,20 +917,18 @@ def init():
             else:
                 status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n\n\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
         switchButton['state'] = "normal"
-    refreshBtn = Button(root, text='환경변수 편집', command=SetEnvironmentValue)
     if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
-        info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
+        info = Label(root, text='도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
     else:
-        info = Label(root, text='\n도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
-    notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.\n\n이 디아블로 런처에 관하여\n{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\nCopyright (c) 2022 Hyeongmin Kim")
+        info = Label(root, text='도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
+    notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.")
 
     statusbar = Label(root, text=f'Initializing...', bd=1, relief=tkinter.SUNKEN)
 
     welcome.pack()
     switchButton.pack()
-    emergencyButton.pack()
+    emergencyButton.pack(pady=4)
     status.pack()
-    refreshBtn.pack()
     info.pack()
     notice.pack()
     statusbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
