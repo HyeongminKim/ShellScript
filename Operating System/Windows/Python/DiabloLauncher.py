@@ -190,6 +190,7 @@ def ConvertTime(milliseconds: float):
     elapsedTime = elapsedTime % 60
     seconds = int(elapsedTime)
 
+    logformat(errorLevel.INFO, f'The provided {milliseconds} milliseconds converted to readable time - {hours}:{minutes}.{seconds}.')
     return hours, minutes, seconds
 
 def SaveGameRunningTime(playTime: float):
@@ -205,7 +206,12 @@ def SaveGameRunningTime(playTime: float):
             logformat(errorLevel.INFO, 'runtime.log file already exist. opening target file with append mode')
             runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'a')
         logformat(errorLevel.INFO, f'playTime: {playTime} will be write in {userApp}/DiabloLauncher/runtime.log')
-        runtimeFile.write(f'{str(playTime)}\n')
+        hours, minutes, seconds = ConvertTime(playTime)
+        if hours == 0 and minutes < 5:
+            logformat(errorLevel.INFO, f'{playTime} will be ignored. The provided {hours}:{minutes}.{seconds} playtime lower then 5 minutes.')
+        else:
+            runtimeFile.write(f'{str(playTime)}\n')
+            logformat(errorLevel.INFO, f'Successfully wrote {playTime} in {userApp}/DiabloLauncher/runtime.log')
     except Exception as error:
         logformat(errorLevel.ERR, f'Failed to save Game-play logs: {error}')
     finally:
