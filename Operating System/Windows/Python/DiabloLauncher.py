@@ -241,10 +241,8 @@ def LoadGameRunningTime():
 
 def ClearGameRunningTime():
     if os.path.isfile(f'{userApp}/DiabloLauncher/runtime.log'):
-        if os.remove(f'{userApp}/DiabloLauncher/runtime.log') == 0:
-            logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher/runtime.log file successfully deleted.')
-        else:
-            logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. Please delete it manually.')
+        os.remove(f'{userApp}/DiabloLauncher/runtime.log')
+        ReloadStatusBar()
     else:
         logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. no such file or directory.')
 
@@ -793,8 +791,9 @@ def init():
     RequirementCheck()
 
     def ResetGameStatus():
-        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 미리 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
-        if msg_box == 'yes':
+        count, max, sum, avg = LoadGameRunningTime()
+        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 {count}개의 세션이 영원히 유실되며 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
+        if msg_box:
             ClearGameRunningTime()
 
     def OpenDevSite():
