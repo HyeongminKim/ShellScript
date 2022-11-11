@@ -267,8 +267,10 @@ def DiabloII_Launcher():
     global switchButton
     global refreshBtn
     diabloExecuted = True
+    logformat(errorLevel.INFO, 'Launching Diablo II Resurrected...')
     if resolutionProgram:
         if int(alteredX) < 1280 or int(alteredY) < 720:
+            logformat(errorLevel.ERR, f'The Diablo II Resurrected does not supported display resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -276,6 +278,7 @@ def DiabloII_Launcher():
             UpdateStatusValue()
             return
         if platform.release() != '10' and platform.release() != '11':
+            logformat(errorLevel.ERR, f'The Diablo II Resurrected does not supported current OS {platform.system()} {platform.release()}')
             tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -283,6 +286,7 @@ def DiabloII_Launcher():
             UpdateStatusValue()
             return
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
+            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -307,8 +311,10 @@ def DiabloIII_Launcher():
     global switchButton
     global refreshBtn
     diabloExecuted = True
+    logformat(errorLevel.INFO, 'Launching Diablo III...')
     if resolutionProgram:
         if int(alteredX) < 1024 or int(alteredY) < 768:
+            logformat(errorLevel.ERR, f'The Diablo III does not supported display resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -316,6 +322,7 @@ def DiabloIII_Launcher():
             UpdateStatusValue()
             return
         if platform.release() != '7' and platform.release() != '8' and platform.release() != '10' and platform.release() != '11':
+            logformat(errorLevel.ERR, f'The Diablo III does not supported current OS {platform.system()} {platform.release()}')
             tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -323,6 +330,7 @@ def DiabloIII_Launcher():
             UpdateStatusValue()
             return
         if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
+            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
@@ -348,11 +356,13 @@ def LaunchGameAgent():
     global gameEnd
     if diabloExecuted:
         diabloExecuted = False
+        logformat(errorLevel.INFO, 'Setting game mode is false...')
         root.protocol("WM_DELETE_WINDOW", ExitProgram)
         gameEnd = time.time()
         switchButton['text'] = '디아블로 실행...'
         if resolutionProgram:
             if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
+                logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
                 tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
         refreshBtn['state'] = "normal"
 
@@ -411,12 +421,15 @@ def RebootAgent():
     if diabloExecuted:
         SaveGameRunningTime(gameEnd - gameStart)
     emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
+    logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
+            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     HideWindow()
     UpdateStatusValue()
     os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
+    logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
     refreshBtn['state'] = "disabled"
 
@@ -431,12 +444,15 @@ def HaltAgent():
     if diabloExecuted:
         SaveGameRunningTime(gameEnd - gameStart)
     emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
+    logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
+            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     HideWindow()
     UpdateStatusValue()
     os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
+    logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
     refreshBtn['state'] = "disabled"
 
@@ -450,9 +466,11 @@ def EmgergencyReboot():
     if forceReboot:
         forceReboot = False
         emergencyButton['text'] = '긴급 전원 작업 (게임 저장 후 실행 요망)'
+        logformat(errorLevel.INFO, 'Aborting Emergency agent...')
         switchButton['state'] = "normal"
         refreshBtn['state'] = "normal"
         os.system(f'shutdown -a')
+        logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     else:
         launch.title('전원')
         if resolutionProgram and diabloExecuted:
