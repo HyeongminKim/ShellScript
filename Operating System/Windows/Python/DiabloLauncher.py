@@ -788,11 +788,11 @@ def init():
         os.system('explorer https://github.com/HyeongminKim/ShellScript')
 
     menubar = Menu(root)
-    toolsMenu = Menu(menubar)
+    toolsMenu = Menu(menubar, tearoff=0)
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
 
-    helpMenu = Menu(menubar)
+    helpMenu = Menu(menubar, tearoff=0)
     helpMenu.add_command(label='GitHub 방문', command=OpenDevSite)
     menubar.add_cascade(label='도움말', menu=helpMenu)
 
