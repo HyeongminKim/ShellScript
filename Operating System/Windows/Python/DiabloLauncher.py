@@ -761,7 +761,7 @@ def init():
     global statusbar
     global refreshBtn
     root.title("디아블로 런처")
-    root.geometry("520x500+100+100")
+    root.geometry("520x520+100+100")
     root.deiconify()
     root.resizable(False, False)
     root.attributes('-toolwindow', True)
@@ -778,6 +778,23 @@ def init():
     UpdateResProgram()
     GetEnvironmentValue()
     RequirementCheck()
+
+    def ResetGameStatus():
+        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 미리 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
+        if msg_box == 'yes':
+            ClearGameRunningTime()
+
+    def OpenDevSite():
+        os.system('explorer https://github.com/HyeongminKim/ShellScript')
+
+    menubar = Menu(root)
+    toolsMenu = Menu(menubar, tearoff=0)
+    toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
+    menubar.add_cascade(label='도구', menu=toolsMenu)
+
+    helpMenu = Menu(menubar, tearoff=0)
+    helpMenu.add_command(label='GitHub 방문', command=OpenDevSite)
+    menubar.add_cascade(label='도움말', menu=helpMenu)
 
     welcome = Label(root, text='')
     switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
