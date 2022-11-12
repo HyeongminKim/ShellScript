@@ -70,6 +70,7 @@ except Exception as error:
     logformat(errorLevel.FATL, f'The DiabloLauncher stoped due to {error}')
 
 diabloExecuted = False
+updateChecked = False
 
 forceReboot = False
 rebootWaitTime = 10
@@ -150,6 +151,7 @@ def InterruptProgram(sig, frame):
 def UpdateProgram():
     global root
     global launch
+    global updateChecked
     local = os.popen('git rev-parse --short HEAD').read().strip()
     logformat(errorLevel.INFO, 'Checking program updates...')
     if os.system('git pull --rebase origin master 2> NUL | findstr DiabloLauncher > NUL 2>&1') == 0:
@@ -158,6 +160,8 @@ def UpdateProgram():
             tkinter.messagebox.showinfo('디아블로 런처', f'디아블로 런처가 성공적으로 업데이트 되었습니다. ({local} → {remote}) 업데이트를 반영하시려면 프로그램을 다시 시작해 주세요.')
             logformat(errorLevel.INFO, 'Successfully updated. Please restart DiabloLauncher to apply any updates...')
         else:
+            if updateChecked:
+                tkinter.messagebox.showinfo('디아블로 런처', '디아블로 런처가 최신 버전입니다.')
             logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
     elif os.system('ping -n 1 -w 1 www.google.com > NUL 2>&1') != 0:
         tkinter.messagebox.showwarning('디아블로 런처', '인터넷 연결이 오프라인인 상태에서는 디아블로 런처를 업데이트 할 수 없습니다. 나중에 다시 시도해 주세요.')
@@ -167,7 +171,10 @@ def UpdateProgram():
         tkinter.messagebox.showwarning('디아블로 런처', '레포에 알 수 없는 오류가 발생하였습니다. 자세한 사항은 로그를 참조해 주세요. ')
         logformat(errorLevel.ERR, 'Program update failed. Please see the output.')
     else:
+        if updateChecked:
+            tkinter.messagebox.showinfo('디아블로 런처', '디아블로 런처가 최신 버전입니다.')
         logformat(errorLevel.INFO, 'DiabloLauncher Up to date.')
+    updateChecked = True
 
 def ConvertTime(milliseconds: float):
     elapsedTime = milliseconds
