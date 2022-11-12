@@ -803,15 +803,24 @@ def init():
         userApp = os.environ.get('AppData')
         if os.path.isdir(f'{userApp}/DiabloLauncher'):
             logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher directory exist. The target directory will now open.')
-            os.system(f'start {userApp}/DiabloLauncher')
+            os.startfile(f'"{userApp}/DiabloLauncher"')
         else:
-            logformat(errorLevel.WARN, f'{userApp}/DiabloLauncher: no such file or directory. creating directory...')
-            os.mkdir(f'{userApp}/DiabloLauncher')
-            if os.path.isdir(f'{userApp}/DiabloLauncher'):
-                logformat(errorLevel.INFO, f'Successfully created {userApp}/DiabloLauncher directory. The target directory will now open.')
-                os.system(f'start {userApp}/DiabloLauncher')
-            else:
-                logformat(errorLevel.ERR, f'can not create {userApp}/DiabloLauncher directory. Access denied.')
+            logformat(errorLevel.WARN, f'{userApp}/DiabloLauncher: no such file or directory.')
+            tkinter.messagebox.showwarning('디아블로 런처', f'{userApp}/DiabloLauncher 디렉토리가 존재하지 않습니다.')
+
+    def OpenGameDir():
+        if gamePath is not None and os.path.isdir(gamePath):
+            logformat(errorLevel.INFO, f'The {gamePath} directory exist. The target directory will now open.')
+            os.startfile(f'"{gamePath}"')
+        elif gamePath is not None and not os.path.isdir(gamePath):
+            logformat(errorLevel.WARN, f'{gamePath}: no such file or directory.')
+            tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리가 존재하지 않습니다.')
+        else:
+            logformat(errorLevel.WARN, f'Can not open game directory. because gamePath value currently not set.')
+            tkinter.messagebox.showwarning('디아블로 런처', f'게임 디렉토리가 아직 설정되어 있지 않습니다.')
+
+    def openControlPanel():
+        os.system('control.exe appwiz.cpl')
 
     def OpenDevSite():
         os.system('explorer https://github.com/HyeongminKim/ShellScript')
@@ -889,6 +898,7 @@ def init():
 
     menubar = Menu(root)
     filesMenu = Menu(menubar, tearoff=0)
+    filesMenu.add_command(label='게임폴더 열기', command=OpenGameDir)
     filesMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
     menubar.add_cascade(label='파일', menu=filesMenu)
 
@@ -904,6 +914,7 @@ def init():
         toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='disabled')
 
     toolsMenu.add_separator()
+    toolsMenu.add_command(label='프로그램 제거 및 변경', command=openControlPanel)
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
 
