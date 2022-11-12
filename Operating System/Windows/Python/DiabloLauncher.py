@@ -872,6 +872,21 @@ def init():
         apple.pack()
         about.mainloop()
 
+    def BootCampSoundRecover():
+        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message='"사운드 장치 문제해결" 메뉴는 사운드 장치가 Cirrus Logic일 경우에만 적용됩니다. 계속하시겠습니까?')
+        if msg_box == True:
+            soundRecover = Tk()
+            soundRecover.title("Cirrus Logic 문제 해결")
+            soundRecover.geometry("480x170+300+300")
+            soundRecover.deiconify()
+            soundRecover.resizable(False, False)
+            soundRecover.attributes('-toolwindow', True)
+            notice = Label(soundRecover, text='이 도움말의 일부 과정은 macOS의 BootCamp 지원 앱에서 수행해야 합니다.')
+            contents = Label(soundRecover, text='1. BootCamp 지원 앱에서 Windows 지원 소프트웨어를 USB에 저장합니다.\n2. BootCamp로 재시동합니다.\n3. msconfig를 실행에 입력하여 부팅 옵션을 안전 부팅의 최소 설치로 선택합니다.\n4. BootCamp를 안전모드로 재시동합니다. \n5. 실행에 devmgmt.msc를 입력하여 장치관리자를 띄웁니다. \n6. Cirrus Logic 디바이스와 드라이버를 제거합니다.\n7. 1번에서 다운받은 폴더 경로를 드라이버 설치경로로 선택합니다. \n8. msconfig를 실행에 입력하여 안전부팅 체크박스를 해제합니다. \n9. BootCamp를 재시동합니다. ', anchor='w', justify=LEFT)
+            notice.pack()
+            contents.pack()
+            soundRecover.mainloop()
+
     menubar = Menu(root)
     filesMenu = Menu(menubar, tearoff=0)
     filesMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
@@ -882,6 +897,12 @@ def init():
     toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
+
+    if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
+        toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='normal')
+    else:
+        toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='disabled')
+
     toolsMenu.add_separator()
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
@@ -921,7 +942,7 @@ def init():
                 status = Label(root, text=f"\n정보 - {cnt_time}에 업데이트\n환경변수 설정됨: {'예' if data is not None else '아니요'}\n해상도 변경 지원됨: 아니요\n\n\n게임 디렉토리: {f'{gamePath}' if data is not None else '알 수 없음'}\n디렉토리 존재여부: {'예' if os.path.isdir(gamePath) and data is not None else '아니요'}\n디아블로 실행: {'예' if diabloExecuted else '아니요'}\n실행가능 버전: 없음\n")
         switchButton['state'] = "normal"
     if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
-        info = Label(root, text='도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드가 작동하지 않을 경우 macOS로 시동하여 문제를 해결하세요.')
+        info = Label(root, text='도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\nBootCamp 사운드 장치가 작동하지 않을 경우 소리 문제 해결 메뉴를 확인해 보세요.')
     else:
         info = Label(root, text='도움말\n디아블로를 원할히 플레이하려면 DiabloLauncher 환경 변수를 설정해 주세요.\n게임 디렉토리, 해상도를 변경하려면 DiabloLauncher 환경변수를 편집하세요.\n최신 드라이버 및 소프트웨어를 설치할 경우 게임 퍼포먼스가 향상됩니다.')
     notice = Label(root, text=f"Blizzard 정책상 게임 실행은 직접 실행하여야 하며 실행시 알림창 지시를 따르시기 바랍니다.\n해당 프로그램을 사용함으로써 발생하는 모든 불이익은 전적으로 사용자에게 있습니다.\n지원되는 디아블로 버전은 Diablo II Resurrected, Diablo III 입니다.")
