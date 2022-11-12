@@ -195,8 +195,8 @@ def SaveGameRunningTime(playTime: float):
             runtimeFile = open(f'{userApp}/DiabloLauncher/runtime.log', 'a')
         logformat(errorLevel.INFO, f'playTime: {playTime} will be write in {userApp}/DiabloLauncher/runtime.log')
         hours, minutes, seconds = ConvertTime(playTime)
-        if hours == 0 and minutes < 5:
-            logformat(errorLevel.INFO, f'{playTime} will be ignored. The provided {hours}:{minutes}.{seconds} playtime lower then 5 minutes.')
+        if hours == 0 and minutes < 2:
+            logformat(errorLevel.INFO, f'{playTime} will be ignored. The provided {hours}:{minutes}.{seconds} playtime lower then 2 minutes.')
         else:
             runtimeFile.write(f'{str(playTime)}\n')
             logformat(errorLevel.INFO, f'Successfully wrote {playTime} in {userApp}/DiabloLauncher/runtime.log')
@@ -358,7 +358,7 @@ def LaunchGameAgent():
                 tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 {seconds}초 동안 플레이 했습니다.')
             elif minutes == 0 and seconds == 0:
                 tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {hours}시간 동안 플레이 했습니다. ')
-        elif minutes >= 5:
+        elif minutes >= 2:
             if seconds > 0:
                 tkinter.messagebox.showinfo('디아블로 런처', f'이번 세션에는 {minutes}분 {seconds}초 동안 플레이 했습니다. ')
             else:
