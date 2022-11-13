@@ -102,6 +102,10 @@ emergencyButton = None
 status = None
 statusbar = None
 
+fileMenu = None
+toolsMenu = None
+aboutMenu = None
+
 def ShowWindow():
     global launch
     launch.deiconify()
@@ -258,6 +262,7 @@ def DiabloII_Launcher():
     global launch
     global gameStart
     global switchButton
+    global toolsMenu
     diabloExecuted = True
     logformat(errorLevel.INFO, 'Launching Diablo II Resurrected...')
     if resolutionProgram:
@@ -290,6 +295,7 @@ def DiabloII_Launcher():
     else:
         switchButton['text'] = '게임 종료'
     os.popen(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
+    toolsMenu.entryconfig(3, state='disabled')
     gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
@@ -300,6 +306,7 @@ def DiabloIII_Launcher():
     global launch
     global gameStart
     global switchButton
+    global toolsMenu
     diabloExecuted = True
     logformat(errorLevel.INFO, 'Launching Diablo III...')
     if resolutionProgram:
@@ -332,6 +339,7 @@ def DiabloIII_Launcher():
     else:
         switchButton['text'] = '게임 종료'
     os.popen(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
+    toolsMenu.entryconfig(3, state='disabled')
     gameStart = time.time()
     HideWindow()
     UpdateStatusValue()
@@ -342,12 +350,14 @@ def LaunchGameAgent():
     global launch
     global switchButton
     global gameEnd
+    global toolsMenu
     if diabloExecuted:
         diabloExecuted = False
         logformat(errorLevel.INFO, 'Setting game mode is false...')
         root.protocol("WM_DELETE_WINDOW", ExitProgram)
         gameEnd = time.time()
         switchButton['text'] = '디아블로 실행...'
+        toolsMenu.entryconfig(3, state='normal')
         if resolutionProgram:
             if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
                 logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
@@ -402,6 +412,7 @@ def RebootAgent():
     global emergencyButton
     global switchButton
     global gameEnd
+    global toolsMenu
     forceReboot = True
     gameEnd = time.time()
     if diabloExecuted:
@@ -417,12 +428,14 @@ def RebootAgent():
     os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
     logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
+    toolsMenu.entryconfig(3, state='disabled')
 
 def HaltAgent():
     global forceReboot
     global emergencyButton
     global switchButton
     global gameEnd
+    global toolsMenu
     forceReboot = True
     gameEnd = time.time()
     if diabloExecuted:
@@ -438,6 +451,7 @@ def HaltAgent():
     os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
     logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
+    toolsMenu.entryconfig(3, state='disabled')
 
 
 def EmgergencyReboot():
@@ -445,11 +459,13 @@ def EmgergencyReboot():
     global forceReboot
     global emergencyButton
     global switchButton
+    global toolsMenu
     if forceReboot:
         forceReboot = False
         emergencyButton['text'] = '긴급 전원 작업 (게임 저장 후 실행 요망)'
         logformat(errorLevel.INFO, 'Aborting Emergency agent...')
         switchButton['state'] = "normal"
+        toolsMenu.entryconfig(3, state='normal')
         os.system(f'shutdown -a')
         logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     else:
@@ -469,6 +485,7 @@ def EmgergencyReboot():
 def GetEnvironmentValue():
     global data
     global gamePath
+    global fileMenu
     if resolutionProgram:
         global originX
         global originY
@@ -485,10 +502,12 @@ def GetEnvironmentValue():
             logformat(errorLevel.INFO, 'QRes detected. parameter count should be 7')
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
+            fileMenu.entryconfig(0, state='normal')
         else:
             logformat(errorLevel.INFO, 'QRes not detected. parameter count should be 1')
             gamePath, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
+            fileMenu.entryconfig(0, state='normal')
 
         if resolutionProgram:
             logformat(errorLevel.INFO, f'{gamePath}')
@@ -509,6 +528,7 @@ def GetEnvironmentValue():
         alteredX = None
         alteredY = None
         alteredFR = None
+        fileMenu.entryconfig(0, state='disabled')
     finally:
         logformat(errorLevel.INFO, f'{data}')
         if resolutionProgram:
@@ -523,13 +543,6 @@ def GetEnvironmentValue():
 
 def SetEnvironmentValue():
     global data
-    if forceReboot:
-        tkinter.messagebox.showwarning('환경변수 편집기', '긴급 재시동 모드에서는 환경변수 편집기를 사용할 수 없습니다. 먼저 긴급 재시동을 취소해 주세요.')
-        return
-    elif diabloExecuted:
-        tkinter.messagebox.showwarning('환경변수 편집기', '디아블로가 실행중인 상태에서는 환경변수 편집기를 사용할 수 없습니다. 먼저 게임을 종료한 후에 다시 시도해 주세요.')
-        return
-
     tkinter.messagebox.showinfo('환경변수 편집기', '이 편집기는 본 프로그램에서만 적용되며 디아블로 런처를 종료 시 모든 변경사항이 유실됩니다. 변경사항을 영구적으로 적용하시려면 "고급 시스템 설정"을 이용해 주세요. ')
     envWindow = Tk()
     envWindow.title('환경변수 편집기')
@@ -771,6 +784,10 @@ def init():
     global emergencyButton
     global status
     global statusbar
+    global fileMenu
+    global toolsMenu
+    global aboutMenu
+
     root.title("디아블로 런처")
     root.geometry("520x420+100+100")
     root.deiconify()
@@ -907,10 +924,10 @@ def init():
             soundRecover.mainloop()
 
     menubar = Menu(root)
-    filesMenu = Menu(menubar, tearoff=0)
-    filesMenu.add_command(label='게임폴더 열기', command=OpenGameDir)
-    filesMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
-    menubar.add_cascade(label='파일', menu=filesMenu)
+    fileMenu = Menu(menubar, tearoff=0)
+    fileMenu.add_command(label='게임폴더 열기', command=OpenGameDir)
+    fileMenu.add_command(label='통계폴더 열기', command=OpenGameStatusDir)
+    menubar.add_cascade(label='파일', menu=fileMenu)
 
     toolsMenu = Menu(menubar, tearoff=0)
     toolsMenu.add_command(label='새로 고침', command=ForceReload)
@@ -928,11 +945,11 @@ def init():
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
 
-    helpMenu = Menu(menubar, tearoff=0)
-    helpMenu.add_command(label='GitHub 방문', command=OpenDevSite)
-    helpMenu.add_command(label='버그 신고...', command=OpenDevIssues)
-    helpMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp)
-    menubar.add_cascade(label='정보', menu=helpMenu)
+    aboutMenu = Menu(menubar, tearoff=0)
+    aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
+    aboutMenu.add_command(label='버그 신고...', command=OpenDevIssues)
+    aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp)
+    menubar.add_cascade(label='정보', menu=aboutMenu)
 
     welcome = Label(root, text='')
     switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
