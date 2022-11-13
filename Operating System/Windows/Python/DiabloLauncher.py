@@ -792,9 +792,12 @@ def init():
 
     def ResetGameStatus():
         count, max, sum, avg = LoadGameRunningTime()
-        msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 {count}개의 세션이 영원히 유실되며 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
-        if msg_box:
-            ClearGameRunningTime()
+        if count > 0:
+            msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 {count}개의 세션이 영원히 유실되며 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
+            if msg_box:
+                ClearGameRunningTime()
+        else:
+            tkinter.messagebox.showwarning('디아블로 런처', f'게임 플레이 기록이 저장되어 있지 않아 통계 재설정을 수행할 수 없습니다. ')
 
     def ForceReload():
         UpdateStatusValue()
