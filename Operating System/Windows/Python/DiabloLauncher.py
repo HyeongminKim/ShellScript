@@ -218,6 +218,7 @@ def SaveGameRunningTime(playTime: float):
             runtimeFile.close()
 
 def LoadGameRunningTime():
+    global fileMenu
     data = []
     max = 0
     sum = 0
@@ -235,10 +236,15 @@ def LoadGameRunningTime():
                 if max < float(line):
                     max = float(line)
                 sum += float(line)
+            fileMenu.entryconfig(1, state='normal')
         else:
             raise FileNotFoundError
     except Exception as error:
         logformat(errorLevel.ERR, f'Failed to load Game-play logs: {error}')
+        if os.path.isdir(f'{userApp}/DiabloLauncher'):
+            fileMenu.entryconfig(1, state='normal')
+        else:
+            fileMenu.entryconfig(1, state='disabled')
     finally:
         if runtimeFile is not None:
             runtimeFile.close()
@@ -728,6 +734,7 @@ def UpdateStatusValue():
 
 def ReloadStatusBar():
     global statusbar
+    global toolsMenu
     loadStart = time.time()
     count, max, sum, avg = LoadGameRunningTime()
     maxHours, maxMinutes, maxSeconds = ConvertTime(max)
@@ -770,12 +777,15 @@ def ReloadStatusBar():
     if count > 2:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
+        toolsMenu.entryconfig(7, state='normal')
     elif count > 0:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: 데이터 부족 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
+        toolsMenu.entryconfig(7, state='normal')
     else:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션 통계를 로드할 수 없음"
         statusbar['anchor'] = tkinter.W
+        toolsMenu.entryconfig(7, state='disabled')
 
 def init():
     global root
@@ -809,8 +819,6 @@ def init():
             msg_box = tkinter.messagebox.askyesno(title='디아블로 런처', message=f'통계 재설정을 수행할 경우 {count}개의 세션이 영원히 유실되며 되돌릴 수 없습니다. 만약의 경우를 대비하여 {userApp}/DiabloLauncher/runtime.log 파일을 백업하시기 바랍니다. 통계 재설정을 계속 하시겠습니까? ')
             if msg_box:
                 ClearGameRunningTime()
-        else:
-            tkinter.messagebox.showwarning('디아블로 런처', f'게임 플레이 기록이 저장되어 있지 않아 통계 재설정을 수행할 수 없습니다. ')
 
     def ForceReload():
         UpdateStatusValue()
@@ -827,20 +835,11 @@ def init():
         if os.path.isdir(f'{userApp}/DiabloLauncher'):
             logformat(errorLevel.INFO, f'The {userApp}/DiabloLauncher directory exist. The target directory will now open.')
             os.startfile(f'"{userApp}/DiabloLauncher"')
-        else:
-            logformat(errorLevel.WARN, f'{userApp}/DiabloLauncher: no such file or directory.')
-            tkinter.messagebox.showwarning('디아블로 런처', f'{userApp}/DiabloLauncher 디렉토리가 존재하지 않습니다.')
 
     def OpenGameDir():
         if gamePath is not None and os.path.isdir(gamePath):
             logformat(errorLevel.INFO, f'The {gamePath} directory exist. The target directory will now open.')
             os.startfile(f'"{gamePath}"')
-        elif gamePath is not None and not os.path.isdir(gamePath):
-            logformat(errorLevel.WARN, f'{gamePath}: no such file or directory.')
-            tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리가 존재하지 않습니다.')
-        else:
-            logformat(errorLevel.WARN, f'Can not open game directory. because gamePath value currently not set.')
-            tkinter.messagebox.showwarning('디아블로 런처', f'게임 디렉토리가 아직 설정되어 있지 않습니다.')
 
     def openControlPanel():
         os.system('control.exe appwiz.cpl')
