@@ -803,10 +803,6 @@ def init():
     root.protocol("WM_DELETE_WINDOW", ExitProgram)
     signal.signal(signal.SIGINT, InterruptProgram)
 
-    UpdateResProgram()
-    GetEnvironmentValue()
-    RequirementCheck()
-
     def ResetGameStatus():
         count, max, sum, avg = LoadGameRunningTime()
         if count > 0:
@@ -950,6 +946,10 @@ def init():
     aboutMenu.add_command(label='버그 신고...', command=OpenDevIssues)
     aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp)
     menubar.add_cascade(label='정보', menu=aboutMenu)
+
+    UpdateResProgram()
+    GetEnvironmentValue()
+    RequirementCheck()
 
     welcome = Label(root, text='')
     switchButton = Button(root, text='디아블로 실행...', command=LaunchGameAgent)
