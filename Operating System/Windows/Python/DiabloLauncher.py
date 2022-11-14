@@ -262,7 +262,7 @@ def ClearGameRunningTime():
     else:
         logformat(errorLevel.ERR, f'Failed to remove {userApp}/DiabloLauncher/runtime.log file. no such file or directory.')
 
-def DiabloII_Launcher():
+def GameLauncher(gameName: str, supportedX: int, supportedY: int, os_min: int):
     global diabloExecuted
     global root
     global launch
@@ -270,19 +270,24 @@ def DiabloII_Launcher():
     global switchButton
     global toolsMenu
     diabloExecuted = True
-    logformat(errorLevel.INFO, 'Launching Diablo II Resurrected...')
+    logformat(errorLevel.INFO, f'Launching {gameName}...')
     if resolutionProgram:
-        if int(alteredX) < 1280 or int(alteredY) < 720:
-            logformat(errorLevel.ERR, f'The Diablo II Resurrected does not supported display resolution {alteredX}x{alteredY} {alteredFR}Hz')
-            tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+        if int(alteredX) < supportedX or int(alteredY) < supportedY:
+            logformat(errorLevel.ERR, f'The {gameName} does not supported display resolution {alteredX}x{alteredY} {alteredFR}Hz')
+            tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 {gameName} 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
             HideWindow()
             UpdateStatusValue()
             return
-        if platform.release() != '10' and platform.release() != '11':
-            logformat(errorLevel.ERR, f'The Diablo II Resurrected does not supported current OS {platform.system()} {platform.release()}')
-            tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo II Resurrected 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
+        try:
+            if int(platform.release()) >= os_min:
+                logformat(errorLevel.INFO, f'The {gameName} supported current OS {platform.system()} {platform.release()}')
+            else:
+                raise ValueError
+        except Exception:
+            logformat(errorLevel.ERR, f'The {gameName} does not supported current OS {platform.system()} {platform.release()}')
+            tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) {gameName} 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
             diabloExecuted = False
             root.protocol("WM_DELETE_WINDOW", ExitProgram)
             HideWindow()
@@ -300,51 +305,7 @@ def DiabloII_Launcher():
         root.protocol("WM_DELETE_WINDOW", AlertWindow)
     else:
         switchButton['text'] = '게임 종료'
-    os.popen(f'"{gamePath}/Diablo II Resurrected/Diablo II Resurrected Launcher.exe"')
-    toolsMenu.entryconfig(3, state='disabled')
-    gameStart = time.time()
-    HideWindow()
-    UpdateStatusValue()
-
-def DiabloIII_Launcher():
-    global diabloExecuted
-    global root
-    global launch
-    global gameStart
-    global switchButton
-    global toolsMenu
-    diabloExecuted = True
-    logformat(errorLevel.INFO, 'Launching Diablo III...')
-    if resolutionProgram:
-        if int(alteredX) < 1024 or int(alteredY) < 768:
-            logformat(errorLevel.ERR, f'The Diablo III does not supported display resolution {alteredX}x{alteredY} {alteredFR}Hz')
-            tkinter.messagebox.showerror('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
-            diabloExecuted = False
-            root.protocol("WM_DELETE_WINDOW", ExitProgram)
-            HideWindow()
-            UpdateStatusValue()
-            return
-        if platform.release() != '7' and platform.release() != '8' and platform.release() != '10' and platform.release() != '11':
-            logformat(errorLevel.ERR, f'The Diablo III does not supported current OS {platform.system()} {platform.release()}')
-            tkinter.messagebox.showerror('디아블로 런처', f'{platform.system()} {platform.release()} 은(는) Diablo III 가 지원하지 않습니다. 자세한 사항은 공식 홈페이지를 확인하시기 바랍니다. ')
-            diabloExecuted = False
-            root.protocol("WM_DELETE_WINDOW", ExitProgram)
-            HideWindow()
-            UpdateStatusValue()
-            return
-        if os.system(f'QRes -X {alteredX} -Y {alteredY} -R {alteredFR}') != 0:
-            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
-            tkinter.messagebox.showwarning('디아블로 런처', f'{alteredX}x{alteredY} {alteredFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
-            diabloExecuted = False
-            root.protocol("WM_DELETE_WINDOW", ExitProgram)
-            HideWindow()
-            UpdateStatusValue()
-            return
-        switchButton['text'] = '디스플레이 해상도 복구 (게임 종료시 사용)'
-        root.protocol("WM_DELETE_WINDOW", AlertWindow)
-    else:
-        switchButton['text'] = '게임 종료'
-    os.popen(f'"{gamePath}/Diablo III/Diablo III Launcher.exe"')
+    os.popen(f'"{gamePath}/{gameName}/{gameName} Launcher.exe"')
     toolsMenu.entryconfig(3, state='disabled')
     gameStart = time.time()
     HideWindow()
@@ -391,8 +352,8 @@ def LaunchGameAgent():
         launch.title('디아블로 버전 선택')
 
         note = Label(launch, text='사용가능한 디아블로 버전만 활성화 됩니다')
-        diablo2 = Button(launch, text='Diablo II Resurrected', width=20, height=5, command=DiabloII_Launcher)
-        diablo3 = Button(launch, text='Diablo III', width=20, height=5, command=DiabloIII_Launcher)
+        diablo2 = Button(launch, text='Diablo II Resurrected', width=20, height=5, command= lambda: GameLauncher('Diablo II Resurrected', 1280, 720, 10))
+        diablo3 = Button(launch, text='Diablo III', width=20, height=5, command= lambda: GameLauncher('Diablo III', 1024, 768, 7))
         note.pack()
         diablo2.pack(side=LEFT, padx=10)
         diablo3.pack(side=RIGHT, padx=10)
@@ -413,7 +374,7 @@ def LaunchGameAgent():
         ShowWindow()
         launch.mainloop()
 
-def RebootAgent():
+def BootAgent(poweroff: str):
     global forceReboot
     global emergencyButton
     global switchButton
@@ -423,42 +384,25 @@ def RebootAgent():
     gameEnd = time.time()
     if diabloExecuted:
         SaveGameRunningTime(gameEnd - gameStart)
-    emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
-    logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
+    if poweroff == 'r':
+        emergencyButton['text'] = '긴급 재시동 준비중... (재시동 취소)'
+        logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
+    elif poweroff == 's':
+        emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
+        logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
     if resolutionProgram:
         if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
             logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
             tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
     HideWindow()
     UpdateStatusValue()
-    os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
+    if poweroff == 'r':
+        os.system(f'shutdown -r -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 재시동] 기능으로 인해 재시동 됩니다."')
+    elif poweroff == 's':
+        os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
     logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
     switchButton['state'] = "disabled"
     toolsMenu.entryconfig(3, state='disabled')
-
-def HaltAgent():
-    global forceReboot
-    global emergencyButton
-    global switchButton
-    global gameEnd
-    global toolsMenu
-    forceReboot = True
-    gameEnd = time.time()
-    if diabloExecuted:
-        SaveGameRunningTime(gameEnd - gameStart)
-    emergencyButton['text'] = '긴급 종료 준비중... (종료 취소)'
-    logformat(errorLevel.INFO, 'Starting Emergency reboot agent...')
-    if resolutionProgram:
-        if os.system(f'QRes -X {originX} -Y {originY} -R {originFR}') != 0:
-            logformat(errorLevel.ERR, f'The current display does not supported choosed resolution {alteredX}x{alteredY} {alteredFR}Hz')
-            tkinter.messagebox.showwarning('디아블로 런처', f'{originX}x{originY} {originFR}Hz 해상도는 이 디스플레이에서 지원하지 않습니다. 시스템 환경 설정에서 지원하는 해상도를 확인하시기 바랍니다.')
-    HideWindow()
-    UpdateStatusValue()
-    os.system(f'shutdown -s -f -t 10 -c "Windows가 DiabloLauncher의 [긴급 종료] 기능으로 인해 종료 됩니다."')
-    logformat(errorLevel.INFO, 'Successfully executed Windows shutdown.exe')
-    switchButton['state'] = "disabled"
-    toolsMenu.entryconfig(3, state='disabled')
-
 
 def EmgergencyReboot():
     global launch
@@ -480,8 +424,8 @@ def EmgergencyReboot():
             note = Label(launch, text=f'수행할 작업 시작전 {originX}x{originY} 해상도로 복구 후 계속')
         else:
             note = Label(launch, text='수행할 작업 선택')
-        reboot = Button(launch, text='재시동', width=20, height=5, command=RebootAgent)
-        halt = Button(launch, text='종료', width=20, height=5, command=HaltAgent)
+        reboot = Button(launch, text='재시동', width=20, height=5, command= lambda: BootAgent('r'))
+        halt = Button(launch, text='종료', width=20, height=5, command= lambda: BootAgent('s'))
         note.pack()
         reboot.pack(side=LEFT, padx=10)
         halt.pack(side=RIGHT, padx=10)
