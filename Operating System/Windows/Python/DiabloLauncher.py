@@ -820,7 +820,7 @@ def init():
             if msg_box:
                 ClearGameRunningTime()
 
-    def ForceReload():
+    def ForceReload(*args):
         UpdateStatusValue()
         ReloadStatusBar()
 
@@ -879,7 +879,7 @@ def init():
             logformat(errorLevel.WARN, 'NOTE: Please attach the terminal output after the code-page log')
             os.system('explorer https://github.com/HyeongminKim/ShellScript/issues')
 
-    def AboutThisApp():
+    def AboutThisApp(*args):
         about = Tk()
         about.title("이 디아블로 런처에 관하여")
         about.geometry("500x340+400+400")
@@ -925,7 +925,7 @@ def init():
     menubar.add_cascade(label='파일', menu=fileMenu)
 
     toolsMenu = Menu(menubar, tearoff=0)
-    toolsMenu.add_command(label='새로 고침', command=ForceReload)
+    toolsMenu.add_command(label='새로 고침', command=ForceReload, accelerator='F5')
     toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
@@ -943,8 +943,11 @@ def init():
     aboutMenu = Menu(menubar, tearoff=0)
     aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
     aboutMenu.add_command(label='버그 신고...', command=OpenDevIssues)
-    aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp)
+    aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp, accelerator='F1')
     menubar.add_cascade(label='정보', menu=aboutMenu)
+
+    root.bind_all("<F5>", ForceReload)
+    root.bind_all("<F1>", AboutThisApp)
 
     UpdateResProgram()
     GetEnvironmentValue()
