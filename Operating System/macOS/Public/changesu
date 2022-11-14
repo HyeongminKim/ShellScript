@@ -26,7 +26,7 @@ elif [ "$1" == "brewall" ]; then
     fi
 elif [ "$1" == "rtlogin" ]; then
     echo "Enter password for bard. "
-    su bard -c "~/Library/Scripts/rtlogin $2"
+    su bard -c "echo 'Enter password for bard to execute \`sudo rtlogin $2\` command.' && ~/Library/Scripts/rtlogin $2"
     result=$?
 fi
 
