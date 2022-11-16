@@ -352,8 +352,8 @@ def LaunchGameAgent():
         launch.title('디아블로 버전 선택')
 
         note = Label(launch, text='사용가능한 디아블로 버전만 활성화 됩니다')
-        diablo2 = Button(launch, text='Diablo II Resurrected', width=20, height=5, command= lambda: GameLauncher('Diablo II Resurrected', 1280, 720, 10))
-        diablo3 = Button(launch, text='Diablo III', width=20, height=5, command= lambda: GameLauncher('Diablo III', 1024, 768, 7))
+        diablo2 = Button(launch, text='Diablo II Resurrected\n설치되지 않음', width=20, height=5, command= lambda: GameLauncher('Diablo II Resurrected', 1280, 720, 10))
+        diablo3 = Button(launch, text='Diablo III\n설치되지 않음', width=20, height=5, command= lambda: GameLauncher('Diablo III', 1024, 768, 7))
         note.pack()
         diablo2.pack(side=LEFT, padx=10)
         diablo3.pack(side=RIGHT, padx=10)
@@ -363,6 +363,12 @@ def LaunchGameAgent():
         else:
             logformat(errorLevel.INFO, 'Diablo II Resurrected launch button enabled.')
             diablo2['state'] = "normal"
+            if os.path.isdir(gamePath + '/Diablo II Resurrected/mods'):
+                logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory detected.')
+                diablo2['text'] = 'Diablo II Resurrected\n모드 포함'
+            else:
+                logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory not found.')
+                diablo2['text'] = 'Diablo II Resurrected'
 
         if not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
             logformat(errorLevel.INFO, 'Diablo III launch button disabled, because launcher is not detected.')
@@ -370,6 +376,12 @@ def LaunchGameAgent():
         else:
             logformat(errorLevel.INFO, 'Diablo III launch button enabled.')
             diablo3['state'] = "normal"
+            if os.path.isdir(gamePath + '/Diablo III/mods'):
+                logformat(errorLevel.INFO, 'Diablo III mods directory detected.')
+                diablo3['text'] = 'Diablo III\n모드 포함'
+            else:
+                logformat(errorLevel.INFO, 'Diablo III mods directory not found.')
+                diablo3['text'] = 'Diablo III'
 
         ShowWindow()
         launch.mainloop()
@@ -862,6 +874,20 @@ def init():
             contents.pack()
             soundRecover.mainloop()
 
+    def thirdpartyModeController():
+        tkinter.messagebox.showwarning(title='디아블로 런처', message='디아블로 모드 사용시 게임 경험이 불안정해질 수 있으며, 일부 모드를 사용할 시 불이익을 받을 수 있습니다.')
+        modeConfig = Tk()
+        modeConfig.title("모드 관리자")
+        modeConfig.geometry("480x520+300+300")
+        modeConfig.deiconify()
+        modeConfig.resizable(False, False)
+        modeConfig.attributes('-toolwindow', True)
+
+        notice = Label(modeConfig, text='이 뷰는 기능 구현 준비중입니다.')
+        notice.pack()
+
+        modeConfig.mainloop()
+
     menubar = Menu(root)
     fileMenu = Menu(menubar, tearoff=0)
     fileMenu.add_command(label='게임폴더 열기', command=OpenGameDir)
@@ -873,6 +899,7 @@ def init():
     toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
+    toolsMenu.add_command(label='모드 관리자', command=thirdpartyModeController)
 
     if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
         toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='normal')
