@@ -105,6 +105,7 @@ statusbar = None
 fileMenu = None
 toolsMenu = None
 aboutMenu = None
+debugMenu = None
 
 def ShowWindow():
     global launch
@@ -733,15 +734,15 @@ def ReloadStatusBar():
     if count > 2:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
-        toolsMenu.entryconfig(7, state='normal')
+        toolsMenu.entryconfig(8, state='normal')
     elif count > 0:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: 데이터 부족 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
-        toolsMenu.entryconfig(7, state='normal')
+        toolsMenu.entryconfig(8, state='normal')
     else:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션 통계를 로드할 수 없음"
         statusbar['anchor'] = tkinter.W
-        toolsMenu.entryconfig(7, state='disabled')
+        toolsMenu.entryconfig(8, state='disabled')
 
 def init():
     global root
@@ -753,6 +754,7 @@ def init():
     global fileMenu
     global toolsMenu
     global aboutMenu
+    global debugMenu
 
     root.title("디아블로 런처")
     root.geometry("520x420+100+100")
@@ -913,9 +915,12 @@ def init():
 
     aboutMenu = Menu(menubar, tearoff=0)
     aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
-    aboutMenu.add_command(label='버그 신고...', command=OpenDevIssues)
     aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp, accelerator='F1')
     menubar.add_cascade(label='정보', menu=aboutMenu)
+
+    debugMenu = Menu(menubar, tearoff=0)
+    debugMenu.add_command(label='버그 신고...', command=OpenDevIssues)
+    menubar.add_cascade(label='개발자', menu=debugMenu)
 
     root.bind_all("<F5>", ForceReload)
     root.bind_all("<F1>", AboutThisApp)
