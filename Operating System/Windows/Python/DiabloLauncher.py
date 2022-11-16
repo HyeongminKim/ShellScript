@@ -91,6 +91,7 @@ originFR = None
 alteredX = None
 alteredY = None
 alteredFR = None
+definedMod = None
 
 root = Tk()
 root.withdraw()
@@ -319,6 +320,7 @@ def LaunchGameAgent():
     global switchButton
     global gameEnd
     global toolsMenu
+    global definedMod
     if diabloExecuted:
         diabloExecuted = False
         logformat(errorLevel.INFO, 'Setting game mode is false...')
@@ -366,7 +368,24 @@ def LaunchGameAgent():
             diablo2['state'] = "normal"
             if os.path.isdir(gamePath + '/Diablo II Resurrected/mods'):
                 logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory detected.')
-                diablo2['text'] = 'Diablo II Resurrected\n모드 포함'
+                GetModDetails()
+                if definedMod is not None and len(definedMod) > 1:
+                    logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because too many mods detected.")
+                    diablo2['text'] = 'Diablo II Resurrected\n모드병합 필요'
+                elif definedMod is not None and len(definedMod) == 1:
+                    logformat(errorLevel.INFO, f"Converted list[str]: {definedMod} to str: {definedMod[0]}")
+                    definedMod = definedMod[0]
+                    if os.path.isdir(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq/data') or os.path.isfile(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq'):
+                        diablo2['text'] = f'Diablo II Resurrected\n{definedMod} 적용됨'
+                    else:
+                        tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='유효하지 않은 모드 배치가 감지되었습니다. ')
+                        logformat(errorLevel.WARN, f"The mod {definedMod} does not followed by path:")
+                        logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq'}")
+                        logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq/data'}")
+                        diablo2['text'] = 'Diablo II Resurrected'
+                else:
+                    logformat(errorLevel.INFO, f"Diablo II Resurrected mods are not cached. Because mods was not installed yet.")
+                    diablo2['text'] = 'Diablo II Resurrected'
             else:
                 logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory not found.')
                 diablo2['text'] = 'Diablo II Resurrected'
@@ -379,11 +398,10 @@ def LaunchGameAgent():
             diablo3['state'] = "normal"
             if os.path.isdir(gamePath + '/Diablo III/mods'):
                 logformat(errorLevel.INFO, 'Diablo III mods directory detected.')
-                diablo3['text'] = 'Diablo III\n모드 포함'
+                diablo3['text'] = 'Diablo III\n모드 지원 안됨'
             else:
                 logformat(errorLevel.INFO, 'Diablo III mods directory not found.')
                 diablo3['text'] = 'Diablo III'
-
         ShowWindow()
         launch.mainloop()
 
@@ -445,6 +463,11 @@ def EmgergencyReboot():
         ShowWindow()
         launch.mainloop()
 
+def GetModDetails():
+    global definedMod
+    definedMod = os.listdir(f'{gamePath}/Diablo II Resurrected/mods')
+    logformat(errorLevel.INFO, f"Detected mods: {definedMod}")
+
 def GetEnvironmentValue():
     global data
     global gamePath
@@ -466,11 +489,13 @@ def GetEnvironmentValue():
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
             fileMenu.entryconfig(0, state='normal')
+            toolsMenu.entryconfig(4, state='normal')
         else:
             logformat(errorLevel.INFO, 'QRes not detected. parameter count should be 1')
             gamePath, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
             fileMenu.entryconfig(0, state='normal')
+            toolsMenu.entryconfig(4, state='normal')
 
         if resolutionProgram:
             logformat(errorLevel.INFO, f'{gamePath}')
@@ -492,6 +517,7 @@ def GetEnvironmentValue():
         alteredY = None
         alteredFR = None
         fileMenu.entryconfig(0, state='disabled')
+        toolsMenu.entryconfig(4, state='disabled')
     finally:
         logformat(errorLevel.INFO, f'{data}')
         if resolutionProgram:
@@ -876,19 +902,83 @@ def init():
             contents.pack()
             soundRecover.mainloop()
 
-    def thirdpartyModeController():
+    def thirdpartyModController():
+        global definedMod
         tkinter.messagebox.showwarning(title='디아블로 런처', message='디아블로 모드 사용시 게임 경험이 불안정해질 수 있으며, 일부 모드를 사용할 시 불이익을 받을 수 있습니다.')
-        modeConfig = Tk()
-        modeConfig.title("모드 관리자")
-        modeConfig.geometry("480x520+300+300")
-        modeConfig.deiconify()
-        modeConfig.resizable(False, False)
-        modeConfig.attributes('-toolwindow', True)
+        modConfig = Tk()
+        modConfig.title("모드 관리자")
+        modConfig.geometry("240x220+300+300")
+        modConfig.deiconify()
+        modConfig.resizable(False, False)
+        modConfig.attributes('-toolwindow', True)
 
-        notice = Label(modeConfig, text='이 뷰는 기능 구현 준비중입니다.')
-        notice.pack()
+        def OpenD2RModDir():
+            if not os.path.isdir(f'{gamePath}/Diablo II Resurrected/mods'):
+                os.mkdir(f'{gamePath}/Diablo II Resurrected/mods')
+            os.startfile(f'"{gamePath}/Diablo II Resurrected/mods"')
 
-        modeConfig.mainloop()
+        def OpenD3ModDir():
+            tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='Diablo III 은(는) 모드 확장을 지원하지 않습니다. ')
+            modConfig.after(1, lambda: modConfig.focus_force())
+
+        openGameModText = Label(modConfig, text='게임별 모드 디렉토리 열기')
+        diablo2Mod = Button(modConfig, text='Diablo II Resurrected', command=OpenD2RModDir)
+        diablo3Mod = Button(modConfig, text='Diablo III', command=OpenD3ModDir)
+
+        note = Label(modConfig, text=f'블리자드 런처에 명령행 인수를 입력하세요\n예시: -mod exampleMod -txt\n기술적 한계로 해당 런처의 명령행 인수를\n검증할 수 없습니다.')
+        licenseMod = Label(modConfig, text='모드에 대한 라이선스는\n모드 제작자에게 있습니다.')
+
+        if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+            diablo2Mod['text'] = 'Diablo II Resurrected\n설치 안됨'
+            diablo2Mod['state'] = 'disabled'
+            logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because Diablo was not installed yet.")
+        else:
+            diablo2Mod['state'] = 'normal'
+            diablo2Mod['text'] = 'Diablo II Resurrected\n알 수 없음'
+            GetModDetails()
+            if definedMod is not None and len(definedMod) > 1:
+                logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because too many mods detected.")
+                definedMod = None
+                diablo2Mod['text'] = 'Diablo II Resurrected\n병합 필요'
+                licenseMod['text'] = f'여러 모드들을 통합하지 않을경우\n대부분의 모드가 동작하지 않음'
+            elif definedMod is not None and len(definedMod) == 1:
+                logformat(errorLevel.INFO, f"Converted list[str]: {definedMod} to str: {definedMod[0]}")
+                definedMod = definedMod[0]
+                if os.path.isdir(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq/data') or os.path.isfile(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq'):
+                    diablo2Mod['text'] = f'Diablo II Resurrected\n{definedMod} 적용됨'
+                    licenseMod['text'] = f'{definedMod} 모드에 대한 라이선스는\n모드 제작자에게 있습니다.'
+                    note['text'] = f'블리자드 런처에 명령행 인수를 입력하세요\nex) -mod {definedMod} -txt\n기술적 한계로 해당 런처의 명령행 인수를\n검증할 수 없습니다.'
+                else:
+                    logformat(errorLevel.WARN, f"The mod {definedMod} does not followed by path:")
+                    logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq'}")
+                    logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq/data'}")
+                    tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='유효하지 않은 모드 배치가 감지되었습니다. ')
+                    definedMod = None
+            else:
+                definedMod = None
+                logformat(errorLevel.INFO, f"Diablo II Resurrected mods are not cached. Because mods was not installed yet.")
+                diablo2Mod['text'] = 'Diablo II Resurrected\n일반'
+                licenseMod['text'] = f'모드 설치시\n해당 모드 라이선스는 제작자에게 있습니다.'
+
+        if not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
+            logformat(errorLevel.INFO, f"Diablo III mods are not cached. Because it was not supported yet.")
+            diablo3Mod['text'] = 'Diablo III\n설치 안됨'
+            diablo3Mod['state'] = 'disabled'
+        else:
+            logformat(errorLevel.INFO, f"Diablo III mods are not cached. Because it was not supported yet.")
+            diablo3Mod['state'] = 'normal'
+            diablo3Mod['text'] = 'Diablo III\n추가 정보'
+
+        attention = Label(modConfig, text='하나의 모드 파일만 적용할 수 있습니다\n이미 제작된 통합본을 사용하거나\nmpq 관리 툴로 직접 병합해도 됩니다.')
+
+        openGameModText.grid(row=0, column=0, columnspan=2)
+        diablo2Mod.grid(row=1, column=0)
+        diablo3Mod.grid(row=1, column=1)
+        note.grid(row=2, column=0, columnspan=2)
+        attention.grid(row=3, column=0, columnspan=2)
+        licenseMod.grid(row=4, column=0, columnspan=2)
+
+        modConfig.mainloop()
 
     menubar = Menu(root)
     fileMenu = Menu(menubar, tearoff=0)
@@ -901,7 +991,7 @@ def init():
     toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
-    toolsMenu.add_command(label='모드 관리자', command=thirdpartyModeController)
+    toolsMenu.add_command(label='모드 관리자', command=thirdpartyModController)
 
     if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
         toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='normal')
