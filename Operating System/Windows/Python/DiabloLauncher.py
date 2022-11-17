@@ -730,6 +730,10 @@ def RequirementCheck():
         logformat(errorLevel.WARN, f'game not exist in {gamePath}.')
         tkinter.messagebox.showwarning('디아블로 런처', f'{gamePath} 디렉토리에는 적합한 게임이 존재하지 않습니다.')
 
+    msg_box = tkinter.messagebox.askquestion('디아블로 런처', '이 디아블로 런처는 유지보수가 되지 않을 예정입니다. 최신 버전을 다운로드하시겠습니까?', icon='question')
+    if msg_box == 'yes':
+        webbrowser.open('https://github.com/HyeongminKim/DiabloLauncher')
+
 def UpdateStatusValue():
     global status
     global switchButton
