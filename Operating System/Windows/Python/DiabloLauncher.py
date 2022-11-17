@@ -464,6 +464,12 @@ def GetModDetails():
     definedMod = os.listdir(f'{gamePath}/Diablo II Resurrected/mods')
     logformat(errorLevel.INFO, f"Detected mods: {definedMod}")
 
+def DownloadModsLink():
+    webbrowser.open('https://www.google.com/search?q=Diablo+2+Resurrected+mod')
+
+def SearchModInGitHub():
+    webbrowser.open(f'https://github.com/search?q={definedMod}')
+
 def GetEnvironmentValue():
     global data
     global gamePath
@@ -505,6 +511,7 @@ def GetEnvironmentValue():
         if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
             logformat(errorLevel.INFO, 'Diablo II Resurrected mod check disabled, because launcher is not detected.')
             modMenu.entryconfig(0, state='disabled')
+            modMenu.entryconfig(1, state='disabled')
             modMenu.entryconfig(1, label='게임이 설치되지 않음')
         else:
             logformat(errorLevel.INFO, 'Diablo II Resurrected mod check enabled.')
@@ -521,7 +528,8 @@ def GetEnvironmentValue():
                     definedMod = definedMod[0]
                     if os.path.isdir(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq/data') or os.path.isfile(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq'):
                         modMenu.entryconfig(1, label=f'활성화된 모드: {definedMod}')
-                        modMenu.entryconfig(2, state='normal')
+                        modMenu.entryconfig(1, state='normal')
+                        modMenu.entryconfig(1, command=SearchModInGitHub)
                     else:
                         tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='유효하지 않은 모드 배치가 감지되었습니다. ')
                         logformat(errorLevel.WARN, f"The mod {definedMod} does not followed by path:")
@@ -532,10 +540,12 @@ def GetEnvironmentValue():
                     logformat(errorLevel.INFO, f"Diablo II Resurrected mods are not cached. Because mods was not installed yet.")
                     modMenu.entryconfig(1, label='새로운 모드 탐색')
                     modMenu.entryconfig(1, state='normal')
+                    modMenu.entryconfig(1, command=DownloadModsLink)
             else:
                 logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory not found.')
                 modMenu.entryconfig(1, label='새로운 모드 탐색')
                 modMenu.entryconfig(1, state='normal')
+                modMenu.entryconfig(1, command=DownloadModsLink)
 
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
@@ -553,7 +563,7 @@ def GetEnvironmentValue():
 
         modMenu.entryconfig(0, state='disabled')
         modMenu.entryconfig(1, label='활성화된 모드: 알 수 없음')
-        modMenu.entryconfig(2, state='disabled')
+        modMenu.entryconfig(1, state='disabled')
     finally:
         logformat(errorLevel.INFO, f'{data}')
         if resolutionProgram:
@@ -948,12 +958,6 @@ def init():
             os.mkdir(f'{gamePath}/Diablo II Resurrected/mods')
         os.startfile(f'"{gamePath}/Diablo II Resurrected/mods"')
 
-    def SearchModInGitHub():
-        webbrowser.open(f'https://github.com/search?q={definedMod}')
-
-    def DownloadModsLink():
-        webbrowser.open('https://www.google.com/search?q=Diablo+2+Resurrected+mod')
-
     menubar = Menu(root)
     fileMenu = Menu(menubar, tearoff=0)
     fileMenu.add_command(label='게임폴더 열기', command=OpenGameDir)
@@ -978,17 +982,14 @@ def init():
 
     modMenu = Menu(menubar, tearoff=0)
     modMenu.add_command(label='D2R 모드 디렉토리 열기', state='disabled', command=OpenD2RModDir)
-    modMenu.add_command(label='현재 모드: 알 수 없음', state='disabled', command=DownloadModsLink)
-    modMenu.add_command(label='현재 모드를 GitHub에서 검색', state='disabled', command=SearchModInGitHub)
+    modMenu.add_command(label='현재 모드: 알 수 없음', state='disabled')
     menubar.add_cascade(label='모드', menu=modMenu)
-
-    debugMenu = Menu(menubar, tearoff=0)
-    debugMenu.add_command(label='버그 신고...', command=OpenDevIssues)
-    menubar.add_cascade(label='개발자', menu=debugMenu)
 
     aboutMenu = Menu(menubar, tearoff=0)
     aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
     aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp, accelerator='F1')
+    aboutMenu.add_separator()
+    aboutMenu.add_command(label='버그 신고...', command=OpenDevIssues)
     menubar.add_cascade(label='정보', menu=aboutMenu)
 
     root.bind_all("<F5>", ForceReload)
