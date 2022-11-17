@@ -50,6 +50,7 @@ try:
 
     import multiprocessing
     import sys
+    import webbrowser
 
     if multiprocessing.cpu_count() >= 2 and sys.maxsize > 2**32:
         logformat(errorLevel.INFO, f'supported {platform.processor()} CPU detected. creating GUI...')
@@ -106,7 +107,7 @@ statusbar = None
 fileMenu = None
 toolsMenu = None
 aboutMenu = None
-debugMenu = None
+modMenu = None
 
 def ShowWindow():
     global launch
@@ -396,12 +397,7 @@ def LaunchGameAgent():
         else:
             logformat(errorLevel.INFO, 'Diablo III launch button enabled.')
             diablo3['state'] = "normal"
-            if os.path.isdir(gamePath + '/Diablo III/mods'):
-                logformat(errorLevel.INFO, 'Diablo III mods directory detected.')
-                diablo3['text'] = 'Diablo III\n모드 지원 안됨'
-            else:
-                logformat(errorLevel.INFO, 'Diablo III mods directory not found.')
-                diablo3['text'] = 'Diablo III'
+            diablo3['text'] = 'Diablo III'
         ShowWindow()
         launch.mainloop()
 
@@ -472,6 +468,8 @@ def GetEnvironmentValue():
     global data
     global gamePath
     global fileMenu
+    global modMenu
+    global definedMod
     if resolutionProgram:
         global originX
         global originY
@@ -489,13 +487,11 @@ def GetEnvironmentValue():
             gamePath, originX, originY, originFR, alteredX, alteredY, alteredFR, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
             fileMenu.entryconfig(0, state='normal')
-            toolsMenu.entryconfig(4, state='normal')
         else:
             logformat(errorLevel.INFO, 'QRes not detected. parameter count should be 1')
             gamePath, temp = data.split(';')
             logformat(errorLevel.INFO, 'parameter conversion succeed')
             fileMenu.entryconfig(0, state='normal')
-            toolsMenu.entryconfig(4, state='normal')
 
         if resolutionProgram:
             logformat(errorLevel.INFO, f'{gamePath}')
@@ -505,6 +501,42 @@ def GetEnvironmentValue():
             logformat(errorLevel.INFO, f'{int(alteredX)}')
             logformat(errorLevel.INFO, f'{int(alteredY)}')
             logformat(errorLevel.INFO, f'{float(alteredFR)}')
+
+        if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
+            logformat(errorLevel.INFO, 'Diablo II Resurrected mod check disabled, because launcher is not detected.')
+            modMenu.entryconfig(0, state='disabled')
+            modMenu.entryconfig(1, label='게임이 설치되지 않음')
+        else:
+            logformat(errorLevel.INFO, 'Diablo II Resurrected mod check enabled.')
+            if os.path.isdir(gamePath + '/Diablo II Resurrected/mods'):
+                modMenu.entryconfig(1, label='활성화된 모드: 검색중...')
+                logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory detected.')
+                modMenu.entryconfig(0, state='normal')
+                GetModDetails()
+                if definedMod is not None and len(definedMod) > 1:
+                    logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because too many mods detected.")
+                    modMenu.entryconfig(1, label=f'활성화된 모드: {definedMod} 외 {len(definedMod) - 1}개')
+                elif definedMod is not None and len(definedMod) == 1:
+                    logformat(errorLevel.INFO, f"Converted list[str]: {definedMod} to str: {definedMod[0]}")
+                    definedMod = definedMod[0]
+                    if os.path.isdir(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq/data') or os.path.isfile(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq'):
+                        modMenu.entryconfig(1, label=f'활성화된 모드: {definedMod}')
+                        modMenu.entryconfig(2, state='normal')
+                    else:
+                        tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='유효하지 않은 모드 배치가 감지되었습니다. ')
+                        logformat(errorLevel.WARN, f"The mod {definedMod} does not followed by path:")
+                        logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq'}")
+                        logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq/data'}")
+                        modMenu.entryconfig(1, label='활성화된 모드: 검증 오류')
+                else:
+                    logformat(errorLevel.INFO, f"Diablo II Resurrected mods are not cached. Because mods was not installed yet.")
+                    modMenu.entryconfig(1, label='새로운 모드 탐색')
+                    modMenu.entryconfig(1, state='normal')
+            else:
+                logformat(errorLevel.INFO, 'Diablo II Resurrected mods directory not found.')
+                modMenu.entryconfig(1, label='새로운 모드 탐색')
+                modMenu.entryconfig(1, state='normal')
+
     except Exception as error:
         tkinter.messagebox.showerror('디아블로 런처', f'환경변수 파싱중 예외가 발생하였습니다. 필수 파라미터가 누락되지 않았는지, 또는 잘못된 타입을 제공하지 않았는지 확인하시기 바랍니다. Exception code: {error}')
         logformat(errorLevel.ERR, f'Unknown data or parameter style: {data}\n\t{error}')
@@ -516,8 +548,12 @@ def GetEnvironmentValue():
         alteredX = None
         alteredY = None
         alteredFR = None
+
         fileMenu.entryconfig(0, state='disabled')
-        toolsMenu.entryconfig(4, state='disabled')
+
+        modMenu.entryconfig(0, state='disabled')
+        modMenu.entryconfig(1, label='활성화된 모드: 알 수 없음')
+        modMenu.entryconfig(2, state='disabled')
     finally:
         logformat(errorLevel.INFO, f'{data}')
         if resolutionProgram:
@@ -669,7 +705,7 @@ def RequirementCheck():
         if os.environ.get('IGN_RES_ALERT') != 'true':
             msg_box = tkinter.messagebox.askquestion('디아블로 런처', '해상도를 변경하려면 QRes를 먼저 설치하여야 합니다. 지금 QRes를 다운로드 하시겠습니까?', icon='question')
             if msg_box == 'yes':
-                os.system('explorer https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
+                webbrowser.open('https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml')
         else:
             logformat(errorLevel.WARN, f'QRes install check dialog rejected due to "IGN_RES_ALERT" env prameter is true.\n\tPlease install QRes if would you like change display resolution.')
             print(f"\t{color.YELLOW.value}URL:{color.BLUE.value} https://www.softpedia.com/get/Multimedia/Video/Other-VIDEO-Tools/QRes.shtml{color.RESET.value}")
@@ -718,6 +754,7 @@ def UpdateStatusValue():
 def ReloadStatusBar():
     global statusbar
     global toolsMenu
+    global definedMod
     loadStart = time.time()
     count, max, sum, avg = LoadGameRunningTime()
     maxHours, maxMinutes, maxSeconds = ConvertTime(max)
@@ -760,15 +797,15 @@ def ReloadStatusBar():
     elif count > 2:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: {avgHours}시간 {avgMinutes}분 {avgSeconds}초 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
-        toolsMenu.entryconfig(8, state='normal')
+        toolsMenu.entryconfig(7, state='normal')
     elif count > 0:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션: {count}개 | 최고: {maxHours}시간 {maxMinutes}분 {maxSeconds}초 | 평균: 데이터 부족 | 합계: {sumHours}시간 {sumMinutes}분 {sumSeconds}초"
         statusbar['anchor'] = tkinter.CENTER
-        toolsMenu.entryconfig(8, state='normal')
+        toolsMenu.entryconfig(7, state='normal')
     else:
         statusbar['text'] = f"{subprocess.check_output('git rev-parse --short HEAD', shell=True, encoding='utf-8').strip()} | 세션 통계를 로드할 수 없음"
         statusbar['anchor'] = tkinter.W
-        toolsMenu.entryconfig(8, state='disabled')
+        toolsMenu.entryconfig(7, state='disabled')
 
 def init():
     global root
@@ -780,7 +817,8 @@ def init():
     global fileMenu
     global toolsMenu
     global aboutMenu
-    global debugMenu
+    global definedMod
+    global modMenu
 
     root.title("디아블로 런처")
     root.geometry("520x420+100+100")
@@ -829,7 +867,7 @@ def init():
         os.system('control.exe appwiz.cpl')
 
     def OpenDevSite():
-        os.system('explorer https://github.com/HyeongminKim/ShellScript')
+        webbrowser.open('https://github.com/HyeongminKim/ShellScript')
 
     def OpenDevIssues():
         now = datetime.now()
@@ -848,8 +886,10 @@ def init():
             if gamePath is not None:
                 if os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe') and os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                     logformat(errorLevel.INFO, "Installed Diablo version: II, III")
+                    logformat(errorLevel.INFO, f"Diablo II Resurrected mods: {definedMod if definedMod is not None else 'N/A'}")
                 elif os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
                     logformat(errorLevel.INFO, "Installed Diablo version: II")
+                    logformat(errorLevel.INFO, f"Diablo II Resurrected mods: {definedMod if definedMod is not None else 'N/A'}")
                 elif os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
                     logformat(errorLevel.INFO, "Installed Diablo version: III")
                 else:
@@ -861,7 +901,7 @@ def init():
             logformat(errorLevel.INFO, f"Diablo Executed: {'True' if diabloExecuted else 'False'}")
             logformat(errorLevel.INFO, f"===== End Report ======")
             logformat(errorLevel.WARN, 'NOTE: Please attach the terminal output after the code-page log')
-            os.system('explorer https://github.com/HyeongminKim/ShellScript/issues')
+            webbrowser.open('https://github.com/HyeongminKim/ShellScript/issues')
 
     def AboutThisApp(*args):
         about = Tk()
@@ -872,9 +912,9 @@ def init():
         about.attributes('-toolwindow', True)
 
         def openBlizzardLegalSite():
-            os.system('explorer https://www.blizzard.com/en-us/legal/9c9cb70b-d1ed-4e17-998a-16c6df46be7b/copyright-notices')
+            webbrowser.open('https://www.blizzard.com/en-us/legal/9c9cb70b-d1ed-4e17-998a-16c6df46be7b/copyright-notices')
         def openAppleLegalSite():
-            os.system('explorer https://www.apple.com/kr/legal/intellectual-property/guidelinesfor3rdparties.html')
+            webbrowser.open('https://www.apple.com/kr/legal/intellectual-property/guidelinesfor3rdparties.html')
 
         if resolutionProgram:
             text = Label(about, text=f"{platform.system()} {platform.release()}, Python {platform.python_version()}, {subprocess.check_output('git --version', shell=True, encoding='utf-8').strip()}\n\n--- Copyright ---\nDiablo II Resurrected, Diablo III\n(c) 2022 BLIZZARD ENTERTAINMENT, INC. ALL RIGHTS RESERVED.\n\nDiablo Launcher\nCopyright (c) 2022 Hyeongmin Kim\n\n{subprocess.check_output('QRes /S | findstr QRes', shell=True, encoding='utf-8').strip()}\n{subprocess.check_output('QRes /S | findstr Copyright', shell=True, encoding='utf-8').strip()}\n\n이 디아블로 런처에서 언급된 특정 상표는 각 소유권자들의 자산입니다.\n디아블로(Diablo), 블리자드(Blizzard)는 Blizzard Entertainment, Inc.의 등록 상표입니다.\nBootCamp, macOS는 Apple, Inc.의 등록 상표입니다.\n\n자세한 사항은 아래 버튼을 클릭해 주세요")
@@ -902,83 +942,16 @@ def init():
             contents.pack()
             soundRecover.mainloop()
 
-    def thirdpartyModController():
-        global definedMod
-        tkinter.messagebox.showwarning(title='디아블로 런처', message='디아블로 모드 사용시 게임 경험이 불안정해질 수 있으며, 일부 모드를 사용할 시 불이익을 받을 수 있습니다.')
-        modConfig = Tk()
-        modConfig.title("모드 관리자")
-        modConfig.geometry("240x220+300+300")
-        modConfig.deiconify()
-        modConfig.resizable(False, False)
-        modConfig.attributes('-toolwindow', True)
+    def OpenD2RModDir():
+        if not os.path.isdir(f'{gamePath}/Diablo II Resurrected/mods'):
+            os.mkdir(f'{gamePath}/Diablo II Resurrected/mods')
+        os.startfile(f'"{gamePath}/Diablo II Resurrected/mods"')
 
-        def OpenD2RModDir():
-            if not os.path.isdir(f'{gamePath}/Diablo II Resurrected/mods'):
-                os.mkdir(f'{gamePath}/Diablo II Resurrected/mods')
-            os.startfile(f'"{gamePath}/Diablo II Resurrected/mods"')
+    def SearchModInGitHub():
+        webbrowser.open(f'https://github.com/search?q={definedMod}')
 
-        def OpenD3ModDir():
-            tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='Diablo III 은(는) 모드 확장을 지원하지 않습니다. ')
-            modConfig.after(1, lambda: modConfig.focus_force())
-
-        openGameModText = Label(modConfig, text='게임별 모드 디렉토리 열기')
-        diablo2Mod = Button(modConfig, text='Diablo II Resurrected', command=OpenD2RModDir)
-        diablo3Mod = Button(modConfig, text='Diablo III', command=OpenD3ModDir)
-
-        note = Label(modConfig, text=f'블리자드 런처에 명령행 인수를 입력하세요\n예시: -mod exampleMod -txt\n기술적 한계로 해당 런처의 명령행 인수를\n검증할 수 없습니다.')
-        licenseMod = Label(modConfig, text='모드에 대한 라이선스는\n모드 제작자에게 있습니다.')
-
-        if not os.path.isfile(gamePath + '/Diablo II Resurrected/Diablo II Resurrected Launcher.exe'):
-            diablo2Mod['text'] = 'Diablo II Resurrected\n설치 안됨'
-            diablo2Mod['state'] = 'disabled'
-            logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because Diablo was not installed yet.")
-        else:
-            diablo2Mod['state'] = 'normal'
-            diablo2Mod['text'] = 'Diablo II Resurrected\n알 수 없음'
-            GetModDetails()
-            if definedMod is not None and len(definedMod) > 1:
-                logformat(errorLevel.WARN, f"Diablo II Resurrected mods are not cached. Because too many mods detected.")
-                definedMod = None
-                diablo2Mod['text'] = 'Diablo II Resurrected\n병합 필요'
-                licenseMod['text'] = f'여러 모드들을 통합하지 않을경우\n대부분의 모드가 동작하지 않음'
-            elif definedMod is not None and len(definedMod) == 1:
-                logformat(errorLevel.INFO, f"Converted list[str]: {definedMod} to str: {definedMod[0]}")
-                definedMod = definedMod[0]
-                if os.path.isdir(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq/data') or os.path.isfile(gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'/{definedMod}.mpq'):
-                    diablo2Mod['text'] = f'Diablo II Resurrected\n{definedMod} 적용됨'
-                    licenseMod['text'] = f'{definedMod} 모드에 대한 라이선스는\n모드 제작자에게 있습니다.'
-                    note['text'] = f'블리자드 런처에 명령행 인수를 입력하세요\nex) -mod {definedMod} -txt\n기술적 한계로 해당 런처의 명령행 인수를\n검증할 수 없습니다.'
-                else:
-                    logformat(errorLevel.WARN, f"The mod {definedMod} does not followed by path:")
-                    logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq'}")
-                    logformat(errorLevel.WARN, f"\t- {gamePath + '/Diablo II Resurrected/mods/' + definedMod + f'{definedMod}.mpq/data'}")
-                    tkinter.messagebox.showwarning(title='디아블로 모드 관리자', message='유효하지 않은 모드 배치가 감지되었습니다. ')
-                    definedMod = None
-            else:
-                definedMod = None
-                logformat(errorLevel.INFO, f"Diablo II Resurrected mods are not cached. Because mods was not installed yet.")
-                diablo2Mod['text'] = 'Diablo II Resurrected\n일반'
-                licenseMod['text'] = f'모드 설치시\n해당 모드 라이선스는 제작자에게 있습니다.'
-
-        if not os.path.isfile(gamePath + '/Diablo III/Diablo III Launcher.exe'):
-            logformat(errorLevel.INFO, f"Diablo III mods are not cached. Because it was not supported yet.")
-            diablo3Mod['text'] = 'Diablo III\n설치 안됨'
-            diablo3Mod['state'] = 'disabled'
-        else:
-            logformat(errorLevel.INFO, f"Diablo III mods are not cached. Because it was not supported yet.")
-            diablo3Mod['state'] = 'normal'
-            diablo3Mod['text'] = 'Diablo III\n추가 정보'
-
-        attention = Label(modConfig, text='하나의 모드 파일만 적용할 수 있습니다\n이미 제작된 통합본을 사용하거나\nmpq 관리 툴로 직접 병합해도 됩니다.')
-
-        openGameModText.grid(row=0, column=0, columnspan=2)
-        diablo2Mod.grid(row=1, column=0)
-        diablo3Mod.grid(row=1, column=1)
-        note.grid(row=2, column=0, columnspan=2)
-        attention.grid(row=3, column=0, columnspan=2)
-        licenseMod.grid(row=4, column=0, columnspan=2)
-
-        modConfig.mainloop()
+    def DownloadModsLink():
+        webbrowser.open('https://www.google.com/search?q=Diablo+2+Resurrected+mod')
 
     menubar = Menu(root)
     fileMenu = Menu(menubar, tearoff=0)
@@ -991,7 +964,6 @@ def init():
     toolsMenu.add_command(label='런처 업데이트 확인...', command=ForceProgramUpdate)
     toolsMenu.add_separator()
     toolsMenu.add_command(label='환경변수 에디터...', command=SetEnvironmentValue)
-    toolsMenu.add_command(label='모드 관리자', command=thirdpartyModController)
 
     if os.path.isfile('C:/Program Files/Boot Camp/Bootcamp.exe'):
         toolsMenu.add_command(label='소리 문제 해결...', command=BootCampSoundRecover, state='normal')
@@ -1003,14 +975,20 @@ def init():
     toolsMenu.add_command(label='통계 재설정...', command=ResetGameStatus)
     menubar.add_cascade(label='도구', menu=toolsMenu)
 
-    aboutMenu = Menu(menubar, tearoff=0)
-    aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
-    aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp, accelerator='F1')
-    menubar.add_cascade(label='정보', menu=aboutMenu)
+    modMenu = Menu(menubar, tearoff=0)
+    modMenu.add_command(label='D2R 모드 디렉토리 열기', state='disabled', command=OpenD2RModDir)
+    modMenu.add_command(label='현재 모드: 알 수 없음', state='disabled', command=DownloadModsLink)
+    modMenu.add_command(label='현재 모드를 GitHub에서 검색', state='disabled', command=SearchModInGitHub)
+    menubar.add_cascade(label='모드', menu=modMenu)
 
     debugMenu = Menu(menubar, tearoff=0)
     debugMenu.add_command(label='버그 신고...', command=OpenDevIssues)
     menubar.add_cascade(label='개발자', menu=debugMenu)
+
+    aboutMenu = Menu(menubar, tearoff=0)
+    aboutMenu.add_command(label='GitHub 방문', command=OpenDevSite)
+    aboutMenu.add_command(label='이 디아블로 런처에 관하여...', command=AboutThisApp, accelerator='F1')
+    menubar.add_cascade(label='정보', menu=aboutMenu)
 
     root.bind_all("<F5>", ForceReload)
     root.bind_all("<F1>", AboutThisApp)
