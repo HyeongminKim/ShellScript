@@ -13,8 +13,8 @@ Dism -Online -Cleanup-Image -CheckHealth
 
 sfc -scannow
 
-chkdsk C: /F
+echo Y | chkdsk C: /F
 if exist "E:" (
-    chkdsk E: /F
+    (echo N & echo Y) | chkdsk E: /F
 )
 
