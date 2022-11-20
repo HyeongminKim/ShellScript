@@ -45,31 +45,61 @@ function updateConfig() {
 }
 
 function executeCmd() {
-    if [ "$comment" == "" ]; then
-        comment="$USER didn't provided comment. The system $option due to powermgr script."
-        echo "NOTE: Empty comment detected. The comment are replaced with the default sentences. "
-    else
-        comment="$USER executed $option using powermgr script. Here are the user-provided comments: $comment"
-    fi
-
     if [ "$time" == "" ]; then
-        checkOption $option
-        if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
-            echo -en "This system \e[1;37mwill \e[1;31m$option\e[1;37m after\e[m 15 seconds. "
-            for (( i=15; i>=0; i-- )); do
-                if [[ $i -ge 9 ]]; then
-                    echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
-                elif [ $i == 1 ]; then
-                    echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+        if [ "$1" == "r" ]; then
+            if [ "$comment" == "" ]; then
+                comment="$USER didn't provided comment. The system $option due to powermgr script."
+                echo "NOTE: Empty comment detected. The comment are replaced with the default sentences. "
+            else
+                comment="$USER executed $option using powermgr script. Here are the user-provided comments: $comment"
+            fi
+            checkOption $option
+            if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
+                echo -en "This system \e[1;37mwill \e[1;31m$option\e[1;37m after\e[m 15 seconds. "
+                for (( i=15; i>=0; i-- )); do
+                    if [[ $i -ge 9 ]]; then
+                        echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                    elif [ $i == 1 ]; then
+                        echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+                    else
+                        echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                    fi
+                    sleep 1
+                done
+                echo ""
+            fi
+            engagedTime $option
+            shutdown.exe -$1 -t 0 -c "$comment"
+        elif [ "$1" == "s" ]; then
+            if [ -x $executePath/SlideToShutDown.exe ]; then
+                SlideToShutDown.exe
+                engagedTime $option
+            else
+                if [ "$comment" == "" ]; then
+                    comment="$USER didn't provided comment. The system $option due to powermgr script."
+                    echo "NOTE: Empty comment detected. The comment are replaced with the default sentences. "
                 else
-                    echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                    comment="$USER executed $option using powermgr script. Here are the user-provided comments: $comment"
                 fi
-                sleep 1
-            done
-            echo ""
+                checkOption $option
+                if [ "$QUIET_POWERMGR_SEQUENCE" != "TRUE" ]; then
+                    echo -en "This system \e[1;37mwill \e[1;31m$option\e[1;37m after\e[m 15 seconds. "
+                    for (( i=15; i>=0; i-- )); do
+                        if [[ $i -ge 9 ]]; then
+                            echo -en "\b\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                        elif [ $i == 1 ]; then
+                            echo -en "\b\b\b\b\b\b\b\b\b\b\b\b $i second.  "
+                        else
+                            echo -en "\b\b\b\b\b\b\b\b\b\b\b$i seconds. "
+                        fi
+                        sleep 1
+                    done
+                    echo ""
+                fi
+                engagedTime $option
+                shutdown.exe -$1 -t 0 -c "$comment"
+            fi
         fi
-        engagedTime $option
-        shutdown.exe -$1 -t 0 -c "$comment"
     else
         if [ $time -lt 15 ]; then
             echo -n "Warning! The time provided is shorter than the recommended time. would you like to proceed (y/N) > "
@@ -78,6 +108,12 @@ function executeCmd() {
                 echo -e "\e[1;31m$option\e[1;37m command aborted\e[m by user."
                 exit 2
             fi
+        fi
+        if [ "$comment" == "" ]; then
+            comment="$USER didn't provided comment. The system $option due to powermgr script."
+            echo "NOTE: Empty comment detected. The comment are replaced with the default sentences. "
+        else
+            comment="$USER executed $option using powermgr script. Here are the user-provided comments: $comment"
         fi
         shutdown.exe -$1 -t $time -c "$comment"
         if [ "$?" == "0" ]; then
