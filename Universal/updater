@@ -4,7 +4,7 @@ exitCode=0
 prevDir=$(pwd)
 
 function gitUpdate() {
-    repoName=("Release/brewall" "Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator" "Dev")
+    repoName=("Release/brewall" "Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator" "Release/DiabloLauncher" "Dev")
 
     for target in "${repoName[@]}"; do
         if [ -d ~/Documents/$target ]; then
