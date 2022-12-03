@@ -4,7 +4,7 @@ exitCode=0
 prevDir=$(pwd)
 
 function gitUpdate() {
-    repoName=("Release/brewall" "Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator" "Release/DiabloLauncher" "Dev")
+    repoName=("Release/brewall" "Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator" "Release/DiabloLauncher")
 
     for target in "${repoName[@]}"; do
         if [ -d ~/Documents/$target ]; then
@@ -60,6 +60,12 @@ elif [ "$(uname -s)" == "Linux" ]; then
     fi
 else
     gitUpdate
+fi
+
+which flutter &> /dev/null
+if [ $? == 0 ]; then
+    flutter upgrade
+    flutter doctor
 fi
 
 echo -e '\a'
