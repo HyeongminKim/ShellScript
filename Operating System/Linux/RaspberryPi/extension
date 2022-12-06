@@ -3,7 +3,7 @@
 uptime
 
 if [ "$USE_FULL_UPGRADE" == "true" ]; then
-    pip3 list --outdated --format=freeze | awk -F "==" '{print $1}' | xargs -i pip3 install -U {}
+    pip3 list --format=freeze | awk -F "==" '{print $1}' | xargs -i pip3 install -U {}
 fi
 pip3 cache purge
 
