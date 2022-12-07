@@ -62,12 +62,6 @@ else
     gitUpdate
 fi
 
-which flutter &> /dev/null
-if [ $? == 0 ]; then
-    flutter upgrade
-    flutter doctor
-fi
-
 echo -e '\a'
 exit $exitCode
 

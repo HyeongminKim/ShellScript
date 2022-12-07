@@ -72,6 +72,20 @@ if [ $? == 0 ]; then
     fi
 fi
 
+if [ ! -x /mnt/c/Windows/System32/cmd.exe ]; then
+    which flutter &> /dev/null
+    if [ $? == 0 ]; then
+        flutter upgrade
+        flutter doctor
+    fi
+else
+    where.exe flutter &> /dev/null
+    if [ $? == 0 ]; then
+        cmd.exe "/c" "flutter upgrade"
+        cmd.exe "/c" "flutter doctor"
+    fi
+fi
+
 if [ $errorCount -gt 0 ]; then
     exit 1
 else

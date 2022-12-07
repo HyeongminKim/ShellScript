@@ -101,6 +101,11 @@ if [ $? == 0 ]; then
     fi
 fi
 
+which flutter &> /dev/null
+if [ $? == 0 ]; then
+    flutter upgrade
+    flutter doctor
+fi
 
 if [ $errorCount -gt 0 ]; then
     exit 1
