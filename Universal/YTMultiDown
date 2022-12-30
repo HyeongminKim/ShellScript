@@ -154,7 +154,12 @@ function mediaDownloader() {
     tts "$fileName 다운로드를 시작합니다. "
     if [ "$verbose" == "true" ]; then
         echo -e "\033[37mNOTE: 상태바가 프롬프트를 덮어써도 명령 입력에는 문제가 없으며 이는 정상입니다. \033[m"
-        $yt_dlp "$originURL" --output "$fileName.%(ext)s"
+        which caffeinate &> /dev/null
+        if [ $? == 0 ]; then
+            caffeinate -sidm $yt_dlp "$originURL" --output "$fileName.%(ext)s"
+        else
+            $yt_dlp "$originURL" --output "$fileName.%(ext)s"
+        fi
         if [ $? != 0 ]; then
             tts "$fileName 다운로드가 실패하였습니다. 상단에 출력된 에러를 참조하세요."
         else
@@ -163,7 +168,12 @@ function mediaDownloader() {
         fi
     else
         echo -e "\033[37mINFO: 다운로드 상태 확인은 'tail -f $fileName.out' 명령을 입력하세요. \033[m"
-        $yt_dlp "$originURL" --output "$fileName.%(ext)s" &> "$fileName.out"
+        which caffeinate &> /dev/null
+        if [ $? == 0 ]; then
+            caffeinate -sidm $yt_dlp "$originURL" --output "$fileName.%(ext)s" &> "$fileName.out"
+        else
+            $yt_dlp "$originURL" --output "$fileName.%(ext)s" &> "$fileName.out"
+        fi
         if [ $? != 0 ]; then
             tts "$fileName 다운로드가 실패하였습니다. $fileName.out 파일을 참조하세요."
         else
