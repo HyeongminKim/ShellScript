@@ -110,14 +110,14 @@ fi
 
 while : ; do
     logSize=$(ls -l ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log | awk '{ print $5 }')
-    if [ $logSize -ge 1000000 ]; then
-        logcat_init "The log file content reached maximum log file size (1MB)."
-        logcat_append "Removed previous log file contents...\n"
+    if [ $logSize -ge 10000000 ]; then
+        logcat_init "The log file content reached maximum log file size (10MB)."
+        logcat_append "Removed previous log file contents at $(date)...\n"
     fi
 
     pgrep EpicGamesLauncher &> /dev/null
     if [ $? == 0 ]; then
-        logcat_append "EpicGamesLauncher is running! PID: $(pgrep EpicGamesLauncher)"
+        logcat_append "EpicGamesLauncher is still running! PID: $(pgrep EpicGamesLauncher)"
         EpicLauncher_EXIT=""
     else
         logcat_append "EpicGamesLauncher is not running."
@@ -126,7 +126,7 @@ while : ; do
 
     pgrep UnrealEditor &> /dev/null
     if [ $? == 0 ]; then
-        logcat_append "UnrealEditor is running! PID: $(pgrep UnrealEditor)"
+        logcat_append "UnrealEditor is still running! PID: $(pgrep UnrealEditor)"
         UE_EXIT=""
     else
         logcat_append "UnrealEditor is not running."
