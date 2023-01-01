@@ -78,8 +78,7 @@ if [ $? != 0 ]; then
     osascript -e 'tell app "System Events" to display alert "프로그램 현재 위치에 접근할 수 없어 실행할 수 없습니다. "'
     cleanup_process 1
 else
-    logcat_append "Current working directory: "
-    pwd >> "$debugOutput" 2>&1
+    logcat_append "Current working directory: $(pwd)"
 fi
 
 if [ -d /Volumes/UnrealEditor ]; then
