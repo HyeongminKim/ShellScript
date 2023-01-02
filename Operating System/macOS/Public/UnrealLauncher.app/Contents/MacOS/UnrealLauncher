@@ -1,6 +1,7 @@
 #!/bin/bash
 
 debugOutput=~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log
+manuallyMounted=""
 
 function logcat_init() {
     echo -e "$1" > "$debugOutput"
@@ -39,6 +40,7 @@ function interrupt_catch() {
 
 if [ -r ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
     echo "error: Unable to launch new agent. This app already running."
+    osascript -e 'tell app "System Events" to display alert "UnrealLauncher이(가) 이미 실행중입니다."'
     exit 1
 fi
 
@@ -53,6 +55,8 @@ else
         exit 1
     else
         logcat_init "Succesfully created log directory."
+        logcat_append "Successfully created log file."
+        logcat_append "UnrealLauncher was started at $(date)..."
     fi
 fi
 
@@ -83,12 +87,21 @@ fi
 
 if [ -d /Volumes/UnrealEditor ]; then
     logcat_append "The /Volumes/External/Applications/Epic Games/UnrealEditor.dmg disk image already mounted. Skipping."
+    manuallyMounted="TRUE"
+    trap interrupt_catch SIGINT SIGTERM
+    logcat_append "The UnrealLauncher will not respond some signals and execute internal events."
 elif [ -d /Volumes/External -a -r /Volumes/External/Applications/Epic\ Games/UnrealEditor.dmg ]; then
     if [ -w /Volumes/External/Applications/Epic\ Games/UnrealEditor.dmg ]; then
-        open /Volumes/External/Applications/Epic\ Games/UnrealEditor.dmg >> "$debugOutput" 2>&1
-        logcat_append "Successfully mount /Volumes/External/Applications/Epic Games/UnrealEditor.dmg disk image."
-        trap interrupt_catch SIGINT SIGTERM
-        logcat_append "The UnrealLauncher will not respond some signals and execute internal events."
+        open -W /Volumes/External/Applications/Epic\ Games/UnrealEditor.dmg >> "$debugOutput" 2>&1
+        if [ -d /Volumes/UnrealEditor ]; then
+            logcat_append "Successfully mount /Volumes/External/Applications/Epic Games/UnrealEditor.dmg disk image."
+            trap interrupt_catch SIGINT SIGTERM
+            logcat_append "The UnrealLauncher will not respond some signals and execute internal events."
+        else
+            logcat_append "Unexpected exception occured when attempting to mount UnrealEditor.dmg disk image."
+            osascript -e 'tell app "System Events" to display alert "알 수 없는 오류로 인해 UnrealEditor을(를) 마운트 할 수 없습니다."'
+            cleanup_process 1
+        fi
     else
         logcat_append "Unable to mount /Volumes/External/Applications/Epic Games/UnrealEditor.dmg disk image. Please check your permission.\n"
         osascript -e 'tell app "System Events" to display alert "UnrealEditor을(를) 마운트 할 수 없습니다. 디스크 쓰기 권한을 확인해 주세요."'
@@ -104,8 +117,8 @@ if [ -x /Applications/Epic\ Games\ Launcher.app ]; then
     open /Applications/Epic\ Games\ Launcher.app >> "$debugOutput" 2>&1
     logcat_append "Succesfully launched Epic Games Launcher.app."
 else
-    logcat_append "Unable to execute Epic Games Launcher.app: no such file or directory.\n"
-    cleanup_process 1
+    logcat_append "Unable to locate Epic Games Launcher.app in /Applications directory. Please execute UnrealEditor manually.\n"
+    open /Volumes/UnrealEditor >> "$debugOutput" 2>&1
 fi
 
 while : ; do
@@ -134,16 +147,23 @@ while : ; do
     fi
 
     if [ "$EpicLauncher_EXIT" == "TRUE" -a "$UE_EXIT" == "TRUE" ]; then
-        logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. UnrealEditor.dmg volume will now ejected."
-        logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
-        diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
-        if [ $? != 0 ]; then
-            osascript -e 'tell app "System Events" to display alert "UnrealEditor을(를) 추출하는데 실패하였습니다."'
-            logcat_append "UnrealEditor does not ejected successfully. Please see the output above."
-            logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
-            cleanup_process 1
-        else
+        if [ $manuallyMounted == "TRUE" ]; then
+            logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. UnrealEditor.dmg was manually mounted."
+            logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+            logcat_append "Please eject UnrealEditor.dmg disk image manually."
             cleanup_process 0
+        else
+            logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. UnrealEditor.dmg volume will now ejected."
+            logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+            diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+            if [ $? != 0 ]; then
+                osascript -e 'tell app "System Events" to display alert "UnrealEditor을(를) 추출하는데 실패하였습니다."'
+                logcat_append "UnrealEditor does not ejected successfully. Please see the output above."
+                logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
+                cleanup_process 1
+            else
+                cleanup_process 0
+            fi
         fi
     else
         sleep 1
