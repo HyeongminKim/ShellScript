@@ -46,6 +46,7 @@ fi
 
 if [ -d ~/Library/Logs/Unreal\ Engine/UnrealLauncher ]; then
     logcat_append "UnrealLauncher was started at $(date)..."
+    logcat_append "$(uname -v)"
     logcat_append "log directory already exists."
 else
     mkdir ~/Library/Logs/Unreal\ Engine/UnrealLauncher
@@ -57,6 +58,7 @@ else
         logcat_init "Succesfully created log directory."
         logcat_init "Successfully created log file at $(date)."
         logcat_append "UnrealLauncher was started at $(date)..."
+        logcat_append "$(uname -v)"
     fi
 fi
 
@@ -131,6 +133,14 @@ while : ; do
         logcat_init "Successfully created log file at $archive_date."
         logcat_append "The previous log contents was reached maximum log file size (10MB)."
         logcat_append "previous log file was backup at ~/Library/Logs/Unreal Engine/UnrealLauncher/launch_$archive_date.log\n"
+    fi
+
+    display_status=$(echo $(ioreg -n IODisplayWrangler | grep -i IOPowerManagement | perl -pe 's/^.*DevicePowerState\"=([0-9]+).*$/\1/')/4 | bc)
+    if [ $display_status -eq 0 ]; then
+        logcat_append "$(uname -n) is sleeping. UnrealLauncher running with low energy mode (App Nap)."
+        logcat_append "NOTE: UnrealLauncher will not call some events when running with low energy mode."
+        sleep 30
+        continue
     fi
 
     pgrep EpicGamesLauncher &> /dev/null
