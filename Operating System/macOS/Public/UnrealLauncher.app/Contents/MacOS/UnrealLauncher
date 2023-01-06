@@ -18,6 +18,8 @@ function cleanup_process() {
     else
         logcat_append "Unable to remove lock file. no such file or directory."
     fi
+    logcat_append "UnrealLauncher will now terminate with exit code $1."
+    logcat_append "UnrealLauncher close $debugOutput file. The current log file size is $(ls -lh ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log | awk '{ print $5 }')."
     logcat_append "UnrealLauncher exited at $(date).\n"
     exit $1
 }
@@ -45,9 +47,17 @@ if [ -r ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
 fi
 
 if [ -d ~/Library/Logs/Unreal\ Engine/UnrealLauncher ]; then
-    logcat_append "UnrealLauncher was started at $(date)..."
-    logcat_append "$(uname -v)"
-    logcat_append "log directory already exists."
+    if [ -r ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log ]; then
+        logcat_append "UnrealLauncher was started at $(date)..."
+        logcat_append "$(uname -v)"
+        logcat_append "log directory already exists."
+        logcat_append "log file already exists. current log size is $(ls -lh ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log | awk '{ print $5 }')."
+    else
+        logcat_init "UnrealLauncher was started at $(date)..."
+        logcat_append "$(uname -v)"
+        logcat_append "log directory already exists."
+        logcat_append "Successfully created log file at $(date)"
+    fi
 else
     mkdir ~/Library/Logs/Unreal\ Engine/UnrealLauncher
     if [ $? != 0 ]; then
@@ -56,7 +66,7 @@ else
         exit 1
     else
         logcat_init "Succesfully created log directory."
-        logcat_init "Successfully created log file at $(date)."
+        logcat_append "Successfully created log file at $(date)."
         logcat_append "UnrealLauncher was started at $(date)..."
         logcat_append "$(uname -v)"
     fi
