@@ -145,7 +145,11 @@ while : ; do
 
     pgrep EpicGamesLauncher &> /dev/null
     if [ $? == 0 ]; then
-        logcat_append "EpicGamesLauncher is still running! PID: $(pgrep EpicGamesLauncher)"
+        if [ $(pgrep EpicGamesLauncher | awk 'END { print NR }') -eq 1 ]; then
+            logcat_append "EpicGamesLauncher is still running! PID: $(pgrep EpicGamesLauncher)"
+        else
+            logcat_append "EpicGamesLauncher are still running! $(pgrep EpicGamesLauncher | awk 'END { print NR }') EpicGamesLauncher were opened."
+        fi
         EpicLauncher_EXIT=""
     else
         logcat_append "EpicGamesLauncher is not running."
@@ -154,7 +158,11 @@ while : ; do
 
     pgrep UnrealEditor &> /dev/null
     if [ $? == 0 ]; then
-        logcat_append "UnrealEditor is still running! PID: $(pgrep UnrealEditor)"
+        if [ $(pgrep UnrealEditor | awk 'END { print NR }') -eq 1 ]; then
+            logcat_append "UnrealEditor is still running! PID: $(pgrep UnrealEditor)"
+        else
+            logcat_append "UnrealEditor are still running! $(pgrep UnrealEditor | awk 'END { print NR }') UnrealEditor were opened."
+        fi
         UE_EXIT=""
     else
         logcat_append "UnrealEditor is not running."
