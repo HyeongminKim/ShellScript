@@ -50,11 +50,15 @@ if [ -d ~/Library/Logs/Unreal\ Engine/UnrealLauncher ]; then
     if [ -r ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log ]; then
         logcat_append "UnrealLauncher was started at $(date)..."
         logcat_append "$(uname -v)"
+        logcat_append "load averages: $(uptime | awk -F '[a-z]: ' '{ print $2 }')"
+        logcat_append "$(uname -n) active cpu count: $(sysctl -n hw.activecpu)"
         logcat_append "log directory already exists."
         logcat_append "log file already exists. current log size is $(ls -lh ~/Library/Logs/Unreal\ Engine/UnrealLauncher/launch.log | awk '{ print $5 }')."
     else
         logcat_init "UnrealLauncher was started at $(date)..."
         logcat_append "$(uname -v)"
+        logcat_append "load averages: $(uptime | awk -F '[a-z]: ' '{ print $2 }')"
+        logcat_append "$(uname -n) active cpu count: $(sysctl -n hw.activecpu)"
         logcat_append "log directory already exists."
         logcat_append "Successfully created log file at $(date)"
     fi
@@ -69,6 +73,8 @@ else
         logcat_append "Successfully created log file at $(date)."
         logcat_append "UnrealLauncher was started at $(date)..."
         logcat_append "$(uname -v)"
+        logcat_append "load averages: $(uptime | awk -F '[a-z]: ' '{ print $2 }')"
+        logcat_append "$(uname -n) active cpu count: $(sysctl -n hw.activecpu)"
     fi
 fi
 
@@ -153,6 +159,13 @@ while : ; do
         continue
     fi
 
+    cntLoadAverages=$(uptime | awk -F '[a-z]: ' '{ print $2 }' | awk '{print $1}')
+    deviceCPUCount=$(sysctl -n hw.activecpu)
+    if (( $(echo "$cntLoadAverages > $deviceCPUCount*2" | bc -l) )); then
+        logcat_append "$(uname -n) is throttled. UnrealLauncher was limited operation due to inviolate UnrealEditor performance."
+        sleep 15
+    fi
+
     pgrep EpicGamesLauncher &> /dev/null
     if [ $? == 0 ]; then
         if [ $(pgrep EpicGamesLauncher | awk 'END { print NR }') -eq 1 ]; then
@@ -180,7 +193,7 @@ while : ; do
     fi
 
     if [ "$EpicLauncher_EXIT" == "TRUE" -a "$UE_EXIT" == "TRUE" ]; then
-        if [ $manuallyMounted == "TRUE" ]; then
+        if [ "$manuallyMounted" == "TRUE" ]; then
             logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. UnrealEditor.dmg was manually mounted."
             logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
             logcat_append "Please eject UnrealEditor.dmg disk image manually."
