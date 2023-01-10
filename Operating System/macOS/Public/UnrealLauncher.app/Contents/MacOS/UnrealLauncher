@@ -32,7 +32,7 @@ function interrupt_catch() {
         diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
         cleanup_process 0
     else
-        logcat_append "UnrealEditor does not ejected successfully. Please see the output above."
+        logcat_append "UnrealEditor does not ejected successfully. Please see the output."
         logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
         logcat_append "Unable to exit UnrealLauncher due to UnrealEditor.dmg is still mounted and active.\n"
         osascript -e 'tell app "System Events" to display alert "UnrealLauncher을(를) 종료하려면 먼저 Epic Games Launcher와(과) UnrealEditor이(가) 실행 중이 아니어야 합니다."'
@@ -199,15 +199,30 @@ while : ; do
             logcat_append "Please eject UnrealEditor.dmg disk image manually."
             cleanup_process 0
         else
-            logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. UnrealEditor.dmg volume will now ejected."
+            logcat_append "The Epic Games Launcher and UnrealEditor was exited recently. Trying to ejcet UnrealEditor.dmg volume."
             logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
             diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
             if [ $? != 0 ]; then
-                osascript -e 'tell app "System Events" to display alert "UnrealEditor을(를) 추출하는데 실패하였습니다."'
-                logcat_append "UnrealEditor does not ejected successfully. Please see the output above."
-                logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
-                cleanup_process 1
+                logcat_append "Unable to eject UnrealEditor.dmg volume. waiting user input..."
+                osascript -e 'display dialog "UnrealEditor을(를) 추출하는데 실패하였습니다. UnrealEditor 추출을 계속 시도하시겠습니까?" buttons {"예", "아니요"} default button "아니요"^Mset btnInput to button returned of the result^Mif btnInput is "아니요" then^Merror number -1^Mend if' >> "$debugOutput" 2>&1
+                if [ $? == 0 ]; then
+                    while : ; do
+                        if [ $(df -h | grep UnrealEditor | awk '{ print $1 }') == "" ]; then
+                            logcat_append "Successfully ejected UnrealEditor.dmg volume."
+                            cleanup_process 0
+                        else
+                            logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+                            diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+                        fi
+                        sleep 60
+                    done
+                else
+                    logcat_append "UnrealEditor does not ejected successfully. Please see the output."
+                    logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
+                    cleanup_process 1
+                fi
             else
+                logcat_append "Successfully ejected UnrealEditor.dmg volume."
                 cleanup_process 0
             fi
         fi
