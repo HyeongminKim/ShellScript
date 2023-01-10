@@ -12,8 +12,8 @@ function logcat_append() {
 }
 
 function cleanup_process() {
-    if [ -r ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
-        rm ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
+    if [ -r /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
+        rm /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
         logcat_append "Successfully removed lock file."
     else
         logcat_append "Unable to remove lock file. no such file or directory."
@@ -40,7 +40,7 @@ function interrupt_catch() {
     fi
 }
 
-if [ -r ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
+if [ -r /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
     echo "error: Unable to launch new agent. This app already running."
     osascript -e 'tell app "System Events" to display alert "UnrealLauncher이(가) 이미 실행중입니다."'
     exit 1
@@ -78,18 +78,19 @@ else
     fi
 fi
 
-if [ -d ~/Library/Application\ Support/Epic/UnrealLauncher ]; then
+if [ -d /Library/Application\ Support/Epic/UnrealLauncher ]; then
     logcat_append "Successfully created lock file."
-    touch ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
+    touch /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
 else
-    mkdir ~/Library/Application\ Support/Epic/UnrealLauncher
+    osascript -e 'do shell script "sudo mkdir -p \"/Library/Application Support/Epic/UnrealLauncher\" && sudo chown $USER:staff \"/Library/Application Support/Epic/UnrealLauncher\"" with prompt "UnrealLauncher이(가) 변경하려고 합니다. 허용하려면 암호를 입력하세요." with administrator privileges'
     if [ $? != 0 ]; then
-        logcat_append "Unable to create $HOME/Library/Application Support/Epic/UnrealLauncher/newagent.lock: Please check your permission.\n"
+        logcat_append "Unable to create lock file. Please check your permission.\n"
         osascript -e 'tell app "System Events" to display alert "에이젼트 잠금을 적용할 수 없어 계속 진행할 수 없습니다."'
         exit 1
     else
+        chmod 775 /Library/Application\ Support/Epic/UnrealLauncher >> "$debugOutput" 2>&1
+        touch /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
         logcat_append "Successfully created lock file."
-        touch ~/Library/Application\ Support/Epic/UnrealLauncher/newagent.lock
     fi
 fi
 
