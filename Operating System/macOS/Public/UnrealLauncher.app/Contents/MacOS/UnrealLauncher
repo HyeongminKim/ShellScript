@@ -35,14 +35,14 @@ function interrupt_catch() {
         logcat_append "UnrealEditor does not ejected successfully. Please see the output."
         logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
         logcat_append "Unable to exit UnrealLauncher due to UnrealEditor.dmg is still mounted and active.\n"
-        osascript -e 'tell app "System Events" to display alert "UnrealLauncher을(를) 종료하려면 먼저 Epic Games Launcher와(과) UnrealEditor이(가) 실행 중이 아니어야 합니다."'
+        osascript -e 'display alert "UnrealLauncher을(를) 종료하려면 먼저 Epic Games Launcher와(과) UnrealEditor이(가) 실행 중이 아니어야 합니다." as warning'
         return
     fi
 }
 
 if [ -r /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
     echo "error: Unable to launch new agent. This app already running."
-    osascript -e 'tell app "System Events" to display alert "UnrealLauncher이(가) 이미 실행중입니다."'
+    osascript -e 'display alert "UnrealLauncher이(가) 이미 실행중입니다." as critical'
     exit 1
 fi
 
@@ -66,7 +66,7 @@ else
     mkdir ~/Library/Logs/Unreal\ Engine/UnrealLauncher
     if [ $? != 0 ]; then
         echo "Unable to create $HOME/Library/Logs: Please check your permission."
-        osascript -e 'tell app "System Events" to display alert "로그 디렉토리에 접근할 수 없어 실행할 수 없습니다. "'
+        osascript -e 'display alert "로그 디렉토리에 접근할 수 없어 실행할 수 없습니다. " as critical'
         exit 1
     else
         logcat_init "Succesfully created log directory."
@@ -85,7 +85,7 @@ else
     osascript -e 'do shell script "sudo mkdir -p \"/Library/Application Support/Epic/UnrealLauncher\" && sudo chown $USER:staff \"/Library/Application Support/Epic/UnrealLauncher\"" with prompt "UnrealLauncher이(가) 변경하려고 합니다. 허용하려면 암호를 입력하세요." with administrator privileges'
     if [ $? != 0 ]; then
         logcat_append "Unable to create lock file. Please check your permission.\n"
-        osascript -e 'tell app "System Events" to display alert "에이젼트 잠금을 적용할 수 없어 계속 진행할 수 없습니다."'
+        osascript -e 'display alert "에이젼트 잠금을 적용할 수 없어 계속 진행할 수 없습니다." as critical'
         exit 1
     else
         chmod 775 /Library/Application\ Support/Epic/UnrealLauncher >> "$debugOutput" 2>&1
@@ -98,7 +98,7 @@ targetDir="$(echo $0 | sed "s/\/UnrealLauncher$//g")"
 cd "$targetDir" >> "$debugOutput" 2>&1
 if [ $? != 0 ]; then
     logcat_append "Unable to locate $targetDir. Aborting.\n"
-    osascript -e 'tell app "System Events" to display alert "프로그램 현재 위치에 접근할 수 없어 실행할 수 없습니다. "'
+    osascript -e 'display alert "프로그램 현재 위치에 접근할 수 없어 실행할 수 없습니다. " as critical'
     cleanup_process 1
 else
     logcat_append "Current working directory: $(pwd)"
@@ -118,17 +118,17 @@ elif [ -d /Volumes/External -a -r /Volumes/External/Applications/Epic\ Games/Unr
             logcat_append "The UnrealLauncher will not respond some signals and execute internal events."
         else
             logcat_append "Unexpected exception occured when attempting to mount UnrealEditor.dmg disk image."
-            osascript -e 'tell app "System Events" to display alert "알 수 없는 오류로 인해 UnrealEditor을(를) 마운트 할 수 없습니다."'
+            osascript -e 'display alert "알 수 없는 오류로 인해 UnrealEditor을(를) 마운트 할 수 없습니다." as critical'
             cleanup_process 1
         fi
     else
         logcat_append "Unable to mount /Volumes/External/Applications/Epic Games/UnrealEditor.dmg disk image. Please check your permission.\n"
-        osascript -e 'tell app "System Events" to display alert "UnrealEditor을(를) 마운트 할 수 없습니다. 디스크 쓰기 권한을 확인해 주세요."'
+        osascript -e 'display alert "UnrealEditor을(를) 마운트 할 수 없습니다. 디스크 쓰기 권한을 확인해 주세요." as critical'
         cleanup_process 1
     fi
 else
     logcat_append "Unable to locate UnrealEditor.dmg. Exiting.\n"
-    osascript -e 'tell app "System Events" to display alert "External 디스크가 감지되지 않아 UnrealEditor을(를) 마운트할 수 없습니다."'
+    osascript -e 'display alert "External 디스크가 감지되지 않아 UnrealEditor을(를) 마운트할 수 없습니다." as critical'
     cleanup_process 1
 fi
 
@@ -204,24 +204,16 @@ while : ; do
             logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
             diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
             if [ $? != 0 ]; then
-                logcat_append "Unable to eject UnrealEditor.dmg volume. waiting user input..."
-                osascript -e 'display dialog "UnrealEditor을(를) 추출하는데 실패하였습니다. UnrealEditor 추출을 계속 시도하시겠습니까?" buttons {"예", "아니요"} default button "아니요"^Mset btnInput to button returned of the result^Mif btnInput is "아니요" then^Merror number -1^Mend if' >> "$debugOutput" 2>&1
-                if [ $? == 0 ]; then
-                    while : ; do
-                        if [ $(df -h | grep UnrealEditor | awk '{ print $1 }') == "" ]; then
-                            logcat_append "Successfully ejected UnrealEditor.dmg volume."
-                            cleanup_process 0
-                        else
-                            logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
-                            diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
-                        fi
-                        sleep 60
-                    done
-                else
-                    logcat_append "UnrealEditor does not ejected successfully. Please see the output."
-                    logcat_append "Unable to eject UnrealEditor.dmg disk image due to EpicGameLauncher and UnrealEditor is still running."
-                    cleanup_process 1
-                fi
+                while : ; do
+                    if [ $(df -h | grep UnrealEditor | awk '{ print $1 }') == "" ]; then
+                        logcat_append "Successfully ejected UnrealEditor.dmg volume."
+                        cleanup_process 0
+                    else
+                        logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+                        diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+                    fi
+                    sleep 60
+                done
             else
                 logcat_append "Successfully ejected UnrealEditor.dmg volume."
                 cleanup_process 0
