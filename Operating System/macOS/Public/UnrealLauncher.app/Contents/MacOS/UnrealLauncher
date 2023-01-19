@@ -205,14 +205,14 @@ while : ; do
             diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
             if [ $? != 0 ]; then
                 while : ; do
-                    if [ $(df -h | grep UnrealEditor | awk '{ print $1 }') == "" ]; then
+                    logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+                    diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+                    if [ $? == 0 ]; then
                         logcat_append "Successfully ejected UnrealEditor.dmg volume."
                         cleanup_process 0
                     else
-                        logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
-                        diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+                        sleep 60
                     fi
-                    sleep 60
                 done
             else
                 logcat_append "Successfully ejected UnrealEditor.dmg volume."
