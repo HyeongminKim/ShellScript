@@ -51,8 +51,14 @@ function interrupt_catch() {
 }
 
 if [ -r /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock ]; then
-    echo "error: Unable to launch new agent. This app already running."
-    osascript -e 'display alert "UnrealLauncher이(가) 이미 실행중입니다." as critical'
+    launchedUser=$(ls -l /Library/Application\ Support/Epic/UnrealLauncher/newagent.lock | awk '{ print $3 }')
+    if [ "$USER" != "$launchedUser" ]; then
+        echo "error: Unable to launch new agent. Someone already running this app."
+        osascript -e "display alert \"$launchedUser 사용자가 UnrealLauncher를 사용하고 있기 때문에 계속할 수 없습니다.\" as critical"
+    else
+        echo "error: Unable to launch new agent. This app already running."
+        osascript -e 'display alert "UnrealLauncher이(가) 이미 실행중입니다." as critical'
+    fi
     exit 1
 fi
 
