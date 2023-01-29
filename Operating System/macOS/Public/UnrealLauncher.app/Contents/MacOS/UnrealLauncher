@@ -224,15 +224,18 @@ while : ; do
             logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
             diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
             if [ $? != 0 ]; then
-                for ((i=1;i<=10;i++)); do
-                    logcat_append "The UnrealEditor.dmg volume known ID (attempt: $i/10): $(df -h | grep UnrealEditor | awk '{ print $1 }')."
-                    diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
-                    if [ $? == 0 ]; then
-                        logcat_append "Successfully ejected UnrealEditor.dmg volume."
-                        cleanup_process 0
-                    fi
-                    sleep 30
-                done
+                osascript -e "display alert \"일부 프로세스가 UnrealEditor 디스크를 사용 중이기 때문에 추출할 수 없습니다.\" message \"연관된 프로세스가 모두 종료되었는지 확인한 후에 디스크 추출을 시도하십시오.\" as warning buttons {\"중단\",\"추출\"} default button \"추출\" cancel button \"중단\"" > /dev/null 2>&1
+                if [ $? == 0 ]; then
+                    for ((i=1;i<=10;i++)); do
+                        logcat_append "The UnrealEditor.dmg volume known ID (attempt: $i/10): $(df -h | grep UnrealEditor | awk '{ print $1 }')."
+                        diskutil eject $(df -h | grep UnrealEditor | awk '{ print $1 }') >> "$debugOutput" 2>&1
+                        if [ $? == 0 ]; then
+                            logcat_append "Successfully ejected UnrealEditor.dmg volume."
+                            cleanup_process 0
+                        fi
+                        sleep 30
+                    done
+                fi
                 logcat_append "Unable to eject UnrealEditor.dmg (TRAP_UNMOUNT_FAILURE). reason: some application or process are still access UnrealEditor.dmg volume."
                 logcat_append "The UnrealEditor.dmg volume known ID: $(df -h | grep UnrealEditor | awk '{ print $1 }')."
                 logcat_append "Please eject UnrealEditor.dmg disk image manually."
