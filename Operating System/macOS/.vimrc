@@ -1,5 +1,13 @@
-set rtp+=/opt/homebrew/lib/python3.9/site-packages/powerline/bindings/vim
-set rtp+=/usr/local/lib/python3.9/site-packages/powerline/bindings/vim
+let powerline_version="3.9"
+
+if isdirectory("/opt/homebrew/lib/python" . powerline_version)
+    let &rtp=&rtp . ',/opt/homebrew/lib/python' . powerline_version . '/site-packages/powerline/bindings/vim'
+elseif isdirectory("/usr/local/lib/python" . powerline_version)
+    let &rtp=&rtp . ',/usr/local/lib/python' . powerline_version . '/site-packages/powerline/bindings/vim'
+else
+    echoerr "Unable to load powerline-status pip package version " . powerline_version . ". Please check installed currectly."
+endif
+
 set fencs=ucs-bom,utf-8,cp949,euc-kr,shift_jis,euc-jp
 
 set nocompatible
