@@ -77,12 +77,10 @@
 				</array>
 				<key>arguments</key>
 				<dict/>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>0</integer>
 				<key>location</key>
-				<string>309.000000:188.000000</string>
+				<string>207.000000:68.000000</string>
 			</dict>
 			<key>isViewVisible</key>
 			<integer>0</integer>
@@ -187,12 +185,10 @@
 						<string>0</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>0</integer>
 				<key>location</key>
-				<string>309.000000:205.000000</string>
+				<string>301.500000:205.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Get Value of Variable.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -262,9 +258,22 @@ if [ "$?" == "0" ]; then
     rm -rf "$1/Binaries"
     rm -rf "$1/DerivedDataCache"
     rm -rf "$1/Intermediate"
+
     rm -rf "$1/Saved/Autosaves"
     rm -rf "$1/Saved/Collections"
     rm -rf "$1/Saved/SourceControl"
+    rm -rf "$1/Saved/Cooked"
+    rm -rf "$1/Saved/Crashes"
+    rm -rf "$1/Saved/Logs"
+    rm -rf "$1/Saved/MaterialStats"
+    rm -rf "$1/Saved/MaterialStatsDebug"
+    rm -rf "$1/Saved/Shaders"
+    rm -rf "$1/Saved/StagedBuilds"
+    rm -rf "$1/Saved/Temp"
+    rm -rf "$1/Saved/WorldPartition"
+
+    rm -rf "$1/Saved/Config/CrashReportClient"
+    rm -rf "$1/Saved/Config/WorldState"
     exit 0
 fi
  
@@ -381,12 +390,10 @@ exit 1
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>309.000000:578.000000</string>
+				<string>301.500000:680.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -396,19 +403,19 @@ exit 1
 	</array>
 	<key>connectors</key>
 	<dict>
-		<key>16837F4B-4C37-4BAD-841C-880CBD9AF45E</key>
-		<dict>
-			<key>from</key>
-			<string>FA55CA26-01C5-449B-BF01-C143AEF58B7A - FA55CA26-01C5-449B-BF01-C143AEF58B7A</string>
-			<key>to</key>
-			<string>A9387CD4-3C22-43D8-905A-03C84D56A124 - A9387CD4-3C22-43D8-905A-03C84D56A124</string>
-		</dict>
-		<key>438BF225-1697-4EBB-9059-213C43FC7DE6</key>
+		<key>648D015D-CA95-4070-8AF2-F9D93CEAB797</key>
 		<dict>
 			<key>from</key>
 			<string>A7E82F43-EB35-4849-A677-543D5A96F7A2 - A7E82F43-EB35-4849-A677-543D5A96F7A2</string>
 			<key>to</key>
 			<string>FA55CA26-01C5-449B-BF01-C143AEF58B7A - FA55CA26-01C5-449B-BF01-C143AEF58B7A</string>
+		</dict>
+		<key>B159403B-2751-4309-8FEB-E3A7FEBE8C94</key>
+		<dict>
+			<key>from</key>
+			<string>FA55CA26-01C5-449B-BF01-C143AEF58B7A - FA55CA26-01C5-449B-BF01-C143AEF58B7A</string>
+			<key>to</key>
+			<string>A9387CD4-3C22-43D8-905A-03C84D56A124 - A9387CD4-3C22-43D8-905A-03C84D56A124</string>
 		</dict>
 	</dict>
 	<key>variables</key>
