@@ -77,12 +77,10 @@
 				</array>
 				<key>arguments</key>
 				<dict/>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>309.000000:188.000000</string>
+				<string>207.000000:68.000000</string>
 			</dict>
 			<key>isViewVisible</key>
 			<integer>1</integer>
@@ -185,8 +183,6 @@
 						<string>0</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>0</integer>
 				<key>location</key>
@@ -234,7 +230,7 @@
 					<dict>
 						<key>tokenizedValue</key>
 						<array>
-							<string>Unreal 버전 선택</string>
+							<string>Unreal 버전 선택 (예: UE_*)</string>
 						</array>
 					</dict>
 				</dict>
@@ -260,7 +256,7 @@
 					<key>multipleSelection</key>
 					<false/>
 					<key>promptMessage</key>
-					<string>Unreal 버전 선택</string>
+					<string>Unreal 버전 선택 (예: UE_*)</string>
 				</dict>
 				<key>BundleIdentifier</key>
 				<string>com.apple.Automator.AskForFinderItems</string>
@@ -351,8 +347,6 @@
 						<string>3</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
@@ -461,8 +455,6 @@
 						<string>0</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>0</integer>
 				<key>location</key>
@@ -528,16 +520,21 @@ if [ "$?" != "0" ]; then
     exit 1
 fi
 
+if [ ! -d "$2/Engine" ] ; then
+    echo "유효한 UnrealEngine 디렉토리가 아니거나, 잘못된 디렉터리를 선택하였습니다." &gt;&amp;2
+    exit 1
+fi
+
 if [ ! -x "$2/Engine/Build/BatchFiles/Mac/GenerateProjectFiles.sh" ]; then
     echo "프로젝트 컴파일러에 접근할 수 없거나 UnrealEngine이 아직 빌드되지 않았습니다." &gt;&amp;2
     exit 1
 fi
 
-projectName="$(basename $1)"
+projectName=$(basename "$1")
 
 "$2/Engine/Build/BatchFiles/Mac/GenerateProjectFiles.sh" -project="$1/$projectName.uproject" -game
-if [ $? != 0 ]; then
-    echo "빌드 실패: IDE 프로젝트 파일을 생성할 수 없습니다." &gt;&amp;2
+if [ "$?" != "0" ]; then
+    echo "$projectName 프로젝트 빌드 실패. 자세한 정보는 GenerateProjectFiles 문서를 참조해 주세요." &gt;&amp;2
     exit 1
 fi
 
@@ -651,12 +648,10 @@ exit 0</string>
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>301.500000:808.000000</string>
+				<string>301.500000:811.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -666,33 +661,33 @@ exit 0</string>
 	</array>
 	<key>connectors</key>
 	<dict>
-		<key>23034968-0111-413B-B4CB-4958FEDA751E</key>
+		<key>1CA1B846-FB96-44F7-8786-174427A275E1</key>
 		<dict>
 			<key>from</key>
 			<string>8E07051B-48C6-4388-8520-927CA771ED1A - 8E07051B-48C6-4388-8520-927CA771ED1A</string>
 			<key>to</key>
 			<string>5DBEE97B-CC7C-4747-940D-5CFFD4A84CD4 - 5DBEE97B-CC7C-4747-940D-5CFFD4A84CD4</string>
 		</dict>
-		<key>3A3B4766-C5EF-4296-84B9-913E9DC4382C</key>
+		<key>57CFE346-A818-4022-99C7-5E58CF41388D</key>
+		<dict>
+			<key>from</key>
+			<string>9165BA6C-21C7-48F0-8D9F-E70A84A1263D - 9165BA6C-21C7-48F0-8D9F-E70A84A1263D</string>
+			<key>to</key>
+			<string>64EE10F4-1566-4FF6-95CB-8235BCF42D90 - 64EE10F4-1566-4FF6-95CB-8235BCF42D90</string>
+		</dict>
+		<key>991ADA97-0EF2-4D85-AB94-57C389AE36CB</key>
 		<dict>
 			<key>from</key>
 			<string>64EE10F4-1566-4FF6-95CB-8235BCF42D90 - 64EE10F4-1566-4FF6-95CB-8235BCF42D90</string>
 			<key>to</key>
 			<string>8E07051B-48C6-4388-8520-927CA771ED1A - 8E07051B-48C6-4388-8520-927CA771ED1A</string>
 		</dict>
-		<key>79DAEB9D-2CCB-449E-A32C-47D22077BCD6</key>
+		<key>F7A3B20A-B73B-42D4-9C62-E52AB571BAD4</key>
 		<dict>
 			<key>from</key>
 			<string>D5BC12C9-77F1-4CF9-B206-74990DBC87C5 - D5BC12C9-77F1-4CF9-B206-74990DBC87C5</string>
 			<key>to</key>
 			<string>9165BA6C-21C7-48F0-8D9F-E70A84A1263D - 9165BA6C-21C7-48F0-8D9F-E70A84A1263D</string>
-		</dict>
-		<key>AD53FB78-79F8-4C69-9D37-0E9D18E156C3</key>
-		<dict>
-			<key>from</key>
-			<string>9165BA6C-21C7-48F0-8D9F-E70A84A1263D - 9165BA6C-21C7-48F0-8D9F-E70A84A1263D</string>
-			<key>to</key>
-			<string>64EE10F4-1566-4FF6-95CB-8235BCF42D90 - 64EE10F4-1566-4FF6-95CB-8235BCF42D90</string>
 		</dict>
 	</dict>
 	<key>variables</key>
@@ -734,7 +729,7 @@ exit 0</string>
 			<string>/System/Library/CoreServices/Finder.app</string>
 		</array>
 		<key>inputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
+		<string>com.apple.Automator.fileSystemObject.folder</string>
 		<key>outputTypeIdentifier</key>
 		<string>com.apple.Automator.nothing</string>
 		<key>presentationMode</key>
@@ -746,7 +741,7 @@ exit 0</string>
 		<key>serviceApplicationPath</key>
 		<string>/System/Library/CoreServices/Finder.app</string>
 		<key>serviceInputTypeIdentifier</key>
-		<string>com.apple.Automator.fileSystemObject</string>
+		<string>com.apple.Automator.fileSystemObject.folder</string>
 		<key>serviceOutputTypeIdentifier</key>
 		<string>com.apple.Automator.nothing</string>
 		<key>serviceProcessesInput</key>

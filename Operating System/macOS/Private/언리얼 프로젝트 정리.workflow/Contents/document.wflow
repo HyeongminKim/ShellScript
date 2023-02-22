@@ -244,17 +244,20 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>
-requestDir=$(echo "$1" | sed 's/ /\\ /g')
-
-cd "$1" &amp;&gt; /dev/null
+					<string>cd "$1" &amp;&gt; /dev/null
 if [ "$?" != "0" ]; then
     echo "디렉토리에 접근할 수 없거나 존재하지 않는 디렉토리입니다. $1" &gt;&amp;2
     exit 1
 fi
 
-ls 2&gt; /dev/null | grep ".uproject" &amp;&gt; /dev/null
+projectName=$(basename "$1")
+
+ls 2&gt; /dev/null | grep "$projectName.uproject" &amp;&gt; /dev/null
 if [ "$?" == "0" ]; then
+    rm -rf "$1/.vscode"
+    rm -rf "$1/.idea"
+    rm -rf "$1/$projectName.xcworkspace"
+    rm -f "$1/$projectName.code-workspace"
     rm -rf "$1/Binaries"
     rm -rf "$1/DerivedDataCache"
     rm -rf "$1/Intermediate"
@@ -277,7 +280,7 @@ if [ "$?" == "0" ]; then
     exit 0
 fi
  
-echo "유효한 언리얼 프로젝트 구조가 아닙니다. uproject 파일이 누락되었습니다. $1" &gt;&amp;2
+echo "유효한 언리얼 프로젝트 구조가 아닙니다. $projectName.uproject 파일이 누락되었습니다. " &gt;&amp;2
 exit 1
     
 </string>
@@ -393,7 +396,7 @@ exit 1
 				<key>isViewVisible</key>
 				<integer>1</integer>
 				<key>location</key>
-				<string>301.500000:680.000000</string>
+				<string>301.500000:661.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
@@ -403,14 +406,14 @@ exit 1
 	</array>
 	<key>connectors</key>
 	<dict>
-		<key>648D015D-CA95-4070-8AF2-F9D93CEAB797</key>
+		<key>20139D14-D756-4C7D-9AF5-FC07CC68C059</key>
 		<dict>
 			<key>from</key>
 			<string>A7E82F43-EB35-4849-A677-543D5A96F7A2 - A7E82F43-EB35-4849-A677-543D5A96F7A2</string>
 			<key>to</key>
 			<string>FA55CA26-01C5-449B-BF01-C143AEF58B7A - FA55CA26-01C5-449B-BF01-C143AEF58B7A</string>
 		</dict>
-		<key>B159403B-2751-4309-8FEB-E3A7FEBE8C94</key>
+		<key>237832D5-C81D-4A59-893C-890ACFD1FCDE</key>
 		<dict>
 			<key>from</key>
 			<string>FA55CA26-01C5-449B-BF01-C143AEF58B7A - FA55CA26-01C5-449B-BF01-C143AEF58B7A</string>
