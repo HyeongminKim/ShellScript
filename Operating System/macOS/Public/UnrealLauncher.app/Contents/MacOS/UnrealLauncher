@@ -82,7 +82,7 @@ if [ -d ~/Library/Logs/Unreal\ Engine/UnrealLauncher ]; then
         logcat_append "Successfully created log file at $(date)"
     fi
 else
-    mkdir ~/Library/Logs/Unreal\ Engine/UnrealLauncher
+    mkdir -p ~/Library/Logs/Unreal\ Engine/UnrealLauncher
     if [ $? != 0 ]; then
         echo "Unable to create $HOME/Library/Logs: Please check your permission."
         osascript -e 'display alert "로그 디렉토리에 접근할 수 없어 실행할 수 없습니다. " as critical'
