@@ -1,18 +1,9 @@
 #!/bin/bash
 
-if [ ! -r /sys/class/leds/led1/trigger ]; then
+if [ ! -d /sys/class/leds ]; then
     echo "$(uname -srvmpio) is not supported. This script only works on Raspberry Pi. " >&2
     exit 1
 fi
-
-function powerLEDController() {
-    if [ ! -r /sys/class/leds/led1/trigger ]; then
-        echo "The Raspberry Pi system seems to be corrupted. Unable to access system files." >&2
-        exit 2
-    fi
-
-    sudo sh -c "echo $1 > /sys/class/leds/led1/trigger"
-}
 
 function NET_LEDController() {
     if [ ! -r /home/pi/.shellscript/lan951x-led-ctl/lan951x-led-ctl ]; then
@@ -35,22 +26,18 @@ while true; do
         if [ "$?" != "0" ]; then
             echo "No internet connection and printer server is not responding."
             NET_LEDController 1 1
-            powerLEDController "input"
         else
             echo "No internet connection. However the printer server is responding."
             NET_LEDController 0 1
-            powerLEDController "panic"
         fi
     else
         ping -c 1 -W 1 -q "192.168.0.50" &> /dev/null
         if [ "$?" != "0" ]; then
             echo "You have an internet connection. However the printer server is not responding."
             NET_LEDController 1 0
-            powerLEDController "panic"
         else
             echo "You have an internet connection."
             NET_LEDController 0 0
-            powerLEDController "panic"
         fi
     fi
 
