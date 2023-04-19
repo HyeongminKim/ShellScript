@@ -1,0 +1,3 @@
+LABEL=cloudimg-rootfs	/	 ext4	defaults	0 1
+
+//sweethome-nas/home /mnt/sweethome-nas drvfs defaults 0 0
