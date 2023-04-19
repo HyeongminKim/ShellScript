@@ -103,10 +103,6 @@ brewall() {
     fi
 }
 
-function diff() {
-    git diff --no-index $2 $3
-}
-
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"

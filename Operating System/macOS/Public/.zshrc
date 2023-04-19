@@ -107,10 +107,6 @@ brewall() {
     fi
 }
 
-function diff() {
-    git diff --no-index $2 $3 
-}
-
 if [[ "$OMZ_INSTALLED" == "true" ]]; then
     source $ZSH/oh-my-zsh.sh
 fi
