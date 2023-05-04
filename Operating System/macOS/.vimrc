@@ -1,4 +1,4 @@
-let powerline_version="3.9"
+let powerline_version="3.11"
 
 if isdirectory("/opt/homebrew/lib/python" . powerline_version)
     let &rtp=&rtp . ',/opt/homebrew/lib/python' . powerline_version . '/site-packages/powerline/bindings/vim'
