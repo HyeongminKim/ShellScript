@@ -15,7 +15,7 @@ if [ "$1" == "-h" -o "$1" == "--help" ]; then
         /usr/bin/sudo --help
     fi
     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
-        echo -e "  -w, --windows\t\t\turn command on UAC (if supported by plugin)"
+        echo -e "  -w, --windows\t\t\trun command on UAC (if supported by plugin)"
     fi
     exit 0
 fi
