@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    if [ -x /usr/bin/sudo ]; then
+        /usr/bin/sudo
+    fi
+    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+        echo "usage: sudo -w windows [-h help] [--minimized|--visible] [<command>]"
+    fi
+    exit 1
+fi
+
+if [ "$1" == "-h" -o "$1" == "--help" ]; then
+    if [ -x /usr/bin/sudo ]; then
+        /usr/bin/sudo --help
+    fi
+    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+        echo -e "  -w, --windows\t\t\turn command on UAC (if supported by plugin)"
+    fi
+    exit 0
+fi
+
+if [ "$1" == "-w" -o "$1" == "--windows" ]; then
+    which python3 &> /dev/null
+    if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py -a $? -eq 0 ]; then
+        result=$(echo $@ | sed -r 's/^(-w|--windows)//')
+        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py $result
+        exit $?
+    else
+        echo "sudo: unable to load UAC plugin. wsl-sudo could not found in watching directory."
+        exit 1
+    fi
+fi
+
+if [ -x /usr/bin/sudo ]; then
+    /usr/bin/sudo $@
+    exit $?
+else
+    echo "sudo: unable to load sudo. Please check sudo installed successfully."
+    exit 1
+fi
