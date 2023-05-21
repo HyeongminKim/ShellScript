@@ -34,6 +34,7 @@ if [ $? == 0 ]; then
         fi
         errorCount=$((errorCount+1))
     fi
+    python.exe -m pip install -U pip
 fi
 
 do-release-upgrade
