@@ -6,8 +6,8 @@ if [ -r "/mnt/c/Program Files/Git/usr/bin/vim.exe" ]; then
     touch "/mnt/c/Program Files/Git/usr/bin/vim.exe" 2> /dev/null
     if [ $? != 0 ]; then
         echo "gitVI_update: UAC is required for elevation of privilege to continue this action..."
-        if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
-            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py mv -f "/mnt/c/Program Files/Git/usr/bin/vim.exe" "/mnt/c/Program Files/Git/usr/bin/vim-legacy.exe"
+        if [ -x /usr/local/bin/sudo ]; then
+            sudo -w mv -f "/mnt/c/Program Files/Git/usr/bin/vim.exe" "/mnt/c/Program Files/Git/usr/bin/vim-legacy.exe"
             if [ ! -r "/mnt/c/Program Files/Git/usr/bin/vim.exe" ]; then
                 echo "gitVI_update: Successfully changed vim.exe to vim-legacy.exe."
             else
