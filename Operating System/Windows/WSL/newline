@@ -1,12 +1,8 @@
 #!/bin/bash
 
-recursive=0
-
 if [ $# -eq 0 ]; then
     echo "Usage: newline [options] [<files|directory>]"
     exit 2
-elif [ "$1" == "-r" -o "$1" == "--recursive" ]; then
-    recursive=1
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     params=("$@")
     for i in "${!params[@]}"; do
@@ -29,9 +25,8 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo -e '\nOptions: '
     echo -e ' -h, --help\t\tdisplay this help and exit'
     echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
-    echo -e ' -q, --quiet\t\tactive quiet mode. If can not used with `verbose`'
+    echo -e ' -q, --quiet\t\tactive quiet mode.'
     echo -e ' -v, --verbose\t\tprint various debugging infomation'
-    echo -e ' -r, --recursive DIR\tconverting EOL recursively'
     echo -e '     --type=EOL\t\tlimiting `EOL` type when using converter'
     echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\n` or `\\r\\n`)'
     which whiptail &> /dev/null
@@ -52,9 +47,6 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo ''
     echo 'Convert example.txt file EOL type to CRLF'
     echo '% newline --type=CRLF example.txt'
-    echo ''
-    echo 'Convert in example directory files EOL type to LF recursively'
-    echo '% newline -r --type=LF example'
     echo ''
     exit 0
 fi
