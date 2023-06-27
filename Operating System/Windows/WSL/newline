@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-    echo "Usage: newline [options] [<files|directory>]"
+    echo "Usage: newline [options] [<files>]"
     exit 2
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     params=("$@")
@@ -21,7 +21,7 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     exit 0
 elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo 'Determine type of files or converting EOL between LF and CRLF.'
-    echo -e '\nUsage: newline [options] [<files|directory>]'
+    echo -e '\nUsage: newline [options] [<files>]'
     echo -e '\nOptions: '
     echo -e ' -h, --help\t\tdisplay this help and exit'
     echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
