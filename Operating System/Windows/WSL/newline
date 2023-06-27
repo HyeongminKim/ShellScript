@@ -4,10 +4,19 @@ if [ $# -eq 0 ]; then
     echo "Usage: newline [option] <files>"
     exit 1
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
-    for i in "$@"; do
-        if [ "$i" != "-"* ]; then
-            file "$i" 2> /dev/null
+    params=("$@")
+    for i in "${!params[@]}"; do
+        if [[ "${params[$i]}" != "-"* ]]; then
+            file "${params[$i]}" 2> /dev/null
+            xxd -l 64 "${params[$i]}"
+        else
+            continue
         fi
+
+        if [ $(($#-1)) -ne $i ]; then
+            echo ""
+        fi
+        # echo "index: $i, value: ${params[$i]}, length: $#"
     done
     exit 0
 elif [ "$1" == "-h" -o "$1" == "--help" ]; then
@@ -20,21 +29,26 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
 fi
 
 for i in "$@"; do
-    file -b "$i" 2> /dev/null | grep "CRLF" &> /dev/null
+    file -b "$i" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
     if [ $? == 0 ]; then
         sed -i 's/\r//' "$i" &> /dev/null
         if [ $? == 0 ]; then
             echo "$i: operation complete. EOL was converted CRLF to LF."
         else
-            echo "unable to convert $i file. please check permission."
+            echo "unable to convert $i file. please check permission.">&2
         fi
-    else
+        continue
+    fi
+
+    file -b "$i" 2> /dev/null | grep "text" &> /dev/null
+    if [ $? == 0 ]; then
         sed -i 's/$/\r/' "$i" &> /dev/null
         if [ $? == 0 ]; then
             echo "$i: operation complete. EOL was converted LF to CRLF."
         else
-            echo "unable to convert $i file. please check permission."
+            echo "unable to convert $i file. please check permission.">&2
         fi
+        continue
     fi
 done
 
