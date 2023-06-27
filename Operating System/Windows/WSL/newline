@@ -1,8 +1,12 @@
 #!/bin/bash
 
+recursive=0
+
 if [ $# -eq 0 ]; then
-    echo "Usage: newline [option] <files>"
-    exit 1
+    echo "Usage: newline [options] [<files|directory>]"
+    exit 2
+elif [ "$1" == "-r" -o "$1" == "--recursive" ]; then
+    recursive=1
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     params=("$@")
     for i in "${!params[@]}"; do
@@ -20,33 +24,71 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     done
     exit 0
 elif [ "$1" == "-h" -o "$1" == "--help" ]; then
-    echo "Usage: newline [option] <files>"
-    echo "Determine type of files or converting EOL between LF and CRLF."
-    echo -e " -h, --help\t\tdisplay this help and exit"
-    echo -e " -i, --info FILEs\tdisplay provide file type and properties"
-    echo -e " FILEs\t\t\tconverting files EOL in provided params"
+    echo 'Determine type of files or converting EOL between LF and CRLF.'
+    echo -e '\nUsage: newline [options] [<files|directory>]'
+    echo -e '\nOptions: '
+    echo -e ' -h, --help\t\tdisplay this help and exit'
+    echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
+    echo -e ' -q, --quiet\t\tactive quiet mode. If can not used with `verbose`'
+    echo -e ' -v, --verbose\t\tprint various debugging infomation'
+    echo -e ' -r, --recursive DIR\tconverting EOL recursively'
+    echo -e '     --type=EOL\t\tlimiting `EOL` type when using converter'
+    echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\n` or `\\r\\n`)'
+    which whiptail &> /dev/null
+    if [ $? == 0 ]; then
+        echo -e '     --progress\t\tshow progress bar when converting EOL'
+    fi
+    echo -e ' FILEs\t\t\tconverting files EOL in provided params'
+    echo -e '\nEXIT STATUS'
+    echo -e ' 0\t operation Successful'
+    echo -e ' 1\t operation Failed'
+    echo -e ' 2\t unknown command or parameter type'
+    echo -e '\nEXAMPLES'
+    echo 'Print example.txt file EOL type and properties'
+    echo '% newline -i example.txt'
+    echo ''
+    echo 'Convert example.txt file other support EOL type'
+    echo '% newline example.txt'
+    echo ''
+    echo 'Convert example.txt file EOL type to CRLF'
+    echo '% newline --type=CRLF example.txt'
+    echo ''
+    echo 'Convert in example directory files EOL type to LF recursively'
+    echo '% newline -r --type=LF example'
+    echo ''
     exit 0
 fi
 
-for i in "$@"; do
-    file -b "$i" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
+params=("$@")
+for i in "${!params[@]}"; do
+    if [[ "${params[$i]}" == "-"* ]]; then
+        continue
+    fi
+
+    file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
     if [ $? == 0 ]; then
-        sed -i 's/\r//' "$i" &> /dev/null
+        sed -i 's/\r$//' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
-            echo "$i: operation complete. EOL was converted CRLF to LF."
+            echo "${params[$i]}: operation complete. EOL was converted CRLF to LF."
         else
-            echo "unable to convert $i file. please check permission.">&2
+            echo "unable to convert ${params[$i]} file. reason: access denied.">&2
         fi
         continue
     fi
 
-    file -b "$i" 2> /dev/null | grep "text" &> /dev/null
+    file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CR" &> /dev/null
     if [ $? == 0 ]; then
-        sed -i 's/$/\r/' "$i" &> /dev/null
+        echo "unable to convert ${params[$i]} file. reason: unsupported EOL CR(Macintosh) type.">&2
+        continue
+    fi
+
+    file -b "${params[$i]}" 2> /dev/null | grep "text" &> /dev/null
+    if [ $? == 0 ]; then
+        sed -i 's/$/\r/' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
-            echo "$i: operation complete. EOL was converted LF to CRLF."
+            echo "${params[$i]}: operation complete. EOL was converted LF to CRLF."
         else
-            echo "unable to convert $i file. please check permission.">&2
+            echo "unable to convert ${params[$i]} file. reason: access denied.">&2
         fi
         continue
     fi
