@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Usage: newline [option] <files>"
+    exit 1
+elif [ "$1" == "-i" -o "$1" == "--info" ]; then
+    for i in "$@"; do
+        if [ "$i" != "-"* ]; then
+            file "$i" 2> /dev/null
+        fi
+    done
+    exit 0
+elif [ "$1" == "-h" -o "$1" == "--help" ]; then
+    echo "Usage: newline [option] <files>"
+    echo "Determine type of files or converting EOL between LF and CRLF."
+    echo -e " -h, --help\t\tdisplay this help and exit"
+    echo -e " -i, --info FILEs\tdisplay provide file type and properties"
+    echo -e " FILEs\t\t\tconverting files EOL in provided params"
+    exit 0
+fi
+
+for i in "$@"; do
+    file -b "$i" 2> /dev/null | grep "CRLF" &> /dev/null
+    if [ $? == 0 ]; then
+        sed -i 's/\r//' "$i" &> /dev/null
+        if [ $? == 0 ]; then
+            echo "$i: operation complete. EOL was converted CRLF to LF."
+        else
+            echo "unable to convert $i file. please check permission."
+        fi
+    else
+        sed -i 's/$/\r/' "$i" &> /dev/null
+        if [ $? == 0 ]; then
+            echo "$i: operation complete. EOL was converted LF to CRLF."
+        else
+            echo "unable to convert $i file. please check permission."
+        fi
+    fi
+done
+
