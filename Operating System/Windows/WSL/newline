@@ -7,6 +7,10 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     params=("$@")
     for i in "${!params[@]}"; do
         if [[ "${params[$i]}" != "-"* ]]; then
+            if [ -d "${params[$i]}" ]; then
+                continue
+            fi
+
             file "${params[$i]}" 2> /dev/null
             xxd -l 64 "${params[$i]}"
         else
@@ -54,6 +58,10 @@ fi
 params=("$@")
 for i in "${!params[@]}"; do
     if [[ "${params[$i]}" == "-"* ]]; then
+        continue
+    fi
+
+    if [ -d "${params[$i]}" ]; then
         continue
     fi
 
