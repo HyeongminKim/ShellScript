@@ -13,8 +13,8 @@ fi
 if [ "$1" == "-w" -o "$1" == "--windows" ]; then
     which python3 &> /dev/null
     if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py -a $? -eq 0 ]; then
-        result=$(echo "$@" | sed -r 's/^(-w|--windows)//')
-        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py "$result"
+        result=$(echo "$@" | sed -r 's/^(-w |--windows )//')
+        python3 ~/.shellscript/wsl-sudo/wsl-sudo.py $result
         exit $?
     else
         echo "sudo: unable to load UAC plugin. wsl-sudo could not found in watching directory."
