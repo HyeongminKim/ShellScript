@@ -1,5 +1,7 @@
 #!/bin/bash
 
+recursive=0
+
 if [ $# -eq 0 ]; then
     echo "Usage: newline [options] [<files>]"
     exit 2
@@ -7,13 +9,25 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     params=("$@")
     for i in "${!params[@]}"; do
         if [[ "${params[$i]}" != "-"* ]]; then
-            if [ -d "${params[$i]}" ]; then
+            if [ -d "${params[$i]}" -a "$recursive" -eq 0 ]; then
                 continue
+            elif [ -f "${params[$i]}" -a "$recursive" -eq 0 ]; then
+                file "${params[$i]}" 2> /dev/null
+                xxd -l 64 "${params[$i]}"
+            elif [ -d "${params[$i]}" -a "$recursive" -eq 1 ]; then
+                subDir=$(find "${params[$i]}" -type f)
+                for a in "${subDir[$i]}"; do
+                    file "${subDir[$a]}" 2> /dev/null
+                    xxd -l 64 "${subDir[$a]}"
+                done
+            elif [ -f "${params[$i]}" -a "$recursive" -eq 1 ]; then
+                file "${params[$i]}" 2> /dev/null
+                xxd -l 64 "${params[$i]}"
             fi
-
-            file "${params[$i]}" 2> /dev/null
-            xxd -l 64 "${params[$i]}"
         else
+            if [ "${params[$i]}" == "-r" -o "${params[$i]}" == "--recursive" ]; then
+                recursive=1
+            fi
             continue
         fi
 
@@ -29,14 +43,9 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo -e '\nOptions: '
     echo -e ' -h, --help\t\tdisplay this help and exit'
     echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
-    echo -e ' -q, --quiet\t\tactive quiet mode.'
-    echo -e ' -v, --verbose\t\tprint various debugging infomation'
+    echo -e ' -r, --recursive\tinfo or convert function recursively'
     echo -e '     --type=EOL\t\tlimiting `EOL` type when using converter'
     echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\n` or `\\r\\n`)'
-    which whiptail &> /dev/null
-    if [ $? == 0 ]; then
-        echo -e '     --progress\t\tshow progress bar when converting EOL'
-    fi
     echo -e ' FILEs\t\t\tconverting files EOL in provided params'
     echo -e '\nEXIT STATUS'
     echo -e ' 0\t operation Successful'
@@ -55,9 +64,20 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     exit 0
 fi
 
+constantEOF=""
 params=("$@")
+
 for i in "${!params[@]}"; do
     if [[ "${params[$i]}" == "-"* ]]; then
+        if [ "${params[$i]}" == "-r" -o "${params[$i]}" == "-recursive" ]; then
+            recursive=1
+        fi
+
+        if [ "${params[$i]}" == "--type=LF" -o "${params[$i]}" == "--type=lf" ]; then
+            constantEOF="LF"
+        elif [ "${params[$i]}" == "--type=CRLF" -o "${params[$i]}" == "--type=crlf" ]; then
+            constantEOF="CRLF"
+        fi
         continue
     fi
 
