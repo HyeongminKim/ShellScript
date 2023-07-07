@@ -156,8 +156,8 @@ function restoreSleepOption() {
         else
             echo "NOTE: This operation requires administrator privileges."
             if [ "$option" == "standby" ]; then
-                if [ -x /usr/local/bin/sudo ]; then
-                    sudo -w powercfg.exe -h on
+                if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                    python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
                     ls /mnt/c | grep hiberfil.sys &> /dev/null
                     if [ $? == 0 ]; then
                         option="hibernate"
@@ -169,8 +169,8 @@ function restoreSleepOption() {
                     echo "Failed to talk UAC daemon. no such file or directory."
                 fi
             elif [ "$option" == "hibernate" ]; then
-                if [ -x /usr/local/bin/sudo ]; then
-                    sudo -w powercfg.exe -h off
+                if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                    python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
                     ls /mnt/c | grep hiberfil.sys &> /dev/null
                     if [ $? != 0 ]; then
                         option="standby"
@@ -218,8 +218,8 @@ elif [ "$option" == "sleep" ]; then
                     echo -n "Are you sure you want to change this option? (y/N) > "
                     read n
                     if [ "$n" == "y" -o "$n" == "Y" ]; then
-                        if [ -x /usr/local/bin/sudo ]; then
-                            sudo -w powercfg.exe -h on
+                        if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h on
                             ls /mnt/c | grep hiberfil.sys &> /dev/null
                             if [ $? == 0 ]; then
                                 option="hibernate"
@@ -251,8 +251,8 @@ elif [ "$option" == "sleep" ]; then
                     echo -n "Are you sure you want to change this option? (y/N) > "
                     read n
                     if [ "$n" == "y" -o "$n" == "Y" ]; then
-                        if [ -x /usr/local/bin/sudo ]; then
-                            sudo -w powercfg.exe -h off
+                        if [ -r ~/.shellscript/wsl-sudo/wsl-sudo.py ]; then
+                            python3 ~/.shellscript/wsl-sudo/wsl-sudo.py powercfg.exe -h off
                             ls /mnt/c | grep hiberfil.sys &> /dev/null
                             if [ $? != 0 ]; then
                                 option="standby"
