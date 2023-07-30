@@ -71,7 +71,7 @@ map / <Plug>(incsearch-forward)
 map ? <Plug>(incsearch-backward)
 map g/ <Plug>(incsearch-stay)
 
-set cursorline
+" set cursorline
 " set cursorcolumn
 set si
 set autoindent
