@@ -9,14 +9,14 @@ filetype off
 
 let g:NERDTreeWinSize=48
 let g:NERDTreeIgore=['\.meta$']
-let g:ycm_use_clangd = 0
+" let g:ycm_use_clangd = 0
 let g:NERDSpaceDelims=1
-let g:ycm_global_ycm_extra_conf='$HOME\.vim\bundle\YouCompleteMe\third_party\ycmd\.ycm_extra_conf.py'
+" let g:ycm_global_ycm_extra_conf='$HOME\.vim\bundle\YouCompleteMe\third_party\ycmd\.ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf=0
-let g:ycm_log_level='debug'
-let g:ycm_key_list_selict_completion=['<C-j>', '<Down>']
-let g:ycm_key_list_previous_completion=['<C-k>', '<Up>']
-let g:ycm_autoclose_preview_window_after_completion=1
+" let g:ycm_log_level='debug'
+" let g:ycm_key_list_selict_completion=['<C-j>', '<Down>']
+" let g:ycm_key_list_previous_completion=['<C-k>', '<Up>']
+" let g:ycm_autoclose_preview_window_after_completion=1
 let g:neocomplcache#enable_at_startup = 1
 
 let g:syntastic_python_python_exec='python3'
@@ -36,7 +36,7 @@ Plugin 'The-NERD-Commenter'
 Plugin 'Auto-Pairs'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'mhinz/vim-signify'
-Plugin 'ycm-core/YouCompleteMe'
+" Plugin 'ycm-core/YouCompleteMe'
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/syntastic'
 Plugin 'snipMate'
