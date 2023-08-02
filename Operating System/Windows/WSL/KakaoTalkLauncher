@@ -1,5 +1,8 @@
 #!/bin/bash
 
+ExitDelaySeconds=10
+CurrentElapsedTime=0
+
 which open > /dev/null
 if [ $? != 0 ]; then
     exit 1
@@ -56,6 +59,13 @@ echo -n "Waiting untill KakaoTalk application exited ... "
 while true; do
     KakaoTalkPID=$(powershell.exe -Command '(Get-Process KakaoTalk).id' 2> /dev/null)
     if [ x"$KakaoTalkPID" == x ]; then
+
+        if [ $CurrentElapsedTime -lt $ExitDelaySeconds ]; then
+            sleep 1
+            CurrentElapsedTime=$(($CurrentElapsedTime+1))
+            continue
+        fi
+
         taskkill.exe -F -IM KakaoTalkAdBlock.exe > /dev/null
         if [ $? != 0 ]; then
             powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to terminate KakaoTalkAdBlock.",0,"KakaoTalkLauncher",0x30)' &> /dev/null
@@ -65,6 +75,8 @@ while true; do
             echo "Done."
             exit 0
         fi
+    else
+        CurrentElapsedTime=0
     fi
     sleep 1
 done
