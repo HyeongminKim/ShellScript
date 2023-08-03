@@ -2,6 +2,7 @@
 
 ExitDelaySeconds=10
 CurrentElapsedTime=0
+SubmitExitAnswer=0
 
 which open > /dev/null
 if [ $? != 0 ]; then
@@ -59,6 +60,25 @@ echo -n "Waiting untill KakaoTalk application exited ... "
 while true; do
     KakaoTalkPID=$(powershell.exe -Command '(Get-Process KakaoTalk).id' 2> /dev/null)
     if [ x"$KakaoTalkPID" == x ]; then
+
+        if [ $SubmitExitAnswer == 0 ]; then
+            respond=$(powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to find KakaoTalk process.`n`nPlease choose after progress...`nAbort:`tTerminate KakaoTalkAdBlock and exit.`nRetry:`tWait for a moment when KakaoTalk relaunches.`nIgnore:`tJust exit this script.",0,"KakaoTalkLauncher",0x22)' 2> /dev/null | tr -d '\r')
+
+            if [ $respond -eq 3 ]; then
+                CurrentElapsedTime=$ExitDelaySeconds
+            elif [ $respond -eq 4 ]; then
+                echo "" &> /dev/null
+            elif [ $respond -eq 5 ]; then
+                respond=$(powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Would you like ignore KakaoTalkAdBlock process?`nYou can exit KakaoTalkAdBlock manually.",0,"KakaoTalkLauncher",0x34)' 2> /dev/null | tr -d '\r')
+                if [ $respond -eq 7 ]; then
+                    continue
+                fi
+
+                echo "Ignored."
+                exit 0
+            fi
+            SubmitExitAnswer=1
+        fi
 
         if [ $CurrentElapsedTime -lt $ExitDelaySeconds ]; then
             sleep 1
