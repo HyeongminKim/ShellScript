@@ -26,13 +26,15 @@ if [ -r "/mnt/c/Users/$USER/AppData/Roaming/Microsoft/Windows/Start Menu/Program
     fi
     sleep 1
     open "/mnt/c/Users/$USER/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/KakaoTalkAdBlock/KakaoTalkAdBlock.appref-ms" &
-    if [ $? != 0 ]; then
+    sleep 5
+    KakaoTalkAdBlockPID=$(powershell.exe -Command '(Get-Process KakaoTalkAdBlock).id' 2> /dev/null)
+    if [ x"$KakaoTalkAdBlockPID" == x ]; then
         powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to launch KakaoTalkAdBlock.",0,"KakaoTalkLauncher",0x10)' &> /dev/null
         echo -e "\nUnable to launch KakaoTalkAdBlock. Please check permission. Aborting." >&2
         exit 1
     else
         sleep 5
-        echo "Done."
+        echo "$KakaoTalkAdBlockPID"
     fi
 else
     powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to locate KakaoTalkAdBlock.",0,"KakaoTalkLauncher",0x10)' &> /dev/null
@@ -44,13 +46,32 @@ fi
 echo -n "Launching KakaoTalk application ... "
 if [ -r "/mnt/c/Program Files (x86)/Kakao/KakaoTalk/KakaoTalk.exe" ]; then
     open "/mnt/c/Program Files (x86)/Kakao/KakaoTalk/KakaoTalk.exe"
-    echo "Done."
+    KakaoTalkPID=$(powershell.exe -Command '(Get-Process KakaoTalk).id' 2> /dev/null)
+    if [ x"$KakaoTalkPID" == x ]; then
+        powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to launch KakaoTalk.",0,"KakaoTalkLauncher",0x10)' &> /dev/null
+        echo -e "\nUnable to launch KakaoTalk." >&2
+        KakaoTalkAdBlockPID=$(powershell.exe -Command '(Get-Process KakaoTalkAdBlock).id' 2> /dev/null)
+        if [ "$KakaoTalkAdBlockPID" != "" ]; then
+            taskkill.exe -F -IM KakaoTalkAdBlock.exe &> /dev/null
+            if [ $? != 0 ]; then
+                powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to terminate KakaoTalkAdBlock.",0,"KakaoTalkLauncher",0x30)' &> /dev/null
+                echo -e "\nUnable to terminate KakaoTalkAdBlock. Please exit KakaoTalkAdBlock manually." >&2
+            fi
+        fi
+        exit 1
+    else
+        echo "$KakaoTalkPID"
+    fi
 else
     powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to locate KakaoTalk.",0,"KakaoTalkLauncher",0x10)' &> /dev/null
     echo -e "\nUnable to locate KakaoTalk." >&2
     KakaoTalkAdBlockPID=$(powershell.exe -Command '(Get-Process KakaoTalkAdBlock).id' 2> /dev/null)
     if [ "$KakaoTalkAdBlockPID" != "" ]; then
         taskkill.exe -F -IM KakaoTalkAdBlock.exe &> /dev/null
+        if [ $? != 0 ]; then
+            powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to terminate KakaoTalkAdBlock.",0,"KakaoTalkLauncher",0x30)' &> /dev/null
+            echo -e "\nUnable to terminate KakaoTalkAdBlock. Please exit KakaoTalkAdBlock manually." >&2
+        fi
     fi
     open "https://kakao.io/?lang=KR"
     exit 1
@@ -62,7 +83,7 @@ while true; do
     if [ x"$KakaoTalkPID" == x ]; then
 
         if [ $SubmitExitAnswer == 0 ]; then
-            respond=$(powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to find KakaoTalk process.`n`nPlease choose after progress...`nAbort:`tTerminate KakaoTalkAdBlock and exit.`nRetry:`tWait for a moment when KakaoTalk relaunches.`nIgnore:`tJust exit this script.",0,"KakaoTalkLauncher",0x22)' 2> /dev/null | tr -d '\r')
+            respond=$(powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to find KakaoTalk process.`n`nPlease choose after progress...`nAbort:`tTerminate KakaoTalkAdBlock and exit.`nRetry:`tWait KakaoTalk relaunches about '"$ExitDelaySeconds"' seconds.`nIgnore:`tJust exit this script.",0,"KakaoTalkLauncher",0x22)' 2> /dev/null | tr -d '\r')
 
             if [ $respond -eq 3 ]; then
                 CurrentElapsedTime=$(($ExitDelaySeconds*2))
@@ -88,10 +109,12 @@ while true; do
             respond=$(powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("KakaoTalk did not launched yet.`nWould you like to launch KakaoTalk? If not, script will exit immediately.",0,"KakaoTalkLauncher",0x24)' 2> /dev/null | tr -d '\r')
             if [ $respond -eq 6 ]; then
                 open "/mnt/c/Program Files (x86)/Kakao/KakaoTalk/KakaoTalk.exe"
-                if [ $? != 0 ]; then
+                KakaoTalkPID=$(powershell.exe -Command '(Get-Process KakaoTalk).id' 2> /dev/null)
+                if [ x"$KakaoTalkPID" == x ]; then
                     powershell.exe '(New-Object -ComObject Wscript.Shell).Popup("Unable to locate KakaoTalk.",0,"KakaoTalkLauncher",0x10)' &> /dev/null
                     echo -e "\nUnable to locate KakaoTalk." >&2
                 else
+                    SubmitExitAnswer=0
                     continue
                 fi
             fi
