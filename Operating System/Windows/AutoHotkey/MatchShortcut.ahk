@@ -7,7 +7,7 @@ return
 
 ; Spotlight
 #Space::
-Send #{s}
+Send !{Space}
 return
 
 #+Space::
@@ -45,15 +45,7 @@ Send ^{s}
 return
 
 ; Mission Control
-^#!Left::
-Send ^#{Left}
-return
-
-^#!Right::
-Send ^#{Right}
-return
-
-^#!Up::
+^#Up::
 Send #{Tab}
 return
 
