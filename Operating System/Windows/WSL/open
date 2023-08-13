@@ -22,7 +22,11 @@ for i in "$@"; do
             failure=true
         fi
     else
-        explorer.exe "$targetDir"
+        if [ -x /mnt/c/Program\ Files/totalcmd/TOTALCMD64.exe ]; then
+            /mnt/c/Program\ Files/totalcmd/TOTALCMD64.exe -t "$targetDir"
+        else
+            explorer.exe "$targetDir"
+        fi
     fi
 done
 
