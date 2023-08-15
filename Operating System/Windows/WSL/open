@@ -49,7 +49,12 @@ for i in "${!params[@]}"; do
         fi
     else
         if [ -x /mnt/c/Program\ Files/totalcmd/TOTALCMD64.exe -a $forceExplorer == "false" ]; then
-            /mnt/c/Program\ Files/totalcmd/TOTALCMD64.exe -t "$targetDir"
+            powershell.exe -Command "if ( -not (Test-Path \"$targetDir\" -PathType Container) ) {exit 1}" &> /dev/null
+            if [ $? == 0 ]; then
+                /mnt/c/Program\ Files/totalcmd/TOTALCMD64.exe -t "$targetDir"
+            else
+                explorer.exe "$targetDir"
+            fi
         else
             explorer.exe "$targetDir"
         fi
