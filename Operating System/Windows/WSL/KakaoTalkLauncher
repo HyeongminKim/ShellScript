@@ -73,7 +73,13 @@ else
             echo -e "\nUnable to terminate KakaoTalkAdBlock. Please exit KakaoTalkAdBlock manually." >&2
         fi
     fi
-    open "https://kakao.io/?lang=KR"
+
+    simpleLANG=$(cut -f 1 -d '.' <<< $LANG)
+    if [ "$simpleLANG" == "ko_KR" ]; then
+        open "https://kakao.io/?lang=KR"
+    else
+        open "https://kakao.io/?lang=EN"
+    fi
     exit 1
 fi
 
