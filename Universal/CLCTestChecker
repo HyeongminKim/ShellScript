@@ -34,6 +34,18 @@ function usagePrint() {
     exit $1
 }
 
+function inputCheck() {
+    if [[ $1 =~ [^1-4] ]]; then
+        return 127
+    elif [ x$1 == x ]; then
+        return 127
+    elif [ $1 -gt 4 -o $1 -lt 1 ]; then
+        return 127
+    else
+        return $1
+    fi
+}
+
 if [ $# -eq 0 ]; then
     clear
     for((i=1;i<=60;i++)); do
@@ -47,11 +59,9 @@ if [ $# -eq 0 ]; then
                 echo -n "[데이터베이스] 정답 $i번 "
             fi
             read input
-            if [[ $input =~ [^1-4] ]]; then
-                echo -n "1 ~ 4 범위 내 정답을 입력해 주세요."
-                read
-                clear
-            elif [ x$input == x ]; then
+
+            inputCheck $input
+            if [ $? == 127 ]; then
                 echo -n "1 ~ 4 범위 내 정답을 입력해 주세요."
                 read
                 clear
@@ -63,60 +73,33 @@ if [ $# -eq 0 ]; then
         done
     done
 
-    for((i=1;i<=20;i++)); do
+    for((i=1;i<=60;i++)); do
         while true; do
-            echo "[컴퓨터  일반] 문항 $i번"
-            echo -n "답안: "
-            read answer
-            if [[ $answer =~ [^1-4] ]]; then
-                echo -n "1 ~ 4 범위 내 정답을 입력해 주세요."
-                read
-                clear
-            elif [ $answer -eq ${correctAnswer[$(($i-1))]} ]; then
-                computerGeneralScore=$(($computerGeneralScore+1))
-                clear
-                break
+            if [ $i -le 20 ]; then
+                echo "[컴퓨터  일반] 문항 $i번"
+            elif [ $i -le 40 ]; then
+                echo "[스프레드시트] 문항 $i번"
             else
-                clear
-                break
+                echo "[데이터베이스] 문항 $i번"
             fi
-        done
-    done
-
-    for((i=21;i<=40;i++)); do
-        while true; do
-            echo "[스프레드시트] 문항 $i번"
             echo -n "답안: "
             read answer
-            if [[ $answer =~ [^1-4] ]]; then
+
+            inputCheck $answer
+            if [ $? -eq 127 ]; then
                 echo -n "1 ~ 4 범위 내 정답을 입력해 주세요."
                 read
                 clear
-            elif [ $answer -eq ${correctAnswer[$(($i-1))]} ]; then
-                spreadsheetScore=$(($spreadsheetScore+1))
-                clear
-                break
             else
-                clear
-                break
-            fi
-        done
-    done
-
-    for((i=41;i<=60;i++)); do
-        while true; do
-            echo "[데이터베이스] 문항 $i번"
-            echo -n "답안: "
-            read answer
-            if [[ $answer =~ [^1-4] ]]; then
-                echo -n "1 ~ 4 범위 내 정답을 입력해 주세요."
-                read
-                clear
-            elif [ "$answer" == "${correctAnswer[$(($i-1))]}" ]; then
-                databaseScore=$(($databaseScore+1))
-                clear
-                break
-            else
+                if [ $answer -eq ${correctAnswer[$(($i-1))]} ]; then
+                    if [ $i -le 20 ]; then
+                        computerGeneralScore=$(($computerGeneralScore+1))
+                    elif [ $i -le 40 ]; then
+                        spreadsheetScore=$(($spreadsheetScore+1))
+                    else
+                        databaseScore=$(($databaseScore+1))
+                    fi
+                fi
                 clear
                 break
             fi
