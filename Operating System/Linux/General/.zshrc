@@ -137,7 +137,6 @@ alias vimconfig="vi ~/.vimrc"
 alias tmuxconfig="vi ~/.tmux.conf"
 alias brewall="echo \"$(uname -s) doesn't support this command.\""
 alias yt-multi="~/.local/bin/YTMultiDown"
-alias check="~/.local/bin/gitFileSize"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 set -o vi

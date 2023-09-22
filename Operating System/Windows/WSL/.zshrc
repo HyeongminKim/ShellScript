@@ -152,7 +152,6 @@ alias taskmgr="open --explorer /mnt/c/Windows/System32/Taskmgr.exe"
 alias reboot="echo \"WSL doesn't support this command. Did you mean 'halt' or 'powermgr reboot'?\""
 alias halt="wsl.exe --shutdown"
 alias yt-multi="~/.local/bin/YTMultiDown"
-alias check="~/.local/bin/gitFileSize"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 set -o vi
