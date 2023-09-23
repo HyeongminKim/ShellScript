@@ -7,6 +7,8 @@ calcfuncflags=0
 
 failureTest=0
 correctAnswer=()
+inputAnswer=()
+wrongAnswer=()
 
 function usagePrint() {
     echo "이 스크립트는 컴퓨터 활용능력 필기 자격증 합격 여부를 판정하는데 도움을 줍니다."
@@ -91,6 +93,7 @@ if [ $# -eq 0 ]; then
                 read
                 clear
             else
+                inputAnswer+=($answer)
                 if [ $answer -eq ${correctAnswer[$(($i-1))]} ]; then
                     if [ $i -le 20 ]; then
                         computerGeneralScore=$(($computerGeneralScore+1))
@@ -99,6 +102,8 @@ if [ $# -eq 0 ]; then
                     else
                         databaseScore=$(($databaseScore+1))
                     fi
+                else
+                    wrongAnswer+=($i)
                 fi
                 clear
                 break
@@ -150,6 +155,33 @@ fi
 
 result=$(($computerGeneralScore+$spreadsheetScore+$databaseScore))
 result=$(($result/3))
+
+if [ $# -eq 0 -a ${#wrongAnswer[@]} -gt 0 ]; then
+    echo "-- 틀린 문제 리스트 --"
+    echo "번호: ${wrongAnswer[@]}"
+
+    echo -n "정답:"
+    for i in ${wrongAnswer[@]}; do
+        index=$(($i-1))
+        if [ $i -ge 10 ]; then
+            echo -n "  ${correctAnswer[$index]}"
+        else
+            echo -n " ${correctAnswer[$index]}"
+        fi
+    done
+    echo ""
+
+    echo -n "답안:"
+    for i in ${wrongAnswer[@]}; do
+        index=$(($i-1))
+        if [ $i -ge 10 ]; then
+            echo -n "  ${inputAnswer[$index]}"
+        else
+            echo -n " ${inputAnswer[$index]}"
+        fi
+    done
+    echo -e "\n"
+fi
 
 if [ $result -ge 60 -a $failureTest -eq 0 ]; then
     echo "컴퓨터  일반: $computerGeneralScore"
