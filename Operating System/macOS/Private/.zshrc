@@ -3,7 +3,6 @@ OMZ_INSTALLED="false"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH="$PATH:/usr/local/sbin"
-export PATH="$PATH:$HOME/Library/flutter/bin"
 
 # Path to your oh-my-zsh installation.
 if [ -d $HOME/.oh-my-zsh ]; then
