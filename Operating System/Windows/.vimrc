@@ -1,5 +1,5 @@
-set rtp+=$HOME\Appdata\Local\Programs\Python\Python3*\Lib\site-packages\powerline\bindings\vim
-set rtp+=$HOME\Appdata\Roaming\Python\Python3*\site-packages\powerline\bindings\vim
+" set rtp+=$HOME\Appdata\Local\Programs\Python\Python3*\Lib\site-packages\powerline\bindings\vim
+" set rtp+=$HOME\Appdata\Roaming\Python\Python3*\site-packages\powerline\bindings\vim
 set fencs=ucs-bom,utf-8,cp949,euc-kr,shift_jis,euc-jp
 
 set nocompatible
@@ -19,7 +19,7 @@ let g:ycm_confirm_extra_conf=0
 " let g:ycm_autoclose_preview_window_after_completion=1
 let g:neocomplcache#enable_at_startup = 1
 
-let g:syntastic_python_python_exec='python3'
+let g:syntastic_python_python_exec='python'
 let g:syntastic_python_flake8_post_args='--ignore=E501,W505,E203,E305'
 
 let g:airline#extension#tabline#enable=1
