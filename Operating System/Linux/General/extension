@@ -37,9 +37,21 @@ if [ $? == 0 ]; then
     python.exe -m pip install -U pip
 fi
 
-do-release-upgrade
-if [ $? != 0 ]; then
-    errorCount=$((errorCount+1))
+which do-release-upgrade &> /dev/null
+if [ $? == 0 ]; then
+    do-release-upgrade
+    if [ $? != 0 ]; then
+        errorCount=$((errorCount+1))
+    fi
+fi
+
+which wsl.exe &> /dev/null
+if [ $? == 0 ]; then
+    if [ $LANG == "ko_KR.UTF-8" ]; then
+        echo 'WSL 업데이트를 확인하려면 `wsl.exe --update --web-download` 코드를 실행하세요.'
+    else
+        echo 'Please enter `wsl.exe --update --web-download` command if you wanna check WSL updates.'
+    fi
 fi
 
 which pip3 &> /dev/null
