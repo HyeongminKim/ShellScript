@@ -151,6 +151,7 @@ alias brewall="echo \"$(uname -s) doesn't support this command.\""
 alias taskmgr="open --explorer /mnt/c/Windows/System32/Taskmgr.exe"
 alias reboot="echo \"WSL doesn't support this command. Did you mean 'halt' or 'powermgr reboot'?\""
 alias halt="wsl.exe --shutdown"
+alias wsl-update="wsl.exe --update --web-download"
 alias yt-multi="~/.local/bin/YTMultiDown"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
