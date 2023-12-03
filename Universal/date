@@ -1,4 +1,8 @@
 #!/bin/bash
 
-/usr/bin/date +"%a %b %d %H:%M:%S %Z %Y"
+if [ $# == 0 ]; then
+    /usr/bin/date +"%a %b %d %H:%M:%S %Z %Y"
+else
+    /usr/bin/date $@
+fi
 
