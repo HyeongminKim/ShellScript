@@ -129,4 +129,8 @@ if ! shopt -oq posix; then
     fi
 fi
 
+if [ -z $DISPLAY ]; then
+    export DISPLAY=:0.0
+fi
+
 set -o vi
