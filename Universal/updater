@@ -7,7 +7,7 @@ function gitUpdate() {
     if [ "$(uname -s)" == "Darwin" ]; then
         repoName=("Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator")
     elif [ "$(uname -s)" == "Linux" ]; then
-        repoName=("Release/brewall" "Release/ShellScript" "Release/PracticeCalc" "Release/PasswordsGenerator")
+        repoName=("Release/brewall" "Release/ShellScript" "Release/PracticeCalc" "Release/PasswordsGenerator" "Release/ArtDisplay")
     fi
 
     for target in "${repoName[@]}"; do
