@@ -1,0 +1,120 @@
+#!/bin/bash
+
+shouldProjectClean=0
+
+if [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "usage: $0 [build-options [build-options1.2..]] [build-preset]"
+    echo ""
+    echo "OPTIONS"
+    echo -e "  help\t Show this manual"
+    echo -e "  clean\t Delete caches and object files (UnrealEditor only)"
+    echo ""
+    echo "SUPPORTED BUILD OPTIONS"
+    echo "  CrashReportClient"
+    echo "  ShaderCompileWorker"
+    echo "  UnrealLightmass"
+    echo "  InterchangeWorker"
+    echo "  UnrealPak"
+    echo "  UnrealEditor"
+    echo ""
+    echo "PRESET"
+    echo "  StandardSet"
+    echo "  AlternativeSet"
+    echo "  DebugSet"
+    echo ""
+    echo "SEE ALSO"
+    echo "https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Build/BatchFiles/Linux/README.md"
+    exit 0
+elif [ "$1" == "clean" -o "$1" == "--clean" ]; then
+    shouldProjectClean=1
+fi
+
+echo "Checking dependency..."
+git --version
+clang --version
+cmake --version
+
+if [ x"$UEPath" == x -o ! -d "$UEPath/.git" ]; then
+    echo "unable to locate UnrealEditor. please provide absolute path." >&2
+    exit 1
+elif [ ! -x "$UEPath/Setup.sh" ]; then
+    echo "UnrealEngine directory structure does not seem here." >&2
+    echo "$UEPath" >&2
+    echo -n "Would you like init UnrealEngine in provided path? (y/N) > "
+    read n
+    if [ "$n" == "Y" -o "$n" == "y" ]; then
+        echo "You will need to your github account to locate UnrealEngine private repository."
+        git clone https://github.com/EpicGames/UnrealEngine.git
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+        echo "You can change default branch channel"
+        echo 'To change branch channel: `git checkout -t origin/<branch>`'
+    else
+        echo "unable to locate UnrealEditor directory. no such file or directory." >&2
+        exit 1
+    fi
+fi
+
+echo "Current system infomations..."
+df -h
+
+cd "$UEPath"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+git remote update
+if [ -n "$(git status --porcelain)" ]; then
+    git status
+    echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
+    echo 'If you want revert changes: `git restore <path>`'
+    git diff
+fi
+echo -en "Would you like to continue?\nthis action can not be undo (y/N) > "
+read n
+if [ "$n" == "y" -o "$n" == "Y" ]; then
+    echo "" > /dev/null
+else
+    echo "User abort." >&2
+    exit 1
+fi
+
+echo "Updating repository..."
+
+git pull origin $(git branch --show-current)
+if [ $? -ne 0 ]; then
+    echo "unable to update UnrealEngine repository. try again later." >&2
+    exit 1
+fi
+
+echo "Generating project files..."
+
+/bin/bash "$UEPath/Setup.sh"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+/bin/bash "$UEPath/GenerateProjectFiles.sh"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+if [ $shouldProjectClean -eq 1 ]; then
+    echo "Invalidating UnrealEditor build caches and object files... Please wait."
+    make UnrealEditor ARGS="-clean"
+fi
+
+if [ "$1" == "StandardSet" ]; then
+    echo "Building StandardSet. See manual."
+    make
+elif [ "$1" == "AlternativeSet" ]; then
+    echo "Building AlternativeSet. See manual."
+    make CrashReportClient ShaderCompileWorker UnrealLightmass InterchangeWorker UnrealPak UnrealEditor
+elif [ "$1" == "DebugSet" ]; then
+    echo "Building DebugSet. See manual."
+    make UnrealEditor-Linux-Debug
+else
+    echo "Building $@. Please wait."
+    make $@
+fi
+
