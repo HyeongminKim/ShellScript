@@ -1,0 +1,63 @@
+#!/bin/bash
+
+function LaunchUnrealEditor() {
+    echo "Launching UnrealEditor $UEPath..."
+    setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
+    sleep 5
+    exit 0
+}
+
+if [ x"$UEPath" == x -o ! -d "$UEPath/.git" ]; then
+    echo "unable to locate UnrealEditor. please provide absolute path." >&2
+    exit 1
+fi
+
+cd "$UEPath"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+cntBranch=$(git branch --show-current)
+last_commit=$(git rev-parse HEAD)
+last_version=$(git rev-parse --short HEAD)
+
+git remote update
+updated_commit=$(git rev-parse HEAD)
+
+if [ "$last_commit" == "$updated_commit" ]; then
+    echo "UnrealEditor (branch: $cntBranch) is already up do date."
+    echo "Last changelog: $(git --no-pager log --format=%B -n 1)"
+    LaunchUnrealEditor
+else
+    updated_version=$(git rev-parse --short HEAD)
+    echo "UnrealEditor has been updated."
+    echo "Last changelog: $(git --no-pager log --format=%B -n 1)"
+    echo "$last_version → $update_version"
+    echo "If you update this repo, you must rebuild UnrealEditor project."
+    echo "Would you like update UnrealEditor? (y/N) > "
+    read n
+    if [ "$n" == "y" -o "$n" == "Y" ]; then
+        if [ -n "$(git status --porcelain)" ]; then
+            git status
+            echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
+            echo 'If you want revert changes: `git restore <path>`'
+            git diff
+            echo -en "Would you like to continue?\nthis action can not be undo (y/N) > "
+            read n
+            if [ "$n" == "y" -o "$n" == "Y" ]; then
+                echo "" > /dev/null
+            else
+                echo "User abort." >&2
+                LaunchUnrealEditor
+            fi
+        fi
+        git pull origin $cntBranch
+        curl -fsSL https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/Build%20native%20Linux%20UnrealEditor | bash -s AlternativeSet
+
+        LaunchUnrealEditor
+    else
+        echo "User abort." >&2
+        LaunchUnrealEditor
+    fi
+fi
+
