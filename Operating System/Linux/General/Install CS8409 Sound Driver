@@ -27,14 +27,14 @@ cd $HOME/snap/snd-hda-codec-cs8409
 
 make
 if [ $? -ne 0 ]; then
-    echo "make failed! exit code: $?. See above for output."
+    echo "make failed! exit code: $?. See above for output." >&2
     exit $?
 fi
 
 echo -e "\nTo install you should require admin permission."
 sudo make install
 if [ $? -ne 0 ]; then
-    echo "install failed! exit code: $?. See above for output."
+    echo "install failed! exit code: $?. See above for output." >&2
     exit $?
 fi
 
