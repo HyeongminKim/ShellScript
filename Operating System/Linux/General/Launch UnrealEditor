@@ -25,7 +25,7 @@ git remote update
 updated_commit=$(git rev-parse HEAD)
 
 if [ "$last_commit" == "$updated_commit" ]; then
-    echo "UnrealEditor (branch: $cntBranch) is already up do date."
+    echo "UnrealEditor (branch: $cntBranch) is already up to date."
     echo "Last changelog: $(git --no-pager log --format=%B -n 1)"
     LaunchUnrealEditor
 else
