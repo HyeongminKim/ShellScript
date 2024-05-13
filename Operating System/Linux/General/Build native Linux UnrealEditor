@@ -3,10 +3,10 @@
 shouldProjectClean=0
 
 if [ "$1" == "help" -o "$1" == "--help" ]; then
-    echo "usage: $0 [option] [build-options [build-options1.2..]] [build-preset]"
+    echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>"
     echo ""
     echo "OPTIONS"
-    echo -e "  help\tShow this manual"
+    echo -e "   help\tShow this manual"
     echo -e "  clean\tDelete caches and object files (UnrealEditor only)"
     echo -e "channel\tShow current or change channel to use different UnrealEditor version."
     echo ""
@@ -25,6 +25,11 @@ if [ "$1" == "help" -o "$1" == "--help" ]; then
     echo ""
     echo "SEE ALSO"
     echo "https://github.com/EpicGames/UnrealEngine/blob/release/Engine/Build/BatchFiles/Linux/README.md"
+    echo ""
+    echo "EXAMPLE"
+    echo -e "$0 AlternativeSet\nBuild using with AlternativeSet preset\n"
+    echo -e "$0 CrashReportClient ShaderCompileWorker UnrealLightmass UnrealEditor UnrealPak\nBuild with provided options\n"
+    echo -e "$0 --clean StandardSet\nClean UnrealEditor build files and build StandardSet preset"
     exit 0
 elif [ "$1" == "clean" -o "$1" == "--clean" ]; then
     shouldProjectClean=1
