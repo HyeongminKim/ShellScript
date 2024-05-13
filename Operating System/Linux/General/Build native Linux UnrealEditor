@@ -60,6 +60,16 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         echo "current branch and provided branch are identical" >&2
         exit 1
     else
+        echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
+        echo -n "Are you sure continue this action? (y/N) > "
+        read n
+        if [ "$n" == "y" -o "$n" == "Y" ]; then
+            echo "" > /dev/null
+        else
+            echo "User abort."
+            exit 1
+        fi
+
         git checkout -t origin/$n
         if [ $? -ne 0 ]; then
             echo "unable to change branch $n."
