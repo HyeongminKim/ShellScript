@@ -1,8 +1,44 @@
 #!/bin/bash
 
+ShouldLaunchDiffAgent=0
+
+if [ $# -eq 5 ]; then
+    ShouldLaunchDiffAgent=1
+elif [ $# -eq 3 ]; then
+    ShouldLaunchDiffAgent=1
+elif [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "usage: $0 [option]"
+    echo -e "help, --help\tShow this help"
+    echo ""
+    echo "EXAMPLE"
+    echo "$0"
+    echo "Launch UnrealEditor normally."
+    echo ""
+    echo "$0 uproject FILE1 FILE2"
+    echo "Compare 2 uasset files."
+    echo ""
+    echo "$0 uproject origin/FILE ./FILE HEAD master"
+    echo "Compare 2 uasset files and mearge if possable."
+    exit 0
+elif [ $# -eq 0 ]; then
+    echo "" > /dev/null
+else
+    echo "unknown command: $@."
+    exit 1
+fi
+
 function LaunchUnrealEditor() {
-    echo "Launching UnrealEditor $UEPath..."
-    setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
+    if [ $ShouldLaunchDiffAgent -eq 1 ]; then
+        echo "Launching UnrealDiffTool in $UEPath..."
+        if [ $# -eq 5 ]; then
+            setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" "$1" -Diff "$2" "$3" "$4" "$5" &> /dev/null &
+        elif [ $# -eq 3 ]; then
+            setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" "$1" -Diff "$2" "$3" &> /dev/null &
+        fi
+    else
+        echo "Launching UnrealEditor in $UEPath..."
+        setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
+    fi
     sleep 5
     exit 0
 }
@@ -27,7 +63,7 @@ updated_commit=$(git rev-parse HEAD)
 if [ "$last_commit" == "$updated_commit" ]; then
     echo "UnrealEditor (branch: $cntBranch) is already up to date."
     echo "Last changelog: $(git --no-pager log --format=%B -n 1)"
-    LaunchUnrealEditor
+    LaunchUnrealEditor "$@"
 else
     updated_version=$(git rev-parse --short HEAD)
     echo "UnrealEditor has been updated."
@@ -39,10 +75,10 @@ else
     if [ "$n" == "y" -o "$n" == "Y" ]; then
         curl -fsSL https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/Build%20native%20Linux%20UnrealEditor | bash -s AlternativeSet
 
-        LaunchUnrealEditor
+        LaunchUnrealEditor "$@"
     else
         echo "User abort." >&2
-        LaunchUnrealEditor
+        LaunchUnrealEditor "$@"
     fi
 fi
 
