@@ -25,6 +25,12 @@ fi
 
 cd $HOME/snap/snd-hda-codec-cs8409
 
+make clean
+if [ $? -ne 0 ]; then
+    echo "clean failed! exit code: $?. See above for output." >&2
+    exit $?
+fi
+
 make
 if [ $? -ne 0 ]; then
     echo "make failed! exit code: $?. See above for output." >&2
