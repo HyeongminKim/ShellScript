@@ -4,17 +4,12 @@ bgfile=/tmp/wallpaper.jpg
 bgdownloc=https://unsplash.it/2560/1440/?random
 pingloc=www.google.com
 
-decodeKey="U2FsdGVkX19aI6PvgJN8EcjsCy2DjiixVfAN1dK6Mdc="
-decodeResult=$(echo $decodeKey | openssl enc -aes-256-cbc -a -pbkdf2 -pass pass:$UNSPLASH_PASS -d) 
-
-echo $decodeResult | sudo -S echo "null" > /dev/null 2>&1
-if [ "$?" != 0 ]; then
-    echo -e "\e[31mERR\e[m: Fatal: Please check \e[0;1m$bgfile\e[m permission."
-    sudo -k
+if [ $UID -ne 0 ]; then
+    echo -e "\e[31mERR\e[m: Fatal: Please check \e[0;1m$bgfile\e[m permission. are you root?"
     exit 1
 fi
 
-sudo rm -f $bgfile
+rm -f $bgfile
 while true; do
     ping -c 1 -W 1 -q $pingloc &> /dev/null
     if [ "$?" == "0" ]; then
@@ -29,7 +24,7 @@ while true; do
     fi
 done
 
-gsettings set org.gnome.desktop.background picture-uri file://$bgfile &> /dev/null
+gsettings set org.cinnamon.desktop.background picture-uri file://$bgfile &> /dev/null
 echo -e "\e[34mOK\e[m: Successfully changed desktop background."
-sudo -k
 exit 0
+
