@@ -4,6 +4,7 @@ target_path=
 target_name=
 inst_location=
 launch_date=$(date '+%Y-%m-%d_%H%M%S')
+window_type=
 
 if [ "$1" == "help" -o "$1" == "--help" ]; then
     echo "USAGE: <target> file"
@@ -40,19 +41,45 @@ fi
 echo -n "Please type description: "
 read desc
 
-echo "[Unit]" > /tmp/systemd-inst-$launch_date
+echo -n "This $target_name.$1 requires GUI (y/N) > "
+read n
+if [ "$n" == "y" -o "$n" == "Y" ]; then
+    window_type="graphical.target"
+else
+    window_type="multi-user.target"
+fi
+
+echo "# Generated systemctl-install by., Copyright (c) 2024 Hyeongmin Kim." > /tmp/systemd-inst-$launch_date
+echo "# For more infomation $1 syntax, follow this url: https://www.freedesktop.org/software/systemd/man/devel/systemd.service.html" >> /tmp/systemd-inst-$launch_date
+echo "" >> /tmp/systemd-inst-$launch_date
+echo "[Unit]" >> /tmp/systemd-inst-$launch_date
 echo "Description=$desc" >> /tmp/systemd-inst-$launch_date
+echo "# Uncomment lines below if your program should access internet" >> /tmp/systemd-inst-$launch_date
+echo "# Requires=network-online.target" >> /tmp/systemd-inst-$launch_date
+echo "# After=network.target" >> /tmp/systemd-inst-$launch_date
 echo "" >> /tmp/systemd-inst-$launch_date
 echo "[Service]" >> /tmp/systemd-inst-$launch_date
 echo "Type=simple" >> /tmp/systemd-inst-$launch_date
 echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
+echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
+echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
 echo "" >> /tmp/systemd-inst-$launch_date
 echo "[Install]" >> /tmp/systemd-inst-$launch_date
-echo "WantedBy=multi-user.target" >> /tmp/systemd-inst-$launch_date
+echo "WantedBy=$window_type" >> /tmp/systemd-inst-$launch_date
+echo "# Uncomment lines below if your program should access third-party daemons" >> /tmp/systemd-inst-$launch_date
+echo "# RequiredBy=" >> /tmp/systemd-inst-$launch_date
+
+echo -n "Would you like edit your $target_name.$1 config file? (y/N) > "
+read n
+if [ "$n" == "y" -o "$n" == "Y" ]; then
+    vi /tmp/systemd-inst-$launch_date
+fi
 
 if [ $# -eq 2 ]; then
+    echo "Installing /etc/systemd/system/$target_name.$1..."
     sudo mv /tmp/systemd-inst-$launch_date "/etc/systemd/system/$target_name.$1"
 elif [ $# -eq 3 ]; then
+    echo "Installing $inst_location/$target_name.$1..."
     sudo mv /tmp/systemd-inst-$launch_date "$inst_location/$target_name.$1"
 fi
 
