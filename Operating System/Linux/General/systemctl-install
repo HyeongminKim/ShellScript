@@ -14,7 +14,7 @@ elif [ $# -lt 2 -o $# -gt 3 ]; then
     echo "USAGE: <target> file"
     exit 1
 elif [ "$1" != "target" -a "$1" != "service" ]; then
-    echo "unknown target: $1. please see \`help\`"
+    echo "unknown target: $1. please see \`help\`" >&2
     exit 1
 fi
 
@@ -23,7 +23,7 @@ if [ $# -eq 2 ]; then
     target_path=$(realpath "$2")
     target_name=$(basename "$2")
     echo "This script will install $1 $target_path to /etc/systemd/system"
-else
+elif [ $# -eq 3 ]; then
     target_path=$(realpath "$2")
     target_name=$(basename "$2")
     inst_location=$(realpath "$3")
@@ -52,15 +52,26 @@ echo "WantedBy=multi-user.target" >> /tmp/systemd-inst-$launch_date
 
 if [ $# -eq 2 ]; then
     sudo mv /tmp/systemd-inst-$launch_date "/etc/systemd/system/$target_name.$1"
-    systemctl status $target_name
 elif [ $# -eq 3 ]; then
     sudo mv /tmp/systemd-inst-$launch_date "$inst_location/$target_name.$1"
-    systemctl status $target_name
 fi
-echo "to active you should execute \`systemctl enable $target_name\`"
-echo "to run you should execute \`systemctl start $target_name\`"
 
 if [ -r /tmp/systemd-inst-$launch_date ]; then
-    echo "systemctl install might failed."
+    echo "The $target_name.$1 installation process might failed or corrupted." >&2
     rm /tmp/systemd-inst-$launch_date
+    exit 1
 fi
+
+systemctl status $target_name
+echo -n "Would you like enable your $target_name.$1? (Y/n) > "
+read n
+if ! [ "$n" == "N" -o "$n" == "n" ]; then
+    sudo systemctl enable $target_name.$1
+fi
+
+echo -n "Would you like start your $target_name.$1? (Y/n) > "
+read n
+if ! [ "$n" == "N" -o "$n" == "n" ]; then
+    sudo systemctl start $target_name.$1
+fi
+
