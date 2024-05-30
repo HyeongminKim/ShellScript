@@ -10,31 +10,33 @@ if [ $? == 0 ]; then
     fi
 fi
 
-which pip3 &> /dev/null
-if [ $? == 0 ]; then
-    pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
-    if [ $? != 0 ]; then
-        if [ $LANG == "ko_KR.UTF-8" ]; then
-            echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
-        else
-            echo "An error occured when updating pip3."
+if [ "$USE_FULL_UPGRADE" == "true" ]; then
+    which pip3 &> /dev/null
+    if [ $? == 0 ]; then
+        pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
+        if [ $? != 0 ]; then
+            if [ $LANG == "ko_KR.UTF-8" ]; then
+                echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
+            else
+                echo "An error occured when updating pip3."
+            fi
+            errorCount=$((errorCount+1))
         fi
-        errorCount=$((errorCount+1))
     fi
-fi
 
-which pip3.exe &> /dev/null
-if [ $? == 0 ]; then
-    pip3.exe list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3.exe install -U {}
-    if [ $? != 0 ]; then
-        if [ $LANG == "ko_KR.UTF-8" ]; then
-            echo "pip3.exe 을 업데이트 하는 도중 에러가 발생하였습니다. "
-        else
-            echo "An error occured when updating pip3.exe."
+    which pip3.exe &> /dev/null
+    if [ $? == 0 ]; then
+        pip3.exe list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3.exe install -U {}
+        if [ $? != 0 ]; then
+            if [ $LANG == "ko_KR.UTF-8" ]; then
+                echo "pip3.exe 을 업데이트 하는 도중 에러가 발생하였습니다. "
+            else
+                echo "An error occured when updating pip3.exe."
+            fi
+            errorCount=$((errorCount+1))
         fi
-        errorCount=$((errorCount+1))
+        python.exe -m pip install -U pip
     fi
-    python.exe -m pip install -U pip
 fi
 
 which do-release-upgrade &> /dev/null

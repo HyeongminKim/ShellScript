@@ -96,7 +96,7 @@ fi
 
 aptall() {
     if [ -x ~/.local/bin/updater ]; then
-        /bin/bash -c "export USE_FULL_UPGRADE=true; ~/.local/bin/updater $@; export USE_FULL_UPGRADE=false"
+        /bin/bash -c "~/.local/bin/updater $@"
     fi
 }
 
