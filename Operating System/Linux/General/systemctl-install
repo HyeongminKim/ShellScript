@@ -37,7 +37,7 @@ target_path=$(realpath "$2")
 target_name=$(basename "$2")
 
 if [ $# -eq 2 ]; then
-    echo "This script will install $target_name.$1 to /etc/systemd/system"
+    echo "This script will create $target_name.$1 to /etc/systemd/system"
 elif [ $# -eq 3 ]; then
     if ! [ -r "$3" ]; then
         echo "systemd-inst: cannot access '$3': no such file or directory." >&2
@@ -45,10 +45,10 @@ elif [ $# -eq 3 ]; then
     fi
 
     inst_location=$(realpath "$3")
-    echo "This script will install $target_name.$1 to $inst_location"
+    echo "This script will create $target_name.$1 to $inst_location"
 fi
 
-echo -n "Are you wish continue to install $1? (y/N) > "
+echo -n "Are you wish to continue install $1? (y/N) > "
 read n
 if ! [ "$n" == "Y" -o "$n" == "y" ]; then
     echo "Abort."
