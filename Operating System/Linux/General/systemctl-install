@@ -11,27 +11,36 @@ if [ "$1" == "help" -o "$1" == "--help" ]; then
     echo "SUPPORTED TARGET"
     echo "- service"
     echo "- target"
+    exit 0
 elif [ $# -lt 2 -o $# -gt 3 ]; then
     echo "USAGE: <target> file"
     exit 1
 elif [ "$1" != "target" -a "$1" != "service" ]; then
-    echo "unknown target: $1. please see \`help\`" >&2
+    echo "error: unable to convert $(basename "$2").$1 to systemd type. please see \`help\`" >&2
     exit 1
 fi
 
-
-if [ $# -eq 2 ]; then
-    target_path=$(realpath "$2")
-    target_name=$(basename "$2")
-    echo "This script will install $1 $target_path to /etc/systemd/system"
-elif [ $# -eq 3 ]; then
-    target_path=$(realpath "$2")
-    target_name=$(basename "$2")
-    inst_location=$(realpath "$3")
-    echo "This script will install $1 $target_path to $inst_location"
+if ! [ -r "$2" ]; then
+    echo "systemd-inst: cannot access '$2': no such file or directory." >&2
+    exit 1
 fi
 
-echo -n "Are you wish to continue to install $target_name.$1? (y/N) > "
+target_path=$(realpath "$2")
+target_name=$(basename "$2")
+
+if [ $# -eq 2 ]; then
+    echo "This script will install $target_name.$1 to /etc/systemd/system"
+elif [ $# -eq 3 ]; then
+    if ! [ -r "$3" ]; then
+        echo "systemd-inst: cannot access '$3': no such file or directory." >&2
+        exit 1
+    fi
+
+    inst_location=$(realpath "$3")
+    echo "This script will install $target_name.$1 to $inst_location"
+fi
+
+echo -n "Are you wish continue to install $1? (y/N) > "
 read n
 if ! [ "$n" == "Y" -o "$n" == "y" ]; then
     echo "Abort."
@@ -49,7 +58,7 @@ else
     window_type="multi-user.target"
 fi
 
-echo "# Generated systemctl-install by., Copyright (c) 2024 Hyeongmin Kim." > /tmp/systemd-inst-$launch_date
+echo "# Generated systemd-inst by., Copyright (c) 2024 Hyeongmin Kim." > /tmp/systemd-inst-$launch_date
 echo "# For more infomation $1 syntax, follow this url: https://www.freedesktop.org/software/systemd/man/devel/systemd.service.html" >> /tmp/systemd-inst-$launch_date
 echo "" >> /tmp/systemd-inst-$launch_date
 echo "[Unit]" >> /tmp/systemd-inst-$launch_date
