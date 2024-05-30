@@ -1,7 +1,12 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+    echo -e "\e[31mERR\e[m: Fatal: Please provide screen resolution. (example: $0 1024 768)"
+    exit 1
+fi
+
 bgfile=/tmp/wallpaper.jpg
-bgdownloc=https://unsplash.it/2560/1440/?random
+bgdownloc=https://unsplash.it/$1/$2/?random
 pingloc=www.google.com
 
 if [ $UID -ne 0 ]; then
