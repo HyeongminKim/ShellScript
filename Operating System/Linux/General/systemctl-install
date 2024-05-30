@@ -6,17 +6,25 @@ inst_location=
 launch_date=$(date '+%Y-%m-%d_%H%M%S')
 window_type=
 
-if [ "$1" == "help" -o "$1" == "--help" ]; then
-    echo "USAGE: <target> file"
+if [ "$1" == "-h" -o "$1" == "--help" ]; then
+    echo "USAGE: <systemd_type|option> <source> [destination]"
+    echo ""
+    echo "OPTION"
+    echo -e " -h, --help:\tprint this message"
+    echo ""
     echo "SUPPORTED TARGET"
     echo "- service"
     echo "- target"
     exit 0
 elif [ $# -lt 2 -o $# -gt 3 ]; then
-    echo "USAGE: <target> file"
+    if [ $# -eq 0 ]; then
+        echo "This script does not configured default parameter type. please see \`--help\`" >&2
+    else
+        echo "unknown parameter type: $@. please see \`--help\`" >&2
+    fi
     exit 1
 elif [ "$1" != "target" -a "$1" != "service" ]; then
-    echo "error: unable to convert $(basename "$2").$1 to systemd type. please see \`help\`" >&2
+    echo "error: unable to convert $(basename "$2").$1 to systemd type. please see \`--help\`" >&2
     exit 1
 fi
 
