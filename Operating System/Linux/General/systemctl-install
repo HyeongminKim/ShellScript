@@ -1,2 +1,66 @@
 #!/bin/bash
 
+target_path=
+target_name=
+inst_location=
+launch_date=$(date '+%Y-%m-%d_%H%M%S')
+
+if [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "USAGE: <target> file"
+    echo "SUPPORTED TARGET"
+    echo "- service"
+    echo "- target"
+elif [ $# -lt 2 -o $# -gt 3 ]; then
+    echo "USAGE: <target> file"
+    exit 1
+elif [ "$1" != "target" -a "$1" != "service" ]; then
+    echo "unknown target: $1. please see \`help\`"
+    exit 1
+fi
+
+
+if [ $# -eq 2 ]; then
+    target_path=$(realpath "$2")
+    target_name=$(basename "$2")
+    echo "This script will install $1 $target_path to /etc/systemd/system"
+else
+    target_path=$(realpath "$2")
+    target_name=$(basename "$2")
+    inst_location=$(realpath "$3")
+    echo "This script will install $1 $target_path to $inst_location"
+fi
+
+echo -n "Are you wish to continue to install $target_name.$1? (y/N) > "
+read n
+if [ ! "$n" == "Y" -o "$n" == "y" ]; then
+    echo "Abort."
+    exit 1
+fi
+
+echo -n "Please type description: "
+read desc
+
+echo "[Unit]" > /tmp/systemd-inst-$launch_date
+echo "Description=$desc" >> /tmp/systemd-inst-$launch_date
+echo "" >> /tmp/systemd-inst-$launch_date
+echo "[Service]"
+echo "Type=simple" >> /tmp/systemd-inst-$launch_date
+echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
+echo "" >> /tmp/systemd-inst-$launch_date
+echo "[Install]" >> /tmp/systemd-inst-$launch_date
+echo "WantedBy=multi-user.target" >> /tmp/systemd-inst-$launch_date
+
+if [ $# -eq 2 ]; then
+    sudo mv /tmp/systemd-inst-$launch_date /etc/systemd/system/$target_name.$1
+    systemctl status $target_name
+elif [ $# -eq 3 ]; then
+    sudo mv /tmp/systemd-inst-$launch_date $inst_location/$target_name.$1
+    systemctl status $target_name
+fi
+echo "to active you should execute \`systemctl enable $target_name\`"
+echo "to run you should execute \`systemctl start $target_name\`"
+
+if [ -r /tmp/systemd-inst-$launch_date ]; then
+    echo "systemctl install might failed."
+    rm /tmp/systemd-inst-$launch_date
+fi
