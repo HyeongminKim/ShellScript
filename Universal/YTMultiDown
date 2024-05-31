@@ -114,8 +114,6 @@ function checkRequirement() {
 function tts() {
     if [ "$ttsActive" == "Darwin" ]; then
         say -v "Yuna" "$1" &
-    elif [ "$ttsActive" == "Linux" ]; then
-        espeak "$1" &
     else
         echo -e "\a"
     fi
@@ -274,63 +272,48 @@ if [ "$(uname)" == "Darwin" ]; then
             ttsActive="Darwin"
         fi
     fi
-elif [ "$(uname)" == "Linux" ]; then
-    ttsFind="false"
-    which espeak > /dev/null 2>&1
-    if [ $? != 0 ]; then
-        echo -e "\033[33mWARN: 지원되는 TTS를 찾을 수 없습니다. 지금 espeak TTS를 설치하시겠습니까?\033[m"
-        echo -en "\033[33m\t이 작업은 관리자 권한이 필요합니다. (Y/n)\033[m > "
-        read installAction
-        if [ "$installAction" == "n" -o "$installAction" == "N" ]; then
-            echo -e "\033[33mWARN: TTS를 사용하려면 espeak가 필요합니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
-        else
-            sudo apt install espeak
-            if [ $? != 0 ]; then
-                echo -e "\033[33mWARN: espeak TTS가 제대로 설치되지 않았습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
-            else
-                ttsFind="true"
-            fi
-        fi
-    else
-        ttsFind="true"
-    fi
-
-    if [ "$ttsFind" == "true" ]; then
-        espeak "한국어 TTS 음성 테스트" 2> /dev/null
-        if [ $? != 0 ]; then
-            echo -e "\033[33mWARN: TTS doesn't support Korean. \n\tIt's replaced by a terminal bell when user attention is required. \033[m"
-        else
-            echo -e "\033[37mINFO: TTS가 성공적으로 활성화 되었습니다. 사용자 주의가 필요할 때 espeak TTS로 알립니다.\033[m"
-            ttsActive="Linux"
-        fi
-    fi
 else
-    echo -e "\033[33mWARN: 알려진 OS가 아니므로 TTS를 식별할 수 없습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
+    echo -e "\033[33mWARN: 등록된 OS가 아니므로 TTS를 식별할 수 없습니다. \n\t사용자 주의가 필요할 때 터미널 벨로 대치됩니다. \033[m"
 fi
 
 
+volume=512
 which osascript > /dev/null 2>&1
 if [ $? == 0 ]; then
     volume=$(osascript -e 'output volume of (get volume settings)')
     muted=$(osascript -e 'output muted of (get volume settings)')
+fi
 
-    if [ "$volume" == "missing value" ]; then
-        echo -e "\033[33mWARN: 현재 사운드 설정에 문제가 있습니다. 이 문제는 주로 외장 모니터 연결로 인해 발생됩니다.\033[m"
-        echo -e "\033[33m\t만약 모니터를 연결하지 않았으며, 사운드를 서드파티 앱이나 다른 기기에 공유하고 있지 않다면 공인 서비스가 필요할 수 있습니다.\033[m"
-        if [ -d /System/Library/PreferencePanes/Sound.prefPane ]; then
-            open /System/Library/PreferencePanes/Sound.prefPane
-        else
-            echo -e "\033[33mWARN: 사운드 환경설정 패널을 찾을 수 없습니다. 이 문제가 계속되면 공인 서비스업체에 문의하시길 바랍니다.\033[m"
-        fi
-    elif [ $volume -lt 20 -a "$muted" == "true" ]; then
-        echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있으며 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제한 후 음량을 조절하십시오. \033[m"
-    elif [ $volume -lt 20 -a "$muted" == "false" ]; then
-        echo -e "\033[33mWARN: 현재 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음량을 조절하십시오. \033[m"
-    elif [ "$muted" == "true" ]; then
-        echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제하십시오. \033[m"
+which pactl &> /dev/null
+if [ $? == 0 ]; then
+    volume=$(pactl list sinks | grep '^[[:space:]]Volume:' | \
+    head -n $(( $SINK + 1  )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,')
+    muted=$(pacmd list-sinks | grep muted | sed 's/\tmuted: //')
+    if [ "$muted" == "no" ]; then
+        muted="false"
+    elif [ "$muted" == "yes" ]; then
+        muted="true"
     fi
-else
+fi
+
+if [ $volume -eq 512 ]; then
     echo -e "\033[33mWARN: 시스템 볼륨 설정을 확인할 수 없습니다. \n\t상시 모니터링하는 것이 아니라면 설정을 확인하여 주십시오.\033[m"
+elif [ "$volume" == "missing value" ]; then
+    echo -e "\033[33mWARN: 현재 사운드 설정에 문제가 있습니다. 이 문제는 주로 외장 모니터 연결로 인해 발생됩니다.\033[m"
+    echo -e "\033[33m\t만약 모니터를 연결하지 않았으며, 사운드를 서드파티 앱이나 다른 기기에 공유하고 있지 않다면 공인 서비스가 필요할 수 있습니다.\033[m"
+    if [ -d /System/Library/PreferencePanes/Sound.prefPane ]; then
+        open /System/Library/PreferencePanes/Sound.prefPane
+    else
+        echo -e "\033[33mWARN: 사운드 환경설정 패널을 찾을 수 없습니다. 이 문제가 계속되면 공인 서비스업체에 문의하시길 바랍니다.\033[m"
+    fi
+fi
+
+if [ $volume -lt 20 -a "$muted" == "true" ]; then
+    echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있으며 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제한 후 음량을 조절하십시오. \033[m"
+elif [ $volume -lt 20 -a "$muted" == "false" ]; then
+    echo -e "\033[33mWARN: 현재 설정된 음량이 낮습니다. \n\t상시 모니터링하는 것이 아니라면 음량을 조절하십시오. \033[m"
+elif [ "$muted" == "true" ]; then
+    echo -e "\033[33mWARN: 현재 시스템 볼륨이 음소거 되어 있습니다. \n\t상시 모니터링하는 것이 아니라면 음소거를 해제하십시오. \033[m"
 fi
 
 ##### 종속 패키지 체크 끝 #####
