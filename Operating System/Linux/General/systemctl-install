@@ -57,6 +57,8 @@ target_name=$(basename "$2")
 
 if [ $# -eq 2 ]; then
     echo "This script will create $target_name.$1 to /etc/systemd/system"
+    file "$target_path" 2> /dev/null
+    xxd -l 64 "$target_path"
 elif [ $# -eq 3 ]; then
     case "$3" in
         "0"|"etc")
@@ -78,6 +80,8 @@ elif [ $# -eq 3 ]; then
         ;;
     esac
     echo "This script will create $target_name.$1 to $inst_location"
+    file "$target_path" 2> /dev/null
+    xxd -l 64 "$target_path"
 fi
 
 echo -n "Are you wish to continue install $1? (y/N) > "
