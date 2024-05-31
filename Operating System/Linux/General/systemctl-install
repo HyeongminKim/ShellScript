@@ -17,6 +17,7 @@ if [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo "- target"
     echo "- device"
     echo "- mount"
+    echo "- automount"
     echo "- path"
     echo "- socket"
     echo "- timer"
@@ -37,7 +38,7 @@ elif [ $# -lt 2 -o $# -gt 3 ]; then
 fi
 
 case "$1" in
-    "service"|"target"|"device"|"mount"|"path"|"socket"|"timer")
+    "service"|"target"|"device"|"mount"|"automount"|"path"|"socket"|"timer")
         echo "" &> /dev/null
         ;;
     *)
@@ -89,16 +90,20 @@ fi
 echo -n "Please type description: "
 read desc
 
-echo -n "This $target_name.$1 requires GUI (y/N) > "
-read n
-if [ "$n" == "y" -o "$n" == "Y" ]; then
-    window_type="graphical.target"
-else
-    window_type="multi-user.target"
-fi
+case $1 in
+    "service"|"target"|"mount"|"path"|"automount")
+        echo -n "This $target_name.$1 requires GUI (y/N) > "
+        read n
+        if [ "$n" == "y" -o "$n" == "Y" ]; then
+            window_type="graphical.target"
+        else
+            window_type="multi-user.target"
+        fi
+    ;;
+esac
 
 echo "# Generated systemd-inst by., Copyright (c) 2024 Hyeongmin Kim." > /tmp/systemd-inst-$launch_date
-echo "# For more infomation $1 syntax, follow this url: https://www.freedesktop.org/software/systemd/man/devel/systemd.service.html" >> /tmp/systemd-inst-$launch_date
+echo "# For more infomation $1 syntax, follow this url: https://www.freedesktop.org/software/systemd/man/devel/systemd.$1.html" >> /tmp/systemd-inst-$launch_date
 echo "" >> /tmp/systemd-inst-$launch_date
 echo "[Unit]" >> /tmp/systemd-inst-$launch_date
 echo "Description=$desc" >> /tmp/systemd-inst-$launch_date
@@ -106,16 +111,60 @@ echo "# Uncomment lines below if your program should access internet" >> /tmp/sy
 echo "# Requires=network-online.target" >> /tmp/systemd-inst-$launch_date
 echo "# After=network.target" >> /tmp/systemd-inst-$launch_date
 echo "" >> /tmp/systemd-inst-$launch_date
-echo "[Service]" >> /tmp/systemd-inst-$launch_date
-echo "Type=simple" >> /tmp/systemd-inst-$launch_date
-echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
-echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
-echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
+
+case $1 in
+    "service")
+        echo "[Service]" >> /tmp/systemd-inst-$launch_date
+        echo "Type=simple" >> /tmp/systemd-inst-$launch_date
+        echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
+        echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
+        echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "socket")
+        echo "[Socket]" >> /tmp/systemd-inst-$launch_date
+        echo "# ListenStream=8080" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "device")
+        echo "[Device]" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "automount")
+        echo "[Automount]" >> /tmp/systemd-inst-$launch_date
+        echo "# Where=/mnt/path" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "mount")
+        echo "[Mount]" >> /tmp/systemd-inst-$launch_date
+        echo "# What=/dev/sdc" >> /tmp/systemd-inst-$launch_date
+        echo "# What=/mnt/drive" >> /tmp/systemd-inst-$launch_date
+        echo "# Type=ext4" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "path")
+        echo "[Path]" >> /tmp/systemd-inst-$launch_date
+        echo "# PathExists=/target" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "timer")
+        echo "[Timer]" >> /tmp/systemd-inst-$launch_date
+        echo "OnCalendar=daily" >> /tmp/systemd-inst-$launch_date
+    ;;
+esac
+
 echo "" >> /tmp/systemd-inst-$launch_date
-echo "[Install]" >> /tmp/systemd-inst-$launch_date
-echo "WantedBy=$window_type" >> /tmp/systemd-inst-$launch_date
-echo "# Uncomment lines below if your program should access third-party daemons" >> /tmp/systemd-inst-$launch_date
-echo "# RequiredBy=" >> /tmp/systemd-inst-$launch_date
+
+case $1 in
+    "service"|"target"|"mount"|"path"|"automount")
+        echo "[Install]" >> /tmp/systemd-inst-$launch_date
+        echo "WantedBy=$window_type" >> /tmp/systemd-inst-$launch_date
+        echo "# Uncomment lines below if your program should access third-party daemons" >> /tmp/systemd-inst-$launch_date
+        echo "# RequiredBy=" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "socket")
+        echo "[Install]" >> /tmp/systemd-inst-$launch_date
+        echo "WantedBy=sockets.target" >> /tmp/systemd-inst-$launch_date
+    ;;
+    "timer")
+        echo "[Install]" >> /tmp/systemd-inst-$launch_date
+        echo "WantedBy=timers.target" >> /tmp/systemd-inst-$launch_date
+    ;;
+esac
 
 echo -n "Would you like edit your $target_name.$1 config file? (y/N) > "
 read n
