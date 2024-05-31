@@ -1,40 +1,30 @@
 #!/bin/bash
 
-recursive=0
-
 if [ $# -eq 0 ]; then
     echo "Usage: newline [options] [<files>]"
     exit 2
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
-    params=("$@")
+    next_line=0
+    if [ -t 0 ]; then
+        params=("$@")
+    else
+        params=("$@" $(cat /dev/stdin))
+    fi
     for i in "${!params[@]}"; do
         if [[ "${params[$i]}" != "-"* ]]; then
-            if [ -d "${params[$i]}" -a "$recursive" -eq 0 ]; then
-                continue
-            elif [ -f "${params[$i]}" -a "$recursive" -eq 0 ]; then
+            if [ -d "${params[$i]}" ]; then
+                change_params=$(echo "${params[$i]}" | sed 's/\/$//')
+                echo "Please change ${params[$i]} to $change_params/*"
+            elif [ -f "${params[$i]}" ]; then
                 file "${params[$i]}" 2> /dev/null
                 xxd -l 64 "${params[$i]}"
-            elif [ -d "${params[$i]}" -a "$recursive" -eq 1 ]; then
-                subDir=$(find "${params[$i]}" -type f)
-                for a in "${subDir[$i]}"; do
-                    file "${subDir[$a]}" 2> /dev/null
-                    xxd -l 64 "${subDir[$a]}"
-                done
-            elif [ -f "${params[$i]}" -a "$recursive" -eq 1 ]; then
-                file "${params[$i]}" 2> /dev/null
-                xxd -l 64 "${params[$i]}"
+                next_line=1
             fi
-        else
-            if [ "${params[$i]}" == "-r" -o "${params[$i]}" == "--recursive" ]; then
-                recursive=1
-            fi
-            continue
         fi
 
-        if [ $(($#-1)) -ne $i ]; then
+        if [ ${#params[@]} -gt 2 -a $next_line -ne 0 ]; then
             echo ""
         fi
-        # echo "index: $i, value: ${params[$i]}, length: $#"
     done
     exit 0
 elif [ "$1" == "-h" -o "$1" == "--help" ]; then
@@ -43,7 +33,6 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo -e '\nOptions: '
     echo -e ' -h, --help\t\tdisplay this help and exit'
     echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
-    echo -e ' -r, --recursive\tinfo or convert function recursively'
     echo -e '     --type=EOL\t\tlimiting `EOL` type when using converter'
     echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\n` or `\\r\\n`)'
     echo -e ' FILEs\t\t\tconverting files EOL in provided params'
@@ -61,18 +50,21 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo 'Convert example.txt file EOL type to CRLF'
     echo '% newline --type=CRLF example.txt'
     echo ''
+    echo "Convert files EOL type to LF recursively from specified directory"
+    echo "% find /path/to/directory -type f | newline --type=LF"
     exit 0
 fi
 
 constantEOF=""
-params=("$@")
+if [ -t 0 ]; then
+    params=("$@")
+else
+    params=("$@" $(cat /dev/stdin))
+    echo "$params"
+fi
 
 for i in "${!params[@]}"; do
     if [[ "${params[$i]}" == "-"* ]]; then
-        if [ "${params[$i]}" == "-r" -o "${params[$i]}" == "-recursive" ]; then
-            recursive=1
-        fi
-
         if [ "${params[$i]}" == "--type=LF" -o "${params[$i]}" == "--type=lf" ]; then
             constantEOF="LF"
         elif [ "${params[$i]}" == "--type=CRLF" -o "${params[$i]}" == "--type=crlf" ]; then
@@ -82,11 +74,16 @@ for i in "${!params[@]}"; do
     fi
 
     if [ -d "${params[$i]}" ]; then
-        continue
+        change_params=$(echo "${params[$i]}" | sed 's/\/$//')
+        echo "Please change ${params[$i]} to $change_params/*"
     fi
 
     file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
     if [ $? == 0 ]; then
+        if [ "$constantEOF" == "CRLF" ]; then
+            echo "skipping ${params[$i]} file. reason: requirement already satisfied.">&2
+            continue
+        fi
         sed -i 's/\r$//' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
             echo "${params[$i]}: operation complete. EOL was converted CRLF to LF."
@@ -104,6 +101,10 @@ for i in "${!params[@]}"; do
 
     file -b "${params[$i]}" 2> /dev/null | grep "text" &> /dev/null
     if [ $? == 0 ]; then
+        if [ "$constantEOF" == "LF" ]; then
+            echo "skipping ${params[$i]} file. reason: requirement already satisfied.">&2
+            continue
+        fi
         sed -i 's/$/\r/' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
             echo "${params[$i]}: operation complete. EOL was converted LF to CRLF."
