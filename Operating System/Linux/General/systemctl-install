@@ -7,7 +7,7 @@ launch_date=$(date '+%Y-%m-%d_%H%M%S')
 window_type=
 
 if [ "$1" == "-h" -o "$1" == "--help" ]; then
-    echo "USAGE: <systemd_type|option> <source> [destination]"
+    echo "USAGE: <systemd_unit_type|option> <source> [destination]"
     echo ""
     echo "OPTION"
     echo -e " -h, --help:\tprint this message"
@@ -15,6 +15,11 @@ if [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo "SUPPORTED TARGET"
     echo "- service"
     echo "- target"
+    echo "- device"
+    echo "- mount"
+    echo "- path"
+    echo "- socket"
+    echo "- timer"
     exit 0
 elif [ $# -lt 2 -o $# -gt 3 ]; then
     if [ $# -eq 0 ]; then
@@ -23,10 +28,17 @@ elif [ $# -lt 2 -o $# -gt 3 ]; then
         echo "unknown parameter type: $@. please see \`--help\`" >&2
     fi
     exit 1
-elif [ "$1" != "target" -a "$1" != "service" ]; then
-    echo "error: unable to convert $(basename "$2").$1 to systemd type. please see \`--help\`" >&2
-    exit 1
 fi
+
+case "$1" in
+    "service"|"target"|"device"|"mount"|"path"|"socket"|"timer")
+        echo "" &> /dev/null
+        ;;
+    *)
+        echo "error: unable to convert $(basename "$2").$1 to systemd unit type. please see \`--help\`" >&2
+        exit 1
+        ;;
+esac
 
 if ! [ -r "$2" ]; then
     echo "systemd-inst: cannot access '$2': no such file or directory." >&2
