@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]; then
+if [ $# -eq 0 -a -t 0 ]; then
     echo "Usage: newline [options] [<files>]"
     exit 2
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
@@ -22,7 +22,7 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
             fi
         fi
 
-        if [ ${#params[@]} -gt 2 -a $next_line -ne 0 ]; then
+        if [ $(($#-1)) -ne $i -a $next_line -ne 0 ]; then
             echo ""
         fi
     done
@@ -60,7 +60,6 @@ if [ -t 0 ]; then
     params=("$@")
 else
     params=("$@" $(cat /dev/stdin))
-    echo "$params"
 fi
 
 for i in "${!params[@]}"; do
