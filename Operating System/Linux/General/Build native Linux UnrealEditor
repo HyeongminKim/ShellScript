@@ -2,7 +2,10 @@
 
 shouldProjectClean=0
 
-if [ "$1" == "help" -o "$1" == "--help" ]; then
+if [ x"$1" == x ]; then
+    echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>" >&2
+    exit 1
+elif [ "$1" == "help" -o "$1" == "--help" ]; then
     echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>"
     echo ""
     echo "OPTIONS"
@@ -180,6 +183,7 @@ else
         echo "Building DebugSet. See manual."
         make UnrealEditor-Linux-Debug
     else
+        echo "Building ${@:2}. Please wait."
         make ${@:2}
     fi
 fi
