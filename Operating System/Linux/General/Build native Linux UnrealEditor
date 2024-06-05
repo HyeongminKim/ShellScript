@@ -37,13 +37,12 @@ elif [ "$1" == "help" -o "$1" == "--help" ]; then
 elif [ "$1" == "clean" -o "$1" == "--clean" ]; then
     shouldProjectClean=1
 elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
-    if [ x"$UEPath" == x -o ! -d "$UEPath/.git" ]; then
+    if [ x"$UEPath" == x ]; then
         echo "unable to locate UnrealEditor. please provide absolute path." >&2
         exit 1
     elif [ ! -x "$UEPath/Setup.sh" ]; then
         echo "UnrealEngine directory structure does not seem here." >&2
         echo "$UEPath" >&2
-        echo "before use this change channel function, you should execute this cript without any parameters once."
         exit 1
     fi
 
@@ -76,10 +75,11 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         git checkout -t origin/$n
         if [ $? -ne 0 ]; then
             echo "unable to change branch $n."
+            exit 1
         else
             echo "successfully to change branch $n. you will need to execute this script again to building UnrealEditor."
+            exit 0
         fi
-        exit $?
     fi
 fi
 
@@ -88,26 +88,24 @@ git --version
 clang --version
 cmake --version
 
-if [ x"$UEPath" == x -o ! -d "$UEPath/.git" ]; then
+if [ x"$UEPath" == x ]; then
     echo "unable to locate UnrealEditor. please provide absolute path." >&2
     exit 1
 elif [ ! -x "$UEPath/Setup.sh" ]; then
     echo "UnrealEngine directory structure does not seem here." >&2
     echo "$UEPath" >&2
-    echo -n "Would you like init UnrealEngine in provided path? (y/N) > "
-    read n
-    if [ "$n" == "Y" -o "$n" == "y" ]; then
-        echo "You will need to your github account to locate UnrealEngine private repository."
-        git clone https://github.com/EpicGames/UnrealEngine.git
-        if [ $? -ne 0 ]; then
-            exit 1
-        fi
-        echo "You can change default branch channel"
-        echo 'To change branch channel: `git checkout -t origin/<branch>`'
-    else
-        echo "unable to locate UnrealEditor directory. no such file or directory." >&2
-        exit 1
-    fi
+    exit 1
+fi
+
+if [ ! -r "$UEPath/.DS_Store" ]; then
+    touch "$UEPath/.DS_Store" &> /dev/null
+else
+    seconds=$(cat "$UEPath/.DS_Store")
+
+    hour=$(expr $seconds / 3600)
+    seconds=$(expr $seconds % 3600)
+    minutes=$(expr $seconds / 60)
+    seconds=$(expr $seconds % 60)
 fi
 
 echo "Current system infomations..."
@@ -126,9 +124,11 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 if [ $shouldProjectClean -eq 1 ]; then
-    echo -en "Would you like to clean and rebuild $2?\nthis action can not be undo (y/N) > "
+    echo "Would you like to clean and rebuild $2? This action will took $hour:$minutes:$seconds."
+    echo -n "this action can not be undo (y/N) > "
 else
-    echo -en "Would you like to build $1?\nthis action can not be undo (y/N) > "
+    echo "Would you like to build $1? This action will took $hour:$minutes:$seconds."
+    echo -n "this action can not be undo (y/N) > "
 fi
 read n
 if [ "$n" == "y" -o "$n" == "Y" ]; then
@@ -139,6 +139,7 @@ else
 fi
 
 echo "Updating repository..."
+startTime=$(date +%s)
 
 git pull origin $(git branch --show-current)
 if [ $? -ne 0 ]; then
@@ -191,5 +192,20 @@ else
         echo "Building ${@:2}. Please wait."
         make ${@:2}
     fi
+fi
+endTime=$(date +%s)
+
+seconds=$(expr $endTime - $startTime)
+echo $seconds > "$UEPath/.DS_Store"
+
+hour=$(expr $seconds / 3600)
+seconds=$(expr $seconds % 3600)
+minutes=$(expr $seconds / 60)
+seconds=$(expr $seconds % 60)
+
+if [ $shouldProjectClean -eq 0 ]; then
+    echo "Built process $1 elapsed $hours:$minutes:$seconds."
+else
+    echo "Built process $2 elapsed $hours:$minutes:$seconds."
 fi
 
