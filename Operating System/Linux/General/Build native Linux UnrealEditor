@@ -124,7 +124,12 @@ if [ -n "$(git status --porcelain)" ]; then
     echo 'If you want revert changes: `git restore <path>`'
     git diff
 fi
-echo -en "Would you like to continue?\nthis action can not be undo (y/N) > "
+
+if [ $shouldProjectClean -eq 1 ]; then
+    echo -en "Would you like to clean and rebuild $2?\nthis action can not be undo (y/N) > "
+else
+    echo -en "Would you like to build $1?\nthis action can not be undo (y/N) > "
+fi
 read n
 if [ "$n" == "y" -o "$n" == "Y" ]; then
     echo "" > /dev/null
