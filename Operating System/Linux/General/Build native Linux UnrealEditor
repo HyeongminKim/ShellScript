@@ -99,14 +99,15 @@ fi
 
 if [ ! -r "$UEPath/.DS_Store" ]; then
     touch "$UEPath/.DS_Store" &> /dev/null
-else
-    seconds=$(cat "$UEPath/.DS_Store")
-
-    hour=$(expr $seconds / 3600)
-    seconds=$(expr $seconds % 3600)
-    minutes=$(expr $seconds / 60)
-    seconds=$(expr $seconds % 60)
+    echo "0" > "$UEPath/.DS_Store"
 fi
+
+seconds=$(cat "$UEPath/.DS_Store")
+
+hour=$(expr $seconds / 3600)
+seconds=$(expr $seconds % 3600)
+minutes=$(expr $seconds / 60)
+seconds=$(expr $seconds % 60)
 
 echo "Current system infomations..."
 df -h
