@@ -98,11 +98,11 @@ elif [ ! -x "$UEPath/Setup.sh" ]; then
 fi
 
 if [ ! -r "$UEPath/.DS_Store" ]; then
-    touch "$UEPath/.DS_Store" &> /dev/null
     echo "0" > "$UEPath/.DS_Store"
 fi
 
 seconds=$(cat "$UEPath/.DS_Store")
+previous_elapsed_time=$seconds
 
 hour=$(expr $seconds / 3600)
 seconds=$(expr $seconds % 3600)
@@ -125,10 +125,18 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 if [ $shouldProjectClean -eq 1 ]; then
-    echo "Would you like to clean and rebuild $2? This action will took $hour:$minutes:$seconds."
+    if [ $previous_elapsed_time -eq 0 ]; then
+        echo "Would you like to clean and rebuild $2?"
+    else
+        echo "Would you like to clean and rebuild $2? This action will took $hour:$minutes:$seconds."
+    fi
     echo -n "this action can not be undo (y/N) > "
 else
-    echo "Would you like to build $1? This action will took $hour:$minutes:$seconds."
+    if [ $previous_elapsed_time -eq 0 ]; then
+        echo "Would you like to build $1?"
+    else
+        echo "Would you like to build $1? This action will took $hour:$minutes:$seconds."
+    fi
     echo -n "this action can not be undo (y/N) > "
 fi
 read n
