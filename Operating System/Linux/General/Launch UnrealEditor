@@ -18,7 +18,7 @@ elif [ "$1" == "help" -o "$1" == "--help" ]; then
     echo "Compare 2 uasset files."
     echo ""
     echo "$0 uproject origin/FILE ./FILE HEAD master"
-    echo "Compare 2 uasset files and mearge if possable."
+    echo "Compare 2 uasset files and merge if possable."
     exit 0
 elif [ $# -eq 0 ]; then
     echo "" > /dev/null
