@@ -121,21 +121,20 @@ if [ -n "$(git status --porcelain)" ]; then
     git status
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
     echo 'If you want revert changes: `git restore <path>`'
-    git diff
 fi
 
 if [ $shouldProjectClean -eq 1 ]; then
     if [ $previous_elapsed_time -eq 0 ]; then
-        echo "Would you like to clean and rebuild $2?"
+        echo "Would you like to clean and rebuild $2? This action will take several hours"
     else
-        echo "Would you like to clean and rebuild $2? This action will took $hour:$minutes:$seconds."
+        echo "Would you like to clean and rebuild $2? This action will take $hour:$minutes:$seconds."
     fi
     echo -n "this action can not be undo (y/N) > "
 else
     if [ $previous_elapsed_time -eq 0 ]; then
-        echo "Would you like to build $1?"
+        echo "Would you like to build $1? This action will take several hours"
     else
-        echo "Would you like to build $1? This action will took $hour:$minutes:$seconds."
+        echo "Would you like to build $1? This action will take $hour:$minutes:$seconds."
     fi
     echo -n "this action can not be undo (y/N) > "
 fi
