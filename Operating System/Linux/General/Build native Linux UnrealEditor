@@ -117,8 +117,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 git remote update
-if [ -n "$(git status --porcelain)" ]; then
-    git status
+if [ -n "$(git status --porcelain | grep -v '??')" ]; then
+    git status --porcelain
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
     echo 'If you want revert changes: `git restore <path>`'
 fi
