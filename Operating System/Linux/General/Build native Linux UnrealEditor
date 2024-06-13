@@ -120,7 +120,7 @@ fi
 echo "Check for updates in repository..."
 last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
 cntBranch=$(git branch --show-current)
-git fetch
+git fetch origin $cntBranch --verbose
 if [ -n "$(git status --porcelain | grep -v '??')" ]; then
     git status --porcelain
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
