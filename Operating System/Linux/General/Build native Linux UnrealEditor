@@ -116,7 +116,11 @@ cd "$UEPath"
 if [ $? -ne 0 ]; then
     exit 1
 fi
-git remote update
+
+echo "Check for updates in repository..."
+last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
+cntBranch=$(git branch --show-current)
+git fetch
 if [ -n "$(git status --porcelain | grep -v '??')" ]; then
     git status --porcelain
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
@@ -129,6 +133,8 @@ if [ $shouldProjectClean -eq 1 ]; then
     else
         echo "Would you like to clean and rebuild $2? This action will take $hour:$minutes:$seconds."
     fi
+    echo -e "--- RELEASE HISTORIES in ⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
+    echo -e "\nCURRENT REVISION: $last_revision"
     echo -n "this action can not be undo (y/N) > "
 else
     if [ $previous_elapsed_time -eq 0 ]; then
@@ -136,6 +142,8 @@ else
     else
         echo "Would you like to build $1? This action will take $hour:$minutes:$seconds."
     fi
+    echo -e "--- RELEASE HISTORIES in ⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
+    echo -e "\nCURRENT REVISION: $last_revision"
     echo -n "this action can not be undo (y/N) > "
 fi
 read n
@@ -149,7 +157,7 @@ fi
 echo "Updating repository..."
 startTime=$(date +%s)
 
-git pull origin $(git branch --show-current)
+git pull origin $cntBranch
 if [ $? -ne 0 ]; then
     echo "unable to update UnrealEngine repository. try again later." >&2
     exit 1
