@@ -4,7 +4,7 @@ if [ $# -eq 0 -a -t 0 ]; then
     echo "Usage: newline [options] [<files>]"
     exit 2
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
-    next_line=0
+    newline=0
     if [ -t 0 ]; then
         params=("$@")
     else
@@ -16,14 +16,13 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                 change_params=$(echo "${params[$i]}" | sed 's/\/$//')
                 echo "Please change ${params[$i]} to $change_params/*"
             elif [ -f "${params[$i]}" ]; then
+                if [ $newline -gt 0 ]; then
+                    echo ""
+                fi
                 file "${params[$i]}" 2> /dev/null
-                xxd -l 64 "${params[$i]}"
-                next_line=1
+                xxd -l 32 "${params[$i]}"
+                newline=$(expr $newline + 1)
             fi
-        fi
-
-        if [ $(($#-1)) -ne $i -a $next_line -ne 0 ]; then
-            echo ""
         fi
     done
     exit 0
