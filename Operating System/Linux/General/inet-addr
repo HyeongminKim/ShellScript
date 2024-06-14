@@ -1,0 +1,49 @@
+#!/bin/bash
+
+public_addr=0
+mask=0
+verbose=0
+
+if [ "$1" == "--help" ]; then
+    exit 0
+fi
+
+if [ "$1" == "--public" -o "$2" == "--public" ]; then
+    public_addr=1
+fi
+
+if [ "$1" == "--mask" -o "$2" == "--mask" ]; then
+    mask=1
+fi
+
+if [ "$2" == "--verbose" -o "$3" == "--verbose" ]; then
+    verbose=1
+fi
+    
+if [ $public_addr -eq 1 ]; then
+    cnt_ip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    if [ $mask -eq 1 ]; then
+        printf 'Public: %s.♡.%s.%s\n' $(echo $cnt_ip | awk -F. '{ print $1 }') $(echo $cnt_ip | awk -F. '{ print $3 }') $(echo $cnt_ip | awk -F. '{ print $4 }')
+    else
+        echo "Public: $cnt_ip"
+    fi
+else
+    cnt_ip=$(ifconfig eth0 | sed -n '2p' | awk '{ print $2 }')
+    if [ $mask -eq 1 ]; then
+        printf 'Private: %s.♡.%s.%s\n' $(echo $cnt_ip | awk -F. '{ print $1 }') $(echo $cnt_ip | awk -F. '{ print $3 }') $(echo $cnt_ip | awk -F. '{ print $4 }')
+    else
+        echo "Private: $cnt_ip"
+    fi
+fi
+
+if [ $verbose -eq 1 ]; then
+    echo -e "\nVERBOSE OUTPUT"
+    echo "$0 $@"
+    local_copy_signature=$(shasum -a 256 "$0" | awk '{ print $1 }')
+    remote_copy_signature=$(curl -sSf "https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/inet-addr" | shasum -a 256 | awk '{ print $1 }')
+    if [ "$local_copy_signature" != "$remote_copy_signature" ]; then
+        echo "invalid signature detected!"
+        echo "Local: $local_copy_signature"
+        echo "Remote: $remote_copy_signature"
+    fi
+fi
