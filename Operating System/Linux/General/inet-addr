@@ -3,22 +3,33 @@
 public_addr=0
 mask=0
 verbose=0
+chk_url="https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/inet-addr"
 
 if [ "$1" == "--help" ]; then
+    echo "$0 [options]"
+    echo -e " --help\t\tShow this help message"
+    echo -e " --public\tShow public IPv4 address (default: private)"
+    echo -e ' --mask\t\tMask second octet address'
+    echo -e " --verbose\tprint various output"
+    echo -e '\nNOTE\nIf you set `--mask` option, option `--public` will be automatically turned on'
     exit 0
 fi
 
-if [ "$1" == "--public" -o "$2" == "--public" ]; then
-    public_addr=1
-fi
-
-if [ "$1" == "--mask" -o "$2" == "--mask" ]; then
-    mask=1
-fi
-
-if [ "$2" == "--verbose" -o "$3" == "--verbose" ]; then
-    verbose=1
-fi
+params=("$@")
+for i in "${params[@]}"; do
+    case $i in
+        "--public")
+            public_addr=1
+        ;;
+        "--mask")
+            public_addr=1
+            mask=1
+        ;;
+        "--verbose")
+            verbose=1
+        ;;
+    esac
+done
     
 if [ $public_addr -eq 1 ]; then
     cnt_ip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
@@ -39,11 +50,16 @@ fi
 if [ $verbose -eq 1 ]; then
     echo -e "\nVERBOSE OUTPUT"
     echo "$0 $@"
-    local_copy_signature=$(shasum -a 256 "$0" | awk '{ print $1 }')
-    remote_copy_signature=$(curl -sSf "https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/inet-addr" | shasum -a 256 | awk '{ print $1 }')
-    if [ "$local_copy_signature" != "$remote_copy_signature" ]; then
-        echo "invalid signature detected!"
-        echo "Local: $local_copy_signature"
-        echo "Remote: $remote_copy_signature"
+    echo -e "\nChecking signature with following url: $chk_url"
+fi
+
+local_copy_signature=$(shasum -a 256 "$0" | awk '{ print $1 }')
+remote_copy_signature=$(curl -sSf "$chk_url" | shasum -a 256 | awk '{ print $1 }')
+if [ "$local_copy_signature" != "$remote_copy_signature" ]; then
+    echo -e "\n*** INVALID SIGNATURE DETECTED ***" >&2
+    if [ $verbose -eq 1 ]; then
+        echo " Local: $local_copy_signature" >&2
+        echo "Remote: $remote_copy_signature" >&2
     fi
+    exit 1
 fi
