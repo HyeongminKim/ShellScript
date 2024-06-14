@@ -124,7 +124,7 @@ git fetch origin $cntBranch --verbose
 echo -e "--- COMMIT HISTORIES in ⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
 echo -e "\nCURRENT REVISION: $last_revision"
 
-if [ -n "$(git status --porcelain | grep -v '??')" ]; then
+if [ -n "$(git status --porcelain | grep -v '^??')" ]; then
     git status --porcelain
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
     echo 'If you want revert changes: `git restore <path>`'
