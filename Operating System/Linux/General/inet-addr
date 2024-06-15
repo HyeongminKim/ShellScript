@@ -30,6 +30,9 @@ for i in "${params[@]}"; do
         "--mask=4")
             mask=4
         ;;
+        *)
+            echo "unknown option: $i. Skipping." >&2
+        ;;
     esac
 done
 
