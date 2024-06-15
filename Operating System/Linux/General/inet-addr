@@ -38,7 +38,12 @@ if [ $public_addr -eq 1 ]; then
     echo -n 'Public: '
 else
     cnt_ip=$(ifconfig eth0 | sed -n '2p' | awk '{ print $2 }')
-    echo -n 'Private: '
+    diff_ip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    if [ "$cnt_ip" == "$diff_ip" ]; then
+        echo -n 'Public: '
+    else
+        echo -n 'Private: '
+    fi
 fi
 
 if [ $mask -eq 1 ]; then
