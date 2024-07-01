@@ -15,6 +15,8 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
             if [ -d "${params[$i]}" ]; then
                 change_params=$(echo "${params[$i]}" | sed 's/\/$//')
                 echo "Please change ${params[$i]} to $change_params/*"
+                echo "or use this command: \`find $change_params -type f | newline --info\`"
+                continue
             elif [ -f "${params[$i]}" ]; then
                 if [ $newline -gt 0 ]; then
                     echo ""
@@ -74,6 +76,18 @@ for i in "${!params[@]}"; do
     if [ -d "${params[$i]}" ]; then
         change_params=$(echo "${params[$i]}" | sed 's/\/$//')
         echo "Please change ${params[$i]} to $change_params/*"
+        if [ x$constantEOF == x ]; then
+            echo "or use this command: \`find $change_params -type f | newline\`"
+        else
+            echo "or use this command: \`find $change_params -type f | newline --type=$constantEOF\`"
+        fi
+        continue
+    fi
+
+    binary_check=$(file -bL --mime "${params[$i]}" | grep "binary")
+    if [ $? -eq 0 ]; then
+        echo "skipping ${params[$i]} file. reason: binary file."
+        continue
     fi
 
     file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
