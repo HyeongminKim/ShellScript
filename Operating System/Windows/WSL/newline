@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 -a -t 0 ]; then
-    echo "Usage: newline [options] [<files>]"
+    echo "Usage: newline [options] [<files>]" >&2
     exit 2
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     newline=0
@@ -14,8 +14,8 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
         if [[ "${params[$i]}" != "-"* ]]; then
             if [ -d "${params[$i]}" ]; then
                 change_params=$(echo "${params[$i]}" | sed 's/\/$//')
-                echo "Please change ${params[$i]} to $change_params/*"
-                echo "or use this command: \`find $change_params -type f | newline --info\`"
+                echo "Please change ${params[$i]} to $change_params/*" >&2
+                echo "or use this command: \`find $change_params -type f | newline --info\`" >&2
                 continue
             elif [ -f "${params[$i]}" ]; then
                 if [ $newline -gt 0 ]; then
@@ -75,18 +75,18 @@ for i in "${!params[@]}"; do
 
     if [ -d "${params[$i]}" ]; then
         change_params=$(echo "${params[$i]}" | sed 's/\/$//')
-        echo "Please change ${params[$i]} to $change_params/*"
+        echo "Please change ${params[$i]} to $change_params/*" >&2
         if [ x$constantEOF == x ]; then
-            echo "or use this command: \`find $change_params -type f | newline\`"
+            echo "or use this command: \`find $change_params -type f | newline\`" >&2
         else
-            echo "or use this command: \`find $change_params -type f | newline --type=$constantEOF\`"
+            echo "or use this command: \`find $change_params -type f | newline --type=$constantEOF\`" >&2
         fi
         continue
     fi
 
     binary_check=$(file -bL --mime "${params[$i]}" | grep "binary")
     if [ $? -eq 0 ]; then
-        echo "skipping ${params[$i]} file. reason: binary file."
+        echo "skipping ${params[$i]} file. reason: binary file." >&2
         continue
     fi
 
