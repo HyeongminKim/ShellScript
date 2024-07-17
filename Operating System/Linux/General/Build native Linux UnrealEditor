@@ -105,7 +105,7 @@ fi
 seconds=$(cat "$UEPath/.DS_Store")
 previous_elapsed_time=$seconds
 
-hour=$(expr $seconds / 3600)
+hours=$(expr $seconds / 3600)
 seconds=$(expr $seconds % 3600)
 minutes=$(expr $seconds / 60)
 seconds=$(expr $seconds % 60)
@@ -135,14 +135,14 @@ if [ $shouldProjectClean -eq 1 ]; then
     if [ $previous_elapsed_time -eq 0 ]; then
         echo "Would you like to clean and rebuild $2? This action will take several hours"
     else
-        echo "Would you like to clean and rebuild $2? This action will take $hour:$minutes:$seconds."
+        echo "Would you like to clean and rebuild $2? This action will take $hours:$minutes:$seconds."
     fi
     echo -n "this action can not be undo (y/N) > "
 else
     if [ $previous_elapsed_time -eq 0 ]; then
         echo "Would you like to build $1? This action will take several hours"
     else
-        echo "Would you like to build $1? This action will take $hour:$minutes:$seconds."
+        echo "Would you like to build $1? This action will take $hours:$minutes:$seconds."
     fi
     echo -n "this action can not be undo (y/N) > "
 fi
@@ -214,7 +214,7 @@ endTime=$(date +%s)
 seconds=$(expr $endTime - $startTime)
 echo $seconds > "$UEPath/.DS_Store"
 
-hour=$(expr $seconds / 3600)
+hours=$(expr $seconds / 3600)
 seconds=$(expr $seconds % 3600)
 minutes=$(expr $seconds / 60)
 seconds=$(expr $seconds % 60)
