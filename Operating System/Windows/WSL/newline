@@ -35,7 +35,7 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo -e ' -h, --help\t\tdisplay this help and exit'
     echo -e ' -i, --info FILEs\tdisplay provide file type and properties'
     echo -e '     --type=EOL\t\tlimiting `EOL` type when using converter'
-    echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\n` or `\\r\\n`)'
+    echo -e '\t\t\t`EOL` only accepted `CRLF` and `LF` (NAK `\\r\\n` or `\\n`)'
     echo -e ' FILEs\t\t\tconverting files EOL in provided params'
     echo -e '\nEXIT STATUS'
     echo -e ' 0\t operation Successful'
