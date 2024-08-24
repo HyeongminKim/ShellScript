@@ -118,12 +118,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Check for updates in repository..."
+if [ -r "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" ]; then
+    echo "Current UnrealEditor information..."
+    cat "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" | sed 's/\t/    /' | grep -v "BranchName"
+    echo ''
+fi
+
+echo "Check for updates in repo: $UEPath..."
 last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
 cntBranch=$(git branch --show-current)
 git fetch origin $cntBranch --verbose
-echo -e "--- COMMIT HISTORIES in ⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
-echo -e "\nCURRENT REVISION: $last_revision"
+echo -e "--- REVISION HISTORIES in 모⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
+echo -e "\nNOW: $last_revision"
 
 if [ -n "$(git status --porcelain | grep -v '^??')" ]; then
     git status --porcelain
