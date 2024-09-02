@@ -79,7 +79,7 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
             exit 1
         else
             echo "successfully to change branch $n. you will need to execute this script again to building UnrealEditor."
-            touch $UEPath/.UnrealEditor.lock~
+            echo $$ > $UEPath/.UnrealEditor.lock~
             exit 0
         fi
     fi
@@ -155,7 +155,7 @@ else
 fi
 read n
 if [ "$n" == "y" -o "$n" == "Y" ]; then
-    touch $UEPath/.UnrealEditor.lock~
+    echo $$ > $UEPath/.UnrealEditor.lock~
 else
     echo "User abort." >&2
     exit 1

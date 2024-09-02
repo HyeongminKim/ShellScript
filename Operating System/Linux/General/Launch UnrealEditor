@@ -81,6 +81,7 @@ if [ -r "$UEPath/.UnrealEditor.lock~" ]; then
         echo "0" > "$UEPath/.DS_Store"
     fi
 
+    locked_PID=$(cat "$UEPath/.UnrealEditor.lock~")
     seconds=$(cat "$UEPath/.DS_Store")
     previous_elapsed_time=$seconds
 
@@ -89,7 +90,7 @@ if [ -r "$UEPath/.UnrealEditor.lock~" ]; then
     minutes=$(expr $seconds / 60)
     seconds=$(expr $seconds % 60)
 
-    echo "unable to launch UnrealEditor. target file was locked by another process."
+    echo "unable to launch UnrealEditor. target file was locked by another process($locked_PID)."
     echo "Please wait approximately $hours:$minutes:$seconds for the build to complete."
     CloseTerminalDelay 5 1
 fi
