@@ -53,16 +53,17 @@ function CloseTerminalDelay() {
 
 function LaunchUnrealEditor() {
     if [ $ShouldLaunchDiffAgent -eq 1 ]; then
-        echo "Launching UnrealDiffTool in $UEPath..."
+        echo -n "Launching UnrealDiffTool in $UEPath... "
         if [ $# -eq 5 ]; then
             setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" "$1" -Diff "$2" "$3" "$4" "$5" &> /dev/null &
         elif [ $# -eq 3 ]; then
             setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" "$1" -Diff "$2" "$3" &> /dev/null &
         fi
     else
-        echo "Launching UnrealEditor in $UEPath..."
+        echo -n "Launching UnrealEditor in $UEPath... "
         setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
     fi
+    echo "($!)"
     CloseTerminalDelay 5 0
 }
 
