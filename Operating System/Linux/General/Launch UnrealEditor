@@ -76,6 +76,24 @@ if [ $? -ne 0 ]; then
     CloseTerminalDelay 3 1
 fi
 
+if [ -r "$UEPath/.UnrealEditor.lock~" ]; then
+    if [ ! -r "$UEPath/.DS_Store" ]; then
+        echo "0" > "$UEPath/.DS_Store"
+    fi
+
+    seconds=$(cat "$UEPath/.DS_Store")
+    previous_elapsed_time=$seconds
+
+    hours=$(expr $seconds / 3600)
+    seconds=$(expr $seconds % 3600)
+    minutes=$(expr $seconds / 60)
+    seconds=$(expr $seconds % 60)
+
+    echo "unable to launch UnrealEditor. target file was locked by another process."
+    echo "Please wait approximately $hours:$minutes:$seconds for the build to complete."
+    CloseTerminalDelay 5 1
+fi
+
 cntBranch=$(git branch --show-current)
 last_version=$(git rev-parse --short HEAD)
 
