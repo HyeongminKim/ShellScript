@@ -4,10 +4,11 @@ exitCode=0
 prevDir=$(pwd)
 
 function gitUpdate() {
+    repoName=("Release/ShellScript" "Release/PracticeCalc" "Release/PasswordsGenerator")
     if [ "$(uname -s)" == "Darwin" ]; then
-        repoName=("Release/aptall" "Release/ShellScript" "Release/Recruitment-Assistant" "Release/Timer" "Release/PracticeCalc" "Release/PasswordsGenerator")
+        repoName+=("Release/aptall" "Release/Timer")
     elif [ "$(uname -s)" == "Linux" ]; then
-        repoName=("Release/brewall" "Release/ShellScript" "Release/PracticeCalc" "Release/PasswordsGenerator" "Release/ArtDisplay")
+        repoName+=("Release/brewall" "Release/ArtDisplay")
     fi
 
     for target in "${repoName[@]}"; do
