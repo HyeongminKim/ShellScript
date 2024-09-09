@@ -78,10 +78,17 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
             echo "unable to change branch $n."
             exit 1
         else
-            echo "successfully to change branch $n. you will need to execute this script again to building UnrealEditor."
-            echo $$ > $UEPath/.UnrealEditor.lock~
-            exit 0
+            echo "successfully to change branch $n. Start the UnrealEditor build."
+            echo 0 > $UEPath/.UnrealEditor.lock~
         fi
+    fi
+fi
+
+if [ -r "$UEPath/.UnrealEditor.lock~" ]; then
+    lockedPID=$(cat "$UEPath/.UnrealEditor.lock~")
+    if [ $lockedPID -ne 0 ]; then
+        echo "unable to build UnrealEditor. target file was locked by another process($lockedPID)."
+        exit 1
     fi
 fi
 
@@ -128,9 +135,17 @@ fi
 echo "Check for updates in repo: $UEPath..."
 last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
 cntBranch=$(git branch --show-current)
-git fetch origin $cntBranch --verbose
+git fetch origin $cntBranch --verbose &> "$UEPath/.UnrealEditor.tmp"
+cat "$UEPath/.UnrealEditor.tmp"
 echo -e "--- REVISION HISTORIES in 모⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
-echo -e "\nNOW: $last_revision"
+cat "$UEPath/.UnrealEditor.tmp" | grep '=' &> /dev/null
+if [ $? -ne 0 ]; then
+    echo -e '\e[0;1mREPO STATUS\e[m: revision update available! See above'
+else
+    echo -e '\e[0;1mREPO STATUS\e[m: Up to date'
+fi
+echo ''
+rm "$UEPath/.UnrealEditor.tmp"
 
 if [ -n "$(git status --porcelain | grep -v '^??')" ]; then
     git status --porcelain
