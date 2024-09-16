@@ -184,6 +184,11 @@ if [ $? -ne 0 ]; then
     echo "unable to update UnrealEngine repository. try again later." >&2
     exit 1
 fi
+git gc --prune=now
+if [ $? -ne 0 ]; then
+    echo "unable to clean-up UnrealEngine repository. try again later." >&2
+    exit 1
+fi
 
 echo "Generating project files..."
 
