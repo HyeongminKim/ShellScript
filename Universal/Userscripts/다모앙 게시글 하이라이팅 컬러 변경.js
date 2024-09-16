@@ -14,6 +14,7 @@ const xpIconElements = document.querySelectorAll('.xp-icon');
 const commentParentElement = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
 
 const sidebarElements = document.getElementById('sidebar-sub-s1-0');
+const searchElements = document.getElementById('boardSearch');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -37,7 +38,11 @@ xpIconElements.forEach(element => {
 });
 
 if (sidebarElements) {
-      sidebarElements.classList.add('show');
+  sidebarElements.classList.add('show');
+}
+
+if (searchElements) {
+  searchElements.className = '';
 }
 
 commentParentElement.forEach(element => {
