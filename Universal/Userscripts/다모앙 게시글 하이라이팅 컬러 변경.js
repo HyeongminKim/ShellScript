@@ -11,10 +11,10 @@
 const schWordElements = document.querySelectorAll('.sch_word');
 const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
 const xpIconElements = document.querySelectorAll('.xp-icon');
-const commentParentElement = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
+const commentParentElements = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
 
-const sidebarElements = document.getElementById('sidebar-sub-s1-0');
-const searchElements = document.getElementById('boardSearch');
+const sidebarElement = document.getElementById('sidebar-sub-s1-0');
+const searchElement = document.getElementById('boardSearch');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -32,21 +32,20 @@ xpIconElements.forEach(element => {
     imgTag.remove();
   }
 
-  textContent = memberLevel < 10 ? memberLevel : '☠';
+  element.textContent = memberLevel < 10 ? memberLevel : '☠';
   element.style.display = 'unset';
   element.style.color = memberLevel >= 10 ? 'white' : memberLevel >= 8 ? 'red' : memberLevel >= 6 ? 'orange' : memberLevel >= 4 ? 'green' : 'grey';
 });
 
-if (sidebarElements) {
-  sidebarElements.classList.add('show');
-}
-
-if (searchElements) {
-  searchElements.className = '';
-}
-
-commentParentElement.forEach(element => {
+commentParentElements.forEach(element => {
   const target = element.querySelector('.sv_name.text-truncate');
   target.textContent = target.textContent + ' 🎤';
 });
 
+if (sidebarElement) {
+  sidebarElement.classList.add('show');
+}
+
+if (searchElement) {
+  searchElement.className = '';
+}
