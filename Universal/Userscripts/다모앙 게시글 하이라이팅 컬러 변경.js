@@ -1,0 +1,34 @@
+// ==UserScript==
+// @name        다모앙 게시글 하이라이팅 컬러 변경
+// @namespace   Violentmonkey Scripts
+// @match       *://damoang.net/*
+// @grant       none
+// @version     1.0
+// @author      Hyeongmin Kim
+// @description 9/13/2024, 3:13:33 PM
+// ==/UserScript==
+
+const schWordElements = document.querySelectorAll('.sch_word');
+const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
+const xpIconElements = document.querySelectorAll('.xp-icon');
+
+schWordElements.forEach(element => {
+  element.style.backgroundColor = 'yellow';
+  element.style.color = 'black';
+});
+
+userOnlyElements.forEach(element => {
+  element.style.color = 'red';
+});
+
+xpIconElements.forEach(element => {
+  const memberLevel = element.getAttribute('data-member-level');
+  const imgTag = element.querySelector('img');
+  if (imgTag) {
+    imgTag.remove();
+  }
+
+  element.textContent = memberLevel;
+  element.style.display = 'unset';
+  element.style.color = 'orange';
+});
