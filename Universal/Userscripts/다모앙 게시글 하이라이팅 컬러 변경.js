@@ -11,6 +11,7 @@
 const schWordElements = document.querySelectorAll('.sch_word');
 const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
 const xpIconElements = document.querySelectorAll('.xp-icon');
+const sidebarElements = document.getElementById('sidebar-sub-s1-0');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -32,3 +33,7 @@ xpIconElements.forEach(element => {
   element.style.display = 'unset';
   element.style.color = memberLevel >= 10 ? 'white' : memberLevel >= 8 ? 'red' : memberLevel >= 6 ? 'orange' : memberLevel >= 4 ? 'green' : 'grey';
 });
+
+if (sidebarElements) {
+      sidebarElements.classList.add('show');
+}
