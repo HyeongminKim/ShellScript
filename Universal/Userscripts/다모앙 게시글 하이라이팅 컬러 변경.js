@@ -28,7 +28,7 @@ xpIconElements.forEach(element => {
     imgTag.remove();
   }
 
-  element.textContent = memberLevel;
+  textContent = memberLevel < 10 ? memberLevel : '☠';
   element.style.display = 'unset';
-  element.style.color = 'orange';
+  element.style.color = memberLevel >= 10 ? 'white' : memberLevel >= 8 ? 'red' : memberLevel >= 6 ? 'orange' : memberLevel >= 4 ? 'green' : 'grey';
 });
