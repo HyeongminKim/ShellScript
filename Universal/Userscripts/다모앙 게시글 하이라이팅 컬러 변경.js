@@ -12,9 +12,7 @@ const schWordElements = document.querySelectorAll('.sch_word');
 const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
 const xpIconElements = document.querySelectorAll('.xp-icon');
 const sidebarElements = document.getElementById('sidebar-sub-s1-0');
-
 const commentParentElement = document.querySelector('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
-const commentTargetElement = commentParentElement.querySelector('.sv_name.text-truncate');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -41,6 +39,7 @@ if (sidebarElements) {
       sidebarElements.classList.add('show');
 }
 
-if (commentTargetElement) {
+if (commentParentElement) {
+  const commentTargetElement = commentParentElement.querySelector('.sv_name.text-truncate');
   commentTargetElement.textContent = commentTargetElement.textContent + ' 🎤';
 }
