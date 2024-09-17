@@ -9,12 +9,15 @@
 // ==/UserScript==
 
 const schWordElements = document.querySelectorAll('.sch_word');
-const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
+const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1');
 const xpIconElements = document.querySelectorAll('.xp-icon');
 const commentParentElements = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
+const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
 
 const sidebarElement = document.getElementById('sidebar-sub-s1-0');
 const searchElement = document.getElementById('boardSearch');
+
+const commentCountStyle = document.createElement('style');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -28,9 +31,7 @@ userOnlyElements.forEach(element => {
 xpIconElements.forEach(element => {
   const memberLevel = element.getAttribute('data-member-level');
   const imgTag = element.querySelector('img');
-  if (imgTag) {
-    imgTag.remove();
-  }
+  if (imgTag) imgTag.remove();
 
   element.textContent = memberLevel < 10 ? memberLevel : '☠';
   element.style.display = 'unset';
@@ -42,10 +43,21 @@ commentParentElements.forEach(element => {
   target.textContent = target.textContent + ' 🎤';
 });
 
-if (sidebarElement) {
-  sidebarElement.classList.add('show');
-}
+recommendElements.forEach(element => {
+  const classNames = element.className.split(' ');
+  classNames.forEach(className => {
+    if(className.startsWith('step') && className.length === 5) {
+      element.textContent = '♥ ' + element.textContent;
+    }
+  })
+});
 
-if (searchElement) {
-  searchElement.className = '';
-}
+if (sidebarElement) sidebarElement.classList.add('show');
+if (searchElement) searchElement.className = '';
+
+commentCountStyle.innerHTML = `
+  .count-plus::before {
+    content: '댓';
+  }
+`;
+document.head.appendChild(commentCountStyle);
