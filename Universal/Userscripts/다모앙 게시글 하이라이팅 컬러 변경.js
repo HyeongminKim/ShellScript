@@ -51,6 +51,12 @@ recommendElements.forEach(element => {
   const classNames = element.className.split(' ');
   classNames.forEach(className => {
     if(className.startsWith('step') && className.length === 5) {
+      let number = parseInt(element.textContent.trim(), 10);
+      if(!isNaN(number) && number >= 1000) {
+        let formattedNumber = (number / 1000).toFixed(1) + 'k';
+        formattedNumber = formattedNumber.replace('.0', '');
+        element.textContent = formattedNumber;
+      }
       element.textContent = '♥ ' + element.textContent;
     }
   })
