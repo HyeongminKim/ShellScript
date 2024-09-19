@@ -19,6 +19,7 @@ const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-
 const userInfoElements = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 
 const searchElement = document.getElementById('boardSearch');
+const myXp = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
 const commentCountStyle = document.createElement('style');
 const recommendBtnStyle = document.createElement('style');
@@ -70,7 +71,7 @@ visitCountElements.forEach(element => {
 
 xpIconElements.forEach(element => {
   const memberLevel = element.getAttribute('data-member-level');
-  const currentLevel = 0;
+  const currentLevel = parseInt(myXp.textContent.replace('Level', '').trim(), 10);
   const imgTag = element.querySelector('img');
   if (imgTag) imgTag.remove();
 
