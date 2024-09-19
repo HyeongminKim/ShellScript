@@ -13,6 +13,8 @@ const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
 const xpIconElements = document.querySelectorAll('.xp-icon');
 const commentParentElements = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
 const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
+const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
+const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
 
 const sidebarElement = document.getElementById('sidebar-sub-s1-0');
 const searchElement = document.getElementById('boardSearch');
@@ -30,12 +32,13 @@ userOnlyElements.forEach(element => {
 
 xpIconElements.forEach(element => {
   const memberLevel = element.getAttribute('data-member-level');
+  const currentLevel = 0;
   const imgTag = element.querySelector('img');
   if (imgTag) imgTag.remove();
 
-  element.textContent = memberLevel < 10 ? memberLevel : '☠';
+  element.textContent = memberLevel < 10 + currentLevel ? memberLevel : '☠';
   element.style.display = 'unset';
-  element.style.color = memberLevel >= 10 ? 'white' : memberLevel >= 8 ? 'red' : memberLevel >= 6 ? 'orange' : memberLevel >= 4 ? 'green' : 'grey';
+  element.style.color = memberLevel >= 10 + currentLevel ? 'white' : memberLevel >= 6 + currentLevel ? 'red' : memberLevel >= 3 + currentLevel ? 'orange' : memberLevel >= currentLevel ? 'yellow' : memberLevel <= currentLevel - 5 ? 'grey' : 'green';
 });
 
 commentParentElements.forEach(element => {
@@ -50,6 +53,22 @@ recommendElements.forEach(element => {
       element.textContent = '♥ ' + element.textContent;
     }
   })
+});
+
+uniqueElements.forEach(element => {
+  if (element.textContent.trim() === 'SDK') {
+    element.style.color = 'orange';
+  }
+});
+
+visitCountElements.forEach(element => {
+  let number = parseInt(element.textContent.trim(), 10);
+
+  if (!isNaN(number) && number >= 1000) {
+    let formattedNumber = (number / 1000).toFixed(1) + 'k';
+    formattedNumber = formattedNumber.replace('.0', '');
+    element.textContent = formattedNumber;
+  }
 });
 
 if (sidebarElement) sidebarElement.classList.add('show');
