@@ -9,6 +9,8 @@
 // @downloadURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%80%EC%83%89%20%ED%95%84%EB%93%9C.js
 // ==/UserScript==
 
+const sidebarElement = document.getElementById('sidebar-sub-s1-1');
+
 function addFilterInput() {
   var input = document.createElement('input');
   input.type = 'text';
@@ -24,6 +26,12 @@ function filterNavLinks() {
   var input = document.getElementById('filter-input');
   var filter = input.value.toLowerCase();
   var navLinks = document.getElementsByClassName('nav-link');
+
+  if(filter.length > 0 && !sidebarElement.classList.contains('show')) {
+    if (sidebarElement) sidebarElement.classList.add('show');
+  } else {
+    if (sidebarElement) sidebarElement.classList.remove('show');
+  }
 
   for (var i = 0; i < navLinks.length; i++) {
     var link = navLinks[i];
@@ -41,7 +49,5 @@ function filterNavLinks() {
 }
 
 window.onload = function() {
-  const sidebarElement = document.getElementById('sidebar-sub-s1-1');
-  if (sidebarElement) sidebarElement.classList.add('show');
   addFilterInput();
 };
