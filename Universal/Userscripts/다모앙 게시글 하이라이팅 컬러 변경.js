@@ -17,7 +17,6 @@ const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
 const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
 const userInfoElements = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 
-const sidebarElement = document.getElementById('sidebar-sub-s1-0');
 const searchElement = document.getElementById('boardSearch');
 
 const commentCountStyle = document.createElement('style');
@@ -83,7 +82,6 @@ userInfoElements.forEach(button => {
   button.removeAttribute('onclick');
 });
 
-if (sidebarElement) sidebarElement.classList.add('show');
 if (searchElement) searchElement.className = '';
 
 commentCountStyle.innerHTML = `
