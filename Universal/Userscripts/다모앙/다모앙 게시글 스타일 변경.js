@@ -17,6 +17,7 @@ const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
 const xpIconElements = document.querySelectorAll('.xp-icon');
 const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
 const userInfoElements = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
+const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-block.writter-bg');
 
 const searchElement = document.getElementById('boardSearch');
 const myXp = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
@@ -82,6 +83,13 @@ xpIconElements.forEach(element => {
 
 userInfoElements.forEach(button => {
   button.removeAttribute('onclick');
+});
+
+yourPostsElements.forEach(listItem => {
+  const svNameElement = listItem.querySelector('.sv_name.text-truncate');
+  if (svNameElement) {
+    svNameElement.textContent = '<< YOU >>';
+  }
 });
 
 if (searchElement) searchElement.className = '';
