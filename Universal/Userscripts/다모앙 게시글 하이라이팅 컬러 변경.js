@@ -21,6 +21,7 @@ const sidebarElement = document.getElementById('sidebar-sub-s1-0');
 const searchElement = document.getElementById('boardSearch');
 
 const commentCountStyle = document.createElement('style');
+const recommendBtnStyle = document.createElement('style');
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
@@ -90,4 +91,10 @@ commentCountStyle.innerHTML = `
     content: '댓';
   }
 `;
+recommendBtnStyle.innerHTML = `
+  .bi.bi-hand-thumbs-up::before {
+    content: '♥';
+  }
+`;
 document.head.appendChild(commentCountStyle);
+document.head.appendChild(recommendBtnStyle);
