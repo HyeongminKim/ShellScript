@@ -11,7 +11,6 @@
 
 const schWordElements = document.querySelectorAll('.sch_word');
 const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1');
-const xpIconElements = document.querySelectorAll('.xp-icon');
 const commentParentElements = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
 const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
 const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
@@ -30,17 +29,6 @@ schWordElements.forEach(element => {
 
 userOnlyElements.forEach(element => {
   element.style.color = 'red';
-});
-
-xpIconElements.forEach(element => {
-  const memberLevel = element.getAttribute('data-member-level');
-  const currentLevel = 0;
-  const imgTag = element.querySelector('img');
-  if (imgTag) imgTag.remove();
-
-  element.textContent = memberLevel < 10 + currentLevel ? memberLevel : '☠';
-  element.style.display = 'unset';
-  element.style.color = memberLevel >= 10 + currentLevel ? 'white' : memberLevel >= 6 + currentLevel ? 'red' : memberLevel >= 3 + currentLevel ? 'orange' : memberLevel >= currentLevel ? 'yellow' : memberLevel <= currentLevel - 5 ? 'grey' : 'green';
 });
 
 commentParentElements.forEach(element => {
