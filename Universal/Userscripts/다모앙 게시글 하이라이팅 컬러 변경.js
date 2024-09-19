@@ -15,6 +15,7 @@ const commentParentElements = document.querySelectorAll('.d-flex.align-items-cen
 const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
 const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
 const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
+const userInfoElements = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 
 const sidebarElement = document.getElementById('sidebar-sub-s1-0');
 const searchElement = document.getElementById('boardSearch');
@@ -69,6 +70,10 @@ visitCountElements.forEach(element => {
     formattedNumber = formattedNumber.replace('.0', '');
     element.textContent = formattedNumber;
   }
+});
+
+userInfoElements.forEach(button => {
+  button.removeAttribute('onclick');
 });
 
 if (sidebarElement) sidebarElement.classList.add('show');
