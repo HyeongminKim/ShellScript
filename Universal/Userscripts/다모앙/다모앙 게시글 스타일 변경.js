@@ -71,7 +71,7 @@ visitCountElements.forEach(element => {
 
 xpIconElements.forEach(element => {
   const memberLevel = element.getAttribute('data-member-level');
-  const currentLevel = parseInt(myXp.textContent.replace('Level', '').trim(), 10);
+  const currentLevel = myXp ? parseInt(myXp.textContent.replace('Level', '').trim(), 10) : 0;
   const imgTag = element.querySelector('img');
   if (imgTag) imgTag.remove();
 
