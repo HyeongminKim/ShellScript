@@ -16,6 +16,7 @@ const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
 const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
 const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
 const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-block.writter-bg');
+const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 
 const searchElement = document.getElementById('boardSearch');
 const myXp = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
@@ -26,6 +27,13 @@ const recommendBtnStyle = document.createElement('style');
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
   element.style.color = 'black';
+});
+
+emptyCommentElements.forEach(element => {
+  if(element.getAttribute('title') === '공백문자') {
+    const buttonElement = element.querySelector('.bi');
+    if(buttonElement) buttonElement.textContent = '빈';
+  }
 });
 
 userOnlyElements.forEach(element => {
