@@ -14,9 +14,7 @@ const userOnlyElements = document.querySelectorAll('em.border.rounded.p-1.me-1')
 const commentParentElements = document.querySelectorAll('.d-flex.align-items-center.border-top.bg-secondary-subtle.py-1.px-3.small');
 const recommendElements = document.querySelectorAll('[class^="rcmd-box step"]');
 const uniqueElements = document.querySelectorAll('.sv_name.text-truncate');
-const xpIconElements = document.querySelectorAll('.xp-icon');
 const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-4');
-const userInfoElements = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-block.writter-bg');
 
 const searchElement = document.getElementById('boardSearch');
@@ -68,21 +66,6 @@ visitCountElements.forEach(element => {
     formattedNumber = formattedNumber.replace('.0', '');
     element.textContent = formattedNumber;
   }
-});
-
-xpIconElements.forEach(element => {
-  const memberLevel = element.getAttribute('data-member-level');
-  const currentLevel = myXp ? parseInt(myXp.textContent.replace('Level', '').trim(), 10) : 0;
-  const imgTag = element.querySelector('img');
-  if (imgTag) imgTag.remove();
-
-  element.textContent = memberLevel < 10 + currentLevel ? memberLevel : '☠';
-  element.style.display = 'unset';
-  element.style.color = memberLevel >= 10 + currentLevel ? 'white' : memberLevel >= 6 + currentLevel ? 'red' : memberLevel >= 3 + currentLevel ? 'orange' : memberLevel >= currentLevel ? 'yellow' : memberLevel <= currentLevel - 5 ? 'grey' : 'green';
-});
-
-userInfoElements.forEach(button => {
-  button.removeAttribute('onclick');
 });
 
 yourPostsElements.forEach(listItem => {
