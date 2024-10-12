@@ -144,7 +144,8 @@ case $1 in
     "service")
         echo "[Service]" >> /tmp/systemd-inst-$launch_date
         echo "Type=simple" >> /tmp/systemd-inst-$launch_date
-        echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
+        echo "# User=$USER" >> /tmp/systemd-inst-$launch_date
+        echo "# Group=$USER" >> /tmp/systemd-inst-$launch_date
         echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
         echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
     ;;
