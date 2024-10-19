@@ -110,12 +110,14 @@ clang --version
 cmake --version
 
 if [ x"$UEPath" == x ]; then
-    echo "unable to locate UnrealEditor. please provide absolute path." >&2
+    echo "unable to locate UnrealEditor. please set UEPath with absolute path." >&2
     exit 1
 elif [ ! -x "$UEPath/Setup.sh" ]; then
     echo "UnrealEngine directory structure does not seem here." >&2
-    echo "$UEPath" >&2
+    echo "UEPath: $UEPath"
     exit 1
+else
+    echo "UEPath: $UEPath"
 fi
 
 if [ ! -r "$UEPath/.DS_Store" ]; then

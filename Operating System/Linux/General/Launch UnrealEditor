@@ -68,8 +68,10 @@ function LaunchUnrealEditor() {
 }
 
 if [ x"$UEPath" == x -o ! -d "$UEPath/.git" ]; then
-    echo "unable to locate UnrealEditor. please provide absolute path." >&2
+    echo "unable to locate UnrealEditor. please set UEPath with absolute path." >&2
     CloseTerminalDelay 3 1
+else
+    echo "UEPath: $UEPath"
 fi
 
 cd "$UEPath"
