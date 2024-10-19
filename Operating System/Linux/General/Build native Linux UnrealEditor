@@ -79,7 +79,12 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
             exit 1
         fi
 
-        git checkout -t origin/$n
+        git --no-pager branch | grep "$n" &> /dev/null
+        if [ $? -ne 0 ]; then
+            git checkout -t origin/$n
+        else
+            git checkout $n
+        fi
         if [ $? -ne 0 ]; then
             echo "unable to change branch $n."
             exit 1
