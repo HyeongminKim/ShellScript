@@ -62,7 +62,12 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         echo "current branch and provided branch are identical" >&2
         exit 1
     else
-        git diff HEAD...origin/$n
+        git diff HEAD...origin/$n 2> /dev/null
+        if [ $? -ne 0 ]; then
+            echo "unknown branch name: $n" >&2
+            exit 1
+        fi
+
         echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
         echo -n "Are you sure continue this action? (y/N) > "
         read cn
