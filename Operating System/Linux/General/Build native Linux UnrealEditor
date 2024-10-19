@@ -65,8 +65,8 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         git diff HEAD...origin/$n
         echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
         echo -n "Are you sure continue this action? (y/N) > "
-        read n
-        if [ "$n" == "y" -o "$n" == "Y" ]; then
+        read cn
+        if [ "$cn" == "y" -o "$cn" == "Y" ]; then
             echo "" > /dev/null
         else
             echo "User abort."
@@ -182,11 +182,13 @@ startTime=$(date +%s)
 git pull origin $cntBranch
 if [ $? -ne 0 ]; then
     echo "unable to update UnrealEngine repository. try again later." >&2
+    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
     exit 1
 fi
 git gc --prune=now
 if [ $? -ne 0 ]; then
     echo "unable to clean-up UnrealEngine repository. try again later." >&2
+    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
     exit 1
 fi
 git count-objects -vH | awk '/size/'
@@ -195,11 +197,13 @@ echo "Generating project files..."
 
 /bin/bash "$UEPath/Setup.sh"
 if [ $? -ne 0 ]; then
+    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
     exit 1
 fi
 
 /bin/bash "$UEPath/GenerateProjectFiles.sh"
 if [ $? -ne 0 ]; then
+    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
     exit 1
 fi
 
