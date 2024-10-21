@@ -20,7 +20,7 @@ const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 
 const searchElement = document.getElementById('boardSearch');
-const myXp = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
+const userOnline = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
 const commentCountStyle = document.createElement('style');
 const recommendBtnStyle = document.createElement('style');
@@ -79,7 +79,7 @@ visitCountElements.forEach(element => {
 
 yourPostsElements.forEach(listItem => {
   const svNameElement = listItem.querySelector('.sv_name.text-truncate');
-  if (svNameElement) {
+  if (userOnline && svNameElement) {
     svNameElement.textContent = '<< YOU >>';
   }
 });
@@ -87,7 +87,7 @@ yourPostsElements.forEach(listItem => {
 membersInfo.forEach(member => {
   const xpIcon = member.querySelector('.xp-icon');
 
-  if (xpIcon && xpIcon.getAttribute('data-member-level')) {
+  if ((userOnline && xpIcon) && xpIcon.getAttribute('data-member-level')) {
     const memberLevel = xpIcon.getAttribute('data-member-level');
     member.setAttribute('title', member.getAttribute('title').replace('자기소개', 'Lv.' + memberLevel));
   }
