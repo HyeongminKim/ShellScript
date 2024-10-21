@@ -14,6 +14,7 @@ function addFilterInput() {
 
   var input = document.createElement('input');
   input.type = 'text';
+  input.inputMode = 'search';
   input.id = 'filter-input';
   input.placeholder = '게시판/카테고리 검색...';
   input.onkeyup = filterNavLinks;
