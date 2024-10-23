@@ -87,9 +87,17 @@ yourPostsElements.forEach(listItem => {
 membersInfo.forEach(member => {
   const xpIcon = member.querySelector('.xp-icon');
 
-  if ((userOnline && xpIcon) && xpIcon.getAttribute('data-member-level')) {
-    const memberLevel = xpIcon.getAttribute('data-member-level');
-    member.setAttribute('title', member.getAttribute('title').replace('자기소개', 'Lv.' + memberLevel));
+  if (userOnline && xpIcon) {
+    if (xpIcon.getAttribute('data-member-level')) {
+      const memberLevel = xpIcon.getAttribute('data-member-level');
+      member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님 Lv.' + memberLevel));
+    } else if(xpIcon.getAttribute('data-member-level-icon') === 'special') {
+      member.setAttribute('title', member.getAttribute('title').replace('자기소개', '광고주님'));
+    }
+  } else if(!userOnline && xpIcon) {
+    member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님의 정보를 확인하시려면 로그인하세요.'));
+    xpIcon.setAttribute('data-member-level', '');
+    xpIcon.setAttribute('data-member-level-icon', '');
   }
 });
 
