@@ -57,6 +57,7 @@ recommendElements.forEach(element => {
         element.textContent = formattedNumber;
       }
       element.textContent = '♥ ' + element.textContent;
+      element.title = '받은 추천수: ' + number.toLocaleString(navigator.language);
     }
   })
 });
@@ -74,6 +75,7 @@ visitCountElements.forEach(element => {
     let formattedNumber = (number / 1000).toFixed(1) + 'k';
     formattedNumber = formattedNumber.replace('.0', '');
     element.textContent = formattedNumber;
+    element.title = '조회수: ' + number.toLocaleString(navigator.language);
   }
 });
 
