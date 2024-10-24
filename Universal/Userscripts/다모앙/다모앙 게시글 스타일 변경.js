@@ -55,9 +55,9 @@ recommendElements.forEach(element => {
         let formattedNumber = (number / 1000).toFixed(1) + 'k';
         formattedNumber = formattedNumber.replace('.0', '');
         element.textContent = formattedNumber;
+        element.title = '받은 추천수: ' + number.toLocaleString(navigator.language);
       }
       element.textContent = '♥ ' + element.textContent;
-      element.title = '받은 추천수: ' + number.toLocaleString(navigator.language);
     }
   })
 });
