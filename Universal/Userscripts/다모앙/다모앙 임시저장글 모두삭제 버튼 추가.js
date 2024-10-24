@@ -36,7 +36,7 @@
     const autosaveListUrl = g5_bbs_url + '/ajax.autosavelist.php';
 
     if(subject_ID) {
-      if(window.confirm('계속 진행할 경우 현재 편집중인 게시글이 있을시 즉시 등록됩니다! 중단하시겠습니까?')) {
+      if(window.confirm('계속 진행할 경우 현재 편집중인 게시글 "' + subject_ID + '"가 즉시 등록됩니다!\n중단하시겠습니까?')) {
         window.location.href = "https://damoang.net"
         return false;
       }
