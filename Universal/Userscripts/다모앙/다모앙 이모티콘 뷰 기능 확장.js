@@ -5,6 +5,7 @@
 // @author      LiNE (fork: HyeongminKim)
 // @match        *://damoang.net/*
 // @grant        none
+// @downloadURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9D%B4%EB%AA%A8%ED%8B%B0%EC%BD%98%20%EB%B7%B0%20%EA%B8%B0%EB%8A%A5%20%ED%99%95%EC%9E%A5.js
 // ==/UserScript==
 
 (function() {
