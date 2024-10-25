@@ -261,7 +261,7 @@
         // 저장된 값으로 체크박스 상태 초기화
         const autoPlay = localStorage.getItem('emoAutoPlay') === 'true';
         const autoPlayCheckBox = document.querySelector('#autoPlayCheckbox')
-        if(!(autoPlay && autoPlayCheckBox)) return false;
+        if(!autoPlayCheckBox) return false;
 
         autoPlayCheckBox.checked = autoPlay;
         applySettings();
