@@ -19,10 +19,7 @@ const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-bl
 const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-block');
-
-const searchElement = document.getElementById('boardSearch');
-const searchUserName = document.getElementById('bo_sfl').querySelector('option[value="wr_name,1"]');
-const searchUserID = document.getElementById('bo_sfl').querySelector('option[value="wr_name,0"]');
+const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
@@ -43,6 +40,15 @@ emptyCommentElements.forEach(element => {
 
 userOnlyElements.forEach(element => {
   element.style.color = 'red';
+});
+
+memberLeaveBtn.forEach(element => {
+  const grandparentElement = element.parentElement?.parentElement;
+
+  if (grandparentElement && grandparentElement.classList.contains('col-3')) {
+    grandparentElement.remove();
+    element.insertAdjacentHTML('afterend', '<br>');
+  }
 });
 
 commentParentElements.forEach(element => {
@@ -136,6 +142,10 @@ contentsCount.forEach(element => {
     boldElement.innerText = number;
   }
 });
+
+const searchElement = document.getElementById('boardSearch');
+const searchUserName = document.getElementById('bo_sfl').querySelector('option[value="wr_name,1"]');
+const searchUserID = document.getElementById('bo_sfl').querySelector('option[value="wr_name,0"]');
 
 if (searchElement) searchElement.className = '';
 if (searchUserName) searchUserName.textContent = '작성자 (이름)';
