@@ -37,7 +37,7 @@
     // 총 값 계산
     const totalValue = expValue + nextValue;
     // Exp 요소의 텍스트를 업데이트
-    expElement.textContent = `Exp ${expValue.toLocaleString()}/${totalValue.toLocaleString()} +${nextValue.toLocaleString()} (${formattedPercentage}%)`;
+    expElement.textContent = `+${nextValue.toLocaleString()} (${formattedPercentage}%)`;
   }
 
   // 레벨 아이콘을 추가하는 함수
@@ -64,7 +64,7 @@
     //imgElement.style.height = '12px'; // 원하는 크기로 조정
 
     // Level 요소의 텍스트를 "Lv"로 수정하고, 이미지 태그를 앞에 추가
-    levelElement.textContent = `Lv${levelValue}`;
+    levelElement.textContent = `Lv.${levelValue}`;
     levelElement.prepend(imgElement);
   }
 
