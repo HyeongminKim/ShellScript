@@ -23,7 +23,7 @@ const searchElement = document.getElementById('boardSearch');
 const searchUserName = document.getElementById('bo_sfl').querySelector('option[value="wr_name,1"]');
 const searchUserID = document.getElementById('bo_sfl').querySelector('option[value="wr_name,0"]');
 
-const userOnline = document.querySelector('.d-flex.align-items-center.justify-content-between.small'); //Desktop Only
+const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
 const commentCountStyle = document.createElement('style');
 const recommendBtnStyle = document.createElement('style');
@@ -92,12 +92,19 @@ yourPostsElements.forEach(listItem => {
 membersInfo.forEach(member => {
   const xpIcon = member.querySelector('.xp-icon');
 
-  if (userOnline && xpIcon) {
+  if ((userOnline && xpIcon) && !(navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
     if (xpIcon.getAttribute('data-member-level')) {
       const memberLevel = xpIcon.getAttribute('data-member-level');
       member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님 Lv.' + memberLevel));
     } else if(xpIcon.getAttribute('data-member-level-icon') === 'special') {
       member.setAttribute('title', member.getAttribute('title').replace('자기소개', '광고주님'));
+    }
+  } else if((userOnline && xpIcon) && (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
+    if (xpIcon.getAttribute('data-member-level')) {
+      const memberLevel = xpIcon.getAttribute('data-member-level');
+      xpIcon.style.display = 'unset';
+      xpIcon.style.color = 'orange';
+      xpIcon.innerHTML = memberLevel;
     }
   } else if(!userOnline && xpIcon) {
     member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님의 정보를 확인하시려면 로그인하세요.'));
