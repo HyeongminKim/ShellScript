@@ -18,6 +18,7 @@ const visitCountElements = document.querySelectorAll('.wr-num.text-nowrap.order-
 const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-block.writter-bg');
 const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
+const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-block');
 
 const searchElement = document.getElementById('boardSearch');
 const searchUserName = document.getElementById('bo_sfl').querySelector('option[value="wr_name,1"]');
@@ -110,6 +111,29 @@ membersInfo.forEach(member => {
     member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님의 정보를 확인하시려면 로그인하세요.'));
     xpIcon.setAttribute('data-member-level', '');
     xpIcon.setAttribute('data-member-level-icon', '');
+  }
+});
+
+contentsCount.forEach(element => {
+  const boldElement = element.querySelector('b');
+
+  if (boldElement) {
+    let number = parseFloat(boldElement.innerText.replace(/,/g, ''));
+
+    if (number >= 1_000_000_000) {
+      boldElement.title = number.toLocaleString(navigator.language);
+      number = (number / 1_000_000_000).toFixed(1) + 'b';
+    } else if (number >= 1_000_000) {
+      boldElement.title = number.toLocaleString(navigator.language);
+      number = (number / 1_000_000).toFixed(1) + 'm';
+    } else if (number >= 1_000) {
+      boldElement.title = number.toLocaleString(navigator.language);
+      number = (number / 1_000).toFixed(1) + 'k';
+    } else {
+      number = number.toString();
+    }
+
+    boldElement.innerText = number;
   }
 });
 
