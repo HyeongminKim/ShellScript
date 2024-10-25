@@ -20,7 +20,10 @@ const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 
 const searchElement = document.getElementById('boardSearch');
-const userOnline = document.querySelector('.d-flex.align-items-center.justify-content-between.small');
+const searchUserName = document.getElementById('bo_sfl').querySelector('option[value="wr_name,1"]');
+const searchUserID = document.getElementById('bo_sfl').querySelector('option[value="wr_name,0"]');
+
+const userOnline = document.querySelector('.d-flex.align-items-center.justify-content-between.small'); //Desktop Only
 
 const commentCountStyle = document.createElement('style');
 const recommendBtnStyle = document.createElement('style');
@@ -104,6 +107,8 @@ membersInfo.forEach(member => {
 });
 
 if (searchElement) searchElement.className = '';
+if (searchUserName) searchUserName.textContent = '작성자 (닉네임)';
+if (searchUserID) searchUserID.textContent = '작성자 (ID)';
 
 commentCountStyle.innerHTML = `
   .count-plus::before {
