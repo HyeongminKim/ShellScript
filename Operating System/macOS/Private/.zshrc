@@ -129,8 +129,8 @@ export LC_ALL=en_US.UTF-8
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-alias "ls"="ls --color=auto -lhF"
-alias "dir"="ls --color=auto -alhF"
+alias "ls"="ls --color=auto --hyperlink=auto -lhF"
+alias "dir"="ls --color=auto --hyperlink=auto -alhF"
 alias "diff"="diff -s"
 alias "ps"="ps -l"
 alias "killall_iWorks"="killall Pages; killall Numbers; killall Keynote"
