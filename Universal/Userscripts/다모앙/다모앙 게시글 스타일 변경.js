@@ -107,7 +107,7 @@ membersInfo.forEach(member => {
 });
 
 if (searchElement) searchElement.className = '';
-if (searchUserName) searchUserName.textContent = '작성자 (닉네임)';
+if (searchUserName) searchUserName.textContent = '작성자 (이름)';
 if (searchUserID) searchUserID.textContent = '작성자 (ID)';
 
 commentCountStyle.innerHTML = `
