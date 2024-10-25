@@ -11,7 +11,8 @@
 
 function addFilterInput() {
   const sidebar = document.getElementById('sidebar-site-menu');
-
+  if(!sidebar) return false;
+  
   var input = document.createElement('input');
   input.type = 'text';
   input.inputMode = 'search';
@@ -24,6 +25,7 @@ function addFilterInput() {
 
 function filterNavLinks() {
   const sidebarElement = document.getElementById('sidebar-sub-s1-2');
+  if(!sidebarElement) return false;
 
   var input = document.getElementById('filter-input');
   var filter = input.value.toLowerCase();
