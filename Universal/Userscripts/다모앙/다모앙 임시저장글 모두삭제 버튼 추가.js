@@ -36,7 +36,7 @@
     const autosaveListUrl = g5_bbs_url + '/ajax.autosavelist.php';
 
     if(subject_ID) {
-      if(window.confirm('계속 진행할 경우 현재 편집중인 게시글 "' + subject_ID + '"가 즉시 등록됩니다!\n중단하시겠습니까?')) {
+      if(window.confirm('계속 진행할 경우 현재 편집중인 게시글 "' + subject_ID + '"가 즉시 등록됩니다!\n변경사항을 폐기하시겠습니까?\n\n"취소": 임시저장글 모두 삭제 계속진행\n"확인": damoang.net으로 이동')) {
         window.location.href = "https://damoang.net"
         return false;
       }
