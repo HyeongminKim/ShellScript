@@ -24,7 +24,7 @@ function addFilterInput() {
 }
 
 function filterNavLinks() {
-  const sidebarElement = document.getElementById('sidebar-sub-s1-2');
+  const sidebarElement = document.getElementById('sidebar-sub-13');
   if(!sidebarElement) return false;
 
   var input = document.getElementById('filter-input');
