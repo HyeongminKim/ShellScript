@@ -15,33 +15,39 @@ fi
 params=("$@")
 for i in "${params[@]}"; do
     case $i in
-        "--public")
-            public_addr=1
+    "--public")
+        public_addr=1
         ;;
-        "--mask=1")
-            mask=1
+    "--mask=1")
+        mask=1
         ;;
-        "--mask"|"--mask=2")
-            mask=2
+    "--mask" | "--mask=2")
+        mask=2
         ;;
-        "--mask=3")
-            mask=3
+    "--mask=3")
+        mask=3
         ;;
-        "--mask=4")
-            mask=4
+    "--mask=4")
+        mask=4
         ;;
-        *)
-            echo "unknown option: $i. Skipping." >&2
+    *)
+        echo "unknown option: $i. Skipping." >&2
         ;;
     esac
 done
 
 if [ $public_addr -eq 1 ]; then
-    cnt_ip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    cnt_ip="$(curl -s ipinfo.io/ip)"
     echo -n 'Public: '
 else
-    cnt_ip=$(ifconfig eth0 | sed -n '2p' | awk '{ print $2 }')
-    diff_ip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    net_device="eth0"
+    ifconfig eth0 &>/dev/null
+    if [ $? -ne 0 ]; then
+        net_device="wlan0"
+    fi
+
+    cnt_ip=$(ifconfig $net_device | sed -n '2p' | awk '{ print $2 }')
+    diff_ip="$(curl -s ipinfo.io/ip)"
     if [ "$cnt_ip" == "$diff_ip" ]; then
         echo -n 'Public: '
     else
@@ -60,4 +66,3 @@ elif [ $mask -eq 4 ]; then
 else
     echo "$cnt_ip"
 fi
-
