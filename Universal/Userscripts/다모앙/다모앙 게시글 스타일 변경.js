@@ -20,6 +20,7 @@ const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-block');
 const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
+const linkBlocks = document.querySelectorAll('.da-link-block');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
@@ -29,6 +30,10 @@ const recommendBtnStyle = document.createElement('style');
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
   element.style.color = 'black';
+});
+
+linkBlocks.forEach(element => {
+  element.title = element.innerText.trim();
 });
 
 emptyCommentElements.forEach(element => {
