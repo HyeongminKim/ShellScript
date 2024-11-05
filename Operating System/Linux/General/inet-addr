@@ -1,6 +1,6 @@
 #!/bin/bash
 
-public_addr=0
+addr_mode=0
 mask=0
 chk_url="https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Operating%20System/Linux/General/inet-addr"
 
@@ -8,15 +8,33 @@ if [ "$1" == "--help" ]; then
     echo "$0 [options]"
     echo -e " --help\t\tShow this help message"
     echo -e " --public\tShow public IPv4 address (default: private)"
+    echo -e " --all\t\tShow both IPv4 address if possable"
     echo -e " --mask=N\tMask N octet address (default: 2)"
     exit 0
 fi
+
+function mask_addr() {
+    if [ $1 -eq 1 ]; then
+        printf '♡.%s.%s.%s\n' $(echo $2 | awk -F. '{ print $2 }') $(echo $2 | awk -F. '{ print $3 }') $(echo $2 | awk -F. '{ print $4 }')
+    elif [ $1 -eq 2 ]; then
+        printf '%s.♡.%s.%s\n' $(echo $2 | awk -F. '{ print $1 }') $(echo $2 | awk -F. '{ print $3 }') $(echo $2 | awk -F. '{ print $4 }')
+    elif [ $1 -eq 3 ]; then
+        printf '%s.%s.♡.%s\n' $(echo $2 | awk -F. '{ print $1 }') $(echo $2 | awk -F. '{ print $2 }') $(echo $2 | awk -F. '{ print $4 }')
+    elif [ $1 -eq 4 ]; then
+        printf '%s.%s.%s.♡\n' $(echo $2 | awk -F. '{ print $1 }') $(echo $2 | awk -F. '{ print $2 }') $(echo $2 | awk -F. '{ print $3 }')
+    else
+        echo "$2"
+    fi
+}
 
 params=("$@")
 for i in "${params[@]}"; do
     case $i in
     "--public")
-        public_addr=1
+        addr_mode=1
+        ;;
+    "--all")
+        addr_mode=2
         ;;
     "--mask=1")
         mask=1
@@ -36,10 +54,11 @@ for i in "${params[@]}"; do
     esac
 done
 
-if [ $public_addr -eq 1 ]; then
+if [ $addr_mode -eq 1 ]; then
     cnt_ip="$(curl -s ipinfo.io/ip)"
     echo -n 'Public: '
-else
+    mask_addr $mask $cnt_ip
+elif [ $addr_mode -eq 0 ]; then
     net_device="eth0"
     ifconfig eth0 &>/dev/null
     if [ $? -ne 0 ]; then
@@ -50,19 +69,27 @@ else
     diff_ip="$(curl -s ipinfo.io/ip)"
     if [ "$cnt_ip" == "$diff_ip" ]; then
         echo -n 'Public: '
+        mask_addr $mask $cnt_ip
     else
         echo -n 'Private: '
+        mask_addr $mask $cnt_ip
     fi
-fi
+elif [ $addr_mode -eq 2 ]; then
+    net_device="eth0"
+    ifconfig eth0 &>/dev/null
+    if [ $? -ne 0 ]; then
+        net_device="wlan0"
+    fi
 
-if [ $mask -eq 1 ]; then
-    printf '♡.%s.%s.%s\n' $(echo $cnt_ip | awk -F. '{ print $2 }') $(echo $cnt_ip | awk -F. '{ print $3 }') $(echo $cnt_ip | awk -F. '{ print $4 }')
-elif [ $mask -eq 2 ]; then
-    printf '%s.♡.%s.%s\n' $(echo $cnt_ip | awk -F. '{ print $1 }') $(echo $cnt_ip | awk -F. '{ print $3 }') $(echo $cnt_ip | awk -F. '{ print $4 }')
-elif [ $mask -eq 3 ]; then
-    printf '%s.%s.♡.%s\n' $(echo $cnt_ip | awk -F. '{ print $1 }') $(echo $cnt_ip | awk -F. '{ print $2 }') $(echo $cnt_ip | awk -F. '{ print $4 }')
-elif [ $mask -eq 4 ]; then
-    printf '%s.%s.%s.♡\n' $(echo $cnt_ip | awk -F. '{ print $1 }') $(echo $cnt_ip | awk -F. '{ print $2 }') $(echo $cnt_ip | awk -F. '{ print $3 }')
-else
-    echo "$cnt_ip"
+    cnt_ip=$(ifconfig $net_device | sed -n '2p' | awk '{ print $2 }')
+    diff_ip="$(curl -s ipinfo.io/ip)"
+    if [ "$cnt_ip" == "$diff_ip" ]; then
+        echo -n 'Public: '
+        mask_addr $mask $cnt_ip
+    else
+        echo -n 'Public: '
+        mask_addr $mask $diff_ip
+        echo -n 'Private: '
+        mask_addr $mask $cnt_ip
+    fi
 fi
