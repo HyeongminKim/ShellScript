@@ -42,7 +42,7 @@ reportedlinkBlocks.forEach(element => {
 
   if (boldTag && boldTag.textContent.includes("🚨신고 누적")) {
     element.addEventListener('click', (event) => {
-      const userConfirmed = confirm("🚨신고 누적된 항목입니다. 계속하시겠습니까?");
+      const userConfirmed = confirm("🚨신고 누적된 항목 \"" + element.textContent.trim().replace('🚨신고 누적 ', '') + "\" 을 열람하려고 합니다.\n계속하시겠습니까?");
 
       if(!userConfirmed) event.preventDefault();
     });
