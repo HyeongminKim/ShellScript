@@ -21,6 +21,7 @@ const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--mem
 const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-block');
 const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
 const linkBlocks = document.querySelectorAll('.da-link-block');
+const reportedlinkBlocks = document.querySelectorAll('.da-link-block.subject-ellipsis');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
@@ -34,6 +35,18 @@ schWordElements.forEach(element => {
 
 linkBlocks.forEach(element => {
   element.title = element.innerText.trim();
+});
+
+reportedlinkBlocks.forEach(element => {
+  const boldTag = element.querySelector('b');
+
+  if (boldTag && boldTag.textContent.includes("🚨신고 누적")) {
+    element.addEventListener('click', (event) => {
+      const userConfirmed = confirm("🚨신고 누적된 항목입니다. 계속하시겠습니까?");
+
+      if(!userConfirmed) event.preventDefault();
+    });
+  };
 });
 
 emptyCommentElements.forEach(element => {
