@@ -34,7 +34,7 @@ schWordElements.forEach(element => {
 });
 
 linkBlocks.forEach(element => {
-  if(!element.classList.contains('list-group-item') || !element.classList.contains('fw-normal')) {
+  if(!element.classList.contains('list-group-item') && !element.classList.contains('fw-normal')) {
     const fwNormalElements = element.querySelectorAll('.fw-normal');
     fwNormalElements.forEach(el => el.style.display = 'none');
     
