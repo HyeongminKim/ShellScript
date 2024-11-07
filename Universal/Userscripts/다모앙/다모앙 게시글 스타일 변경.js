@@ -34,7 +34,9 @@ schWordElements.forEach(element => {
 });
 
 linkBlocks.forEach(element => {
-  element.title = element.innerText.trim();
+  if(!element.classList.contains('list-group-item')) {
+    element.title = element.innerText.trim();
+  }
 });
 
 reportedlinkBlocks.forEach(element => {
