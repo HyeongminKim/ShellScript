@@ -6,7 +6,7 @@ prevDir=$(pwd)
 function gitUpdate() {
     repoName=("Release/ShellScript" "Release/PracticeCalc" "Release/PasswordsGenerator")
     if [ "$(uname -s)" == "Darwin" ]; then
-        repoName+=("Release/aptall" "Release/Timer")
+        repoName+=("Release/aptall")
     elif [ "$(uname -s)" == "Linux" ]; then
         repoName+=("Release/brewall" "Release/ArtDisplay")
     fi
@@ -15,8 +15,8 @@ function gitUpdate() {
         if [ -d ~/Documents/$target ]; then
             echo -e "\n\033[37mupdater: Updating repo ~/Documents/$target...\033[m"
             cd ~/Documents/$target
-            git pull --rebase --stat origin $(git branch | sed '/* /!d'| sed 's/* //g')
-            cd - &> /dev/null
+            git pull --rebase --stat origin $(git branch | sed '/* /!d' | sed 's/* //g')
+            cd - &>/dev/null
             if [ $? != 0 ]; then
                 echo -e "\033[31mupdater: exception occurred: return original directory function corrupted: $prevDir currently not accessible. \033[m"
                 cd ~
@@ -69,4 +69,3 @@ fi
 
 echo -e '\a'
 exit $exitCode
-
