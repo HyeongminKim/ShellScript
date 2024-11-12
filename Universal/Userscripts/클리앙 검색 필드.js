@@ -27,7 +27,7 @@ function addFilterInput() {
 
 function filterSomoimLinks() {
   var input = document.getElementById('filter-input');
-  var filter = input.value.toLowerCase();
+  var filter = input.value.toLowerCase().trim();
   var navLinks = document.getElementsByClassName('menu-list somoim');
 
   for(var i = 0; i < navLinks.length; i++) {

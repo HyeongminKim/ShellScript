@@ -28,7 +28,7 @@ function filterNavLinks() {
   if(!sidebarElement) return false;
 
   var input = document.getElementById('filter-input');
-  var filter = input.value.toLowerCase();
+  var filter = input.value.toLowerCase().trim();
   var navLinks = document.getElementsByClassName('nav-link');
 
   if(filter.length > 0 && !sidebarElement.classList.contains('show')) {
