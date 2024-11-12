@@ -138,6 +138,7 @@ alias tmuxconfig="vi ~/.tmux.conf"
 alias brewall="echo \"$(uname -s) doesn't support this command.\""
 alias yt-multi="~/.local/bin/YTMultiDown"
 alias vi="nvim"
+alias calc="julia -E"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 set -o vi
