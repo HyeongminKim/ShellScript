@@ -22,6 +22,7 @@ const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-bl
 const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
 const linkBlocks = document.querySelectorAll('.da-link-block');
 const reportedlinkBlocks = document.querySelectorAll('.da-link-block.subject-ellipsis');
+const hotElements = document.querySelectorAll('.na-icon');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
@@ -31,6 +32,10 @@ const recommendBtnStyle = document.createElement('style');
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
   element.style.color = 'black';
+});
+
+hotElements.foreach(element => {
+    element.style.display = 'none';
 });
 
 linkBlocks.forEach(element => {
