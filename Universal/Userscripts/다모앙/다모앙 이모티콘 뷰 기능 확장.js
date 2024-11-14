@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name        다모앙 이모티콘 뷰 기능 확장
-// @version      2024.1114.0
+// @version      2024.1114.1
 // @description  이모티콘 미리보기 크기 조절, GIF 자동재생 및 이모티콘 크기 설정 기능 추가. 자동 재생 체크박스가 저장된 값 반영.
 // @author      LiNE (fork: HyeongminKim)
 // @match        *://damoang.net/*
 // @grant        none
+// @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9D%B4%EB%AA%A8%ED%8B%B0%EC%BD%98%20%EB%B7%B0%20%EA%B8%B0%EB%8A%A5%20%ED%99%95%EC%9E%A5.js
 // @downloadURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9D%B4%EB%AA%A8%ED%8B%B0%EC%BD%98%20%EB%B7%B0%20%EA%B8%B0%EB%8A%A5%20%ED%99%95%EC%9E%A5.js
 // ==/UserScript==
 

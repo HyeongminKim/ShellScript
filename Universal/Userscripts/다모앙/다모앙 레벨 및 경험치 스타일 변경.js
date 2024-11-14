@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         다모앙 레벨 및 경험치 스타일 변경
-// @version      2024.1114.0
+// @version      2024.1114.1
 // @description  경험치에 퍼센트를 추가로 표시하고 레벨 아이콘을 표시합니다
 // @author       LiNE (fork: HyeongminKim)
 // @match        *://damoang.net/*
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EB%A0%88%EB%B2%A8%20%EB%B0%8F%20%EA%B2%BD%ED%97%98%EC%B9%98%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
 // @downloadURL  https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EB%A0%88%EB%B2%A8%20%EB%B0%8F%20%EA%B2%BD%ED%97%98%EC%B9%98%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
 // ==/UserScript==
 
