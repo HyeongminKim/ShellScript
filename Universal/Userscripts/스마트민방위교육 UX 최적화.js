@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://www.cdec.kr/*
 // @grant       none
-// @version     1.0
+// @version     2024.1114.0
 // @author      HyeongminKim
 // @icon        https://i.namu.wiki/i/2R9UASCEkjwtVVvcP4q0r765eu3xJ_a5e8o6y7C2c_OgWtzJTX9Z_2pdxf3Wo11HPjgXi3Lg_71TlkotyM7DSw.svg
 // @description 9/9/2024, 민방위 학습 플레이어 크기 및 볼륨값 재지정

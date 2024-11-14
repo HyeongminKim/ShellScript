@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         다모앙 레벨 및 경험치 스타일 변경
-// @version      1.3
+// @version      2024.1114.0
 // @description  경험치에 퍼센트를 추가로 표시하고 레벨 아이콘을 표시합니다
 // @author       LiNE (fork: HyeongminKim)
 // @match        *://damoang.net/*

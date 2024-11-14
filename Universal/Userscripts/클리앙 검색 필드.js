@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://www.clien.net/*
 // @grant       none
-// @version     1.0
+// @version     2024.1114.0
 // @author      Hyeongmin Kim
 // @description 10/23/2024, 12:13:43 PM
 // @downloadURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%ED%81%B4%EB%A6%AC%EC%95%99%20%EA%B2%80%EC%83%89%20%ED%95%84%EB%93%9C.js

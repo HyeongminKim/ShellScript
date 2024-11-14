@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     1.0
+// @version     2024.1114.0
 // @author      Hyeongmin Kim
 // @description 9/19/2024, 8:59:55 PM
 // @downloadURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%80%EC%83%89%20%ED%95%84%EB%93%9C.js
