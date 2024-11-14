@@ -2,6 +2,11 @@
 
 shouldProjectClean=0
 
+function gracefully_exit() {
+    rm "$UEPath/.UnrealEditor.lock~" 2> /dev/null
+    exit 1
+}
+
 if [ x"$1" == x ]; then
     echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>" >&2
     exit 1
@@ -90,7 +95,7 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
             exit 1
         else
             echo "successfully to change branch $n. Please re-run this script to build UnrealEditor."
-            echo 0 > $UEPath/.UnrealEditor.lock~
+            echo 0 > "$UEPath/.UnrealEditor.lock~"
             exit 0
         fi
     fi
@@ -197,7 +202,7 @@ else
 fi
 read n
 if [ "$n" == "y" -o "$n" == "Y" ]; then
-    echo $$ > $UEPath/.UnrealEditor.lock~
+    echo $$ > "$UEPath/.UnrealEditor.lock~"
 else
     echo "User abort." >&2
     exit 1
@@ -209,14 +214,12 @@ startTime=$(date +%s)
 git pull origin $cntBranch
 if [ $? -ne 0 ]; then
     echo "unable to update UnrealEngine repository. try again later." >&2
-    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
-    exit 1
+    gracefully_exit
 fi
 git gc --prune=now
 if [ $? -ne 0 ]; then
     echo "unable to clean-up UnrealEngine repository. try again later." >&2
-    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
-    exit 1
+    gracefully_exit
 fi
 git count-objects -vH | awk '/size/'
 
@@ -224,48 +227,46 @@ echo "Generating project files..."
 
 /bin/bash "$UEPath/Setup.sh"
 if [ $? -ne 0 ]; then
-    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
-    exit 1
+    gracefully_exit
 fi
 
 /bin/bash "$UEPath/GenerateProjectFiles.sh"
 if [ $? -ne 0 ]; then
-    rm $UEPath/.UnrealEditor.lock~ 2> /dev/null
-    exit 1
+    gracefully_exit
 fi
 
 if [ $shouldProjectClean -eq 1 ]; then
     echo "Invalidating UnrealEditor build caches and object files... Please wait."
-    make UnrealEditor ARGS="-clean"
+    make UnrealEditor ARGS="-clean" || gracefully_exit
 fi
 
 if [ $shouldProjectClean -eq 0 ]; then
     if [ "$1" == "StandardSet" ]; then
         echo "Building StandardSet. See manual."
-        make
+        make || gracefully_exit
     elif [ "$1" == "AlternativeSet" ]; then
         echo "Building AlternativeSet. See manual."
-        make CrashReportClient ShaderCompileWorker UnrealLightmass InterchangeWorker UnrealPak UnrealEditor
+        make CrashReportClient ShaderCompileWorker UnrealLightmass InterchangeWorker UnrealPak UnrealEditor || gracefully_exit
     elif [ "$1" == "DebugSet" ]; then
         echo "Building DebugSet. See manual."
-        make UnrealEditor-Linux-Debug
+        make UnrealEditor-Linux-Debug || gracefully_exit
     else
         echo "Building $@. Please wait."
-        make $@
+        make $@ || gracefully_exit
     fi
 else
     if [ "$2" == "StandardSet" ]; then
         echo "Building StandardSet. See manual."
-        make
+        make || gracefully_exit
     elif [ "$2" == "AlternativeSet" ]; then
         echo "Building AlternativeSet. See manual."
-        make CrashReportClient ShaderCompileWorker UnrealLightmass InterchangeWorker UnrealPak UnrealEditor
+        make CrashReportClient ShaderCompileWorker UnrealLightmass InterchangeWorker UnrealPak UnrealEditor || gracefully_exit
     elif [ "$2" == "DebugSet" ]; then
         echo "Building DebugSet. See manual."
-        make UnrealEditor-Linux-Debug
+        make UnrealEditor-Linux-Debug || gracefully_exit
     else
         echo "Building ${@:2}. Please wait."
-        make ${@:2}
+        make ${@:2} || gracefully_exit
     fi
 fi
 endTime=$(date +%s)
@@ -278,10 +279,9 @@ seconds=$(expr $seconds % 3600)
 minutes=$(expr $seconds / 60)
 seconds=$(expr $seconds % 60)
 
-rm $UEPath/.UnrealEditor.lock~
+rm "$UEPath/.UnrealEditor.lock~"
 if [ $shouldProjectClean -eq 0 ]; then
     echo "Built process $1 elapsed $hours:$minutes:$seconds."
 else
     echo "Built process $2 elapsed $hours:$minutes:$seconds."
 fi
-
