@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        다모앙 임시저장글 모두삭제 버튼 추가
 // @namespace    http://tampermonkey.net/
-// @version      2024.1114.1
+// @version      2024.11141
 // @description  임시 저장글 목록에 "모두 삭제" 버튼을 추가합니다.
 // @author      LiNE (fork: HyeongminKim)
 // @match        *://damoang.net/*
