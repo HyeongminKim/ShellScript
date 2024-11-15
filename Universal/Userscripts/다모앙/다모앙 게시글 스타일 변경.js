@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2024.1114.2
+// @version     2024.1115.0
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -20,6 +20,7 @@ const yourPostsElements = document.querySelectorAll('.list-group-item.da-link-bl
 const emptyCommentElements = document.querySelectorAll('.btn.btn-basic');
 const membersInfo = document.querySelectorAll('.sv_member.sideview.sideview--member.d-flex.align-items-center.gap-1');
 const contentsCount = document.querySelectorAll('.me-auto.order-0.d-none.d-sm-block');
+const hiddenContentsCount = document.querySelectorAll('.list-group-item.da-link-block.d-none');
 const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
 const linkBlocks = document.querySelectorAll('.da-link-block');
 const reportedlinkBlocks = document.querySelectorAll('.da-link-block.subject-ellipsis');
@@ -171,6 +172,10 @@ contentsCount.forEach(element => {
     }
 
     boldElement.innerText = number;
+
+    if(hiddenContentsCount.length > 0) {
+      boldElement.innerText = number + " (필터링됨: " + hiddenContentsCount.length + ")";
+    }
   }
 });
 
