@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2024.11154
+// @version     2024.11155
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -156,27 +156,27 @@ contentsCount.forEach(element => {
   const boldElement = element.querySelector('b');
 
   if (boldElement) {
-    let number = parseFloat(boldElement.innerText.replace(/,/g, ''));
+    let number = rawData = parseFloat(boldElement.innerText.replace(/,/g, ''));
 
-    if (number >= 1_000_000_000) {
+    if (rawData >= 1_000_000_000) {
       boldElement.title = number.toLocaleString(navigator.language);
       number = (number / 1_000_000_000).toFixed(1) + 'b';
-    } else if (number >= 1_000_000) {
+    } else if (rawData >= 1_000_000) {
       boldElement.title = number.toLocaleString(navigator.language);
       number = (number / 1_000_000).toFixed(1) + 'm';
-    } else if (number >= 1_000) {
+    } else if (rawData >= 1000) {
       boldElement.title = number.toLocaleString(navigator.language);
-      number = (number / 1_000).toFixed(1) + 'k';
+      number = (number / 1000).toFixed(1) + 'k';
     } else {
       number = number.toString();
     }
 
     boldElement.innerText = number;
 
-    if(number >= 1000 && hiddenContentsCount.length > 0) {
+    if(rawData >= 1000 && hiddenContentsCount.length > 0) {
       boldElement.innerText = number + " (-" + hiddenContentsCount.length + ")";
       boldElement.title = boldElement.title + " | 필터링됨: " + hiddenContentsCount.length + " / 30";
-    } else if (number < 1000 && hiddenContentsCount.length > 0) {
+    } else if (rawData < 1000 && hiddenContentsCount.length > 0) {
       boldElement.innerText = number + " (-" + hiddenContentsCount.length + ")";
       boldElement.title = "필터링됨: " + hiddenContentsCount.length + " / 30";
     }
