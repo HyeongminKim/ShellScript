@@ -188,6 +188,7 @@ if [ -n "$(git status --porcelain | grep -v '^??')" ]; then
     if [ "$n" == "y" -o "$n" == "Y" ]; then
         git restore $conflict
         if [ $? -ne 0 -o $(git status --porcelain | grep -v '^??' | wc -l) -ne 0 ]; then
+            conflict=$(git status --porcelain | grep -v '^??' | awk '{ print $2 }')
             if [ $(git status --porcelain | grep -v '^??' | wc -l) -eq 1 ]; then
                 echo -e "\n=== unable to revert file ===\n$conflict\n"
             else
