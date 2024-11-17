@@ -141,7 +141,7 @@ echo "Current system infomations..."
 if [ -r /etc/os-release ]; then
     cat /etc/os-release | grep "REDHAT" &> /dev/null
     if [ $? -eq 0 ]; then
-        echo "This script does not support $(cat /etc/os-release | grep 'ID_LIKE' | sed 's/\"//g' |sed 's/ID_LIKE=//')." >&2
+        echo "This script does not support $(cat /etc/os-release | grep 'ID_LIKE' | sed 's/\"//g' | sed 's/ID_LIKE=//')." >&2
         exit 1
     else
         echo "supported distro detected: $(cat /etc/os-release | grep 'ID_LIKE' | sed 's/\"//g' | sed 's/ID_LIKE=//')"
@@ -180,9 +180,24 @@ echo ''
 rm "$UEPath/.UnrealEditor.tmp"
 
 if [ -n "$(git status --porcelain | grep -v '^??')" ]; then
-    git status --porcelain
+    git status --porcelain | grep -v '^??'
+    conflict=$(git status --porcelain | grep -v '^??' | awk '{ print $2 }')
     echo -e "\e[33mWarning! Possible conflict\e[m: You have uncommitted changes. please stage or commit them."
-    echo 'If you want revert changes: `git restore <path>`'
+    echo -n "Would you like revert conflict files? (y/N) > "
+    read n
+    if [ "$n" == "y" -o "$n" == "Y" ]; then
+        git restore $conflict
+        if [ $? -ne 0 -o $(git status --porcelain | grep -v '^??' | wc -l) -ne 0 ]; then
+            if [ $(git status --porcelain | grep -v '^??' | wc -l) -eq 1 ]; then
+                echo -e "\n=== unable to revert file ===\n$conflict\n"
+            else
+                echo -e "\n=== unable to revert files ===\n$conflict\n"
+            fi
+            echo 'If you want revert changes: `git restore <path>`'
+        fi
+    else
+        echo 'If you want revert changes: `git restore <path>`'
+    fi
 fi
 
 if [ $shouldProjectClean -eq 1 ]; then
