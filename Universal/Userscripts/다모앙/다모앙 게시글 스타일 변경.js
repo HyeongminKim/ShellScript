@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2024.11155
+// @version     2024.11180
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -24,6 +24,7 @@ const hiddenContentsCount = document.querySelectorAll('.list-group-item.da-link-
 const memberLeaveBtn = document.querySelectorAll('.bi.bi-box-arrow-right.fs-3');
 const linkBlocks = document.querySelectorAll('.da-link-block');
 const reportedlinkBlocks = document.querySelectorAll('.da-link-block.subject-ellipsis');
+const reportedcommentBlocks = document.querySelectorAll('.na-convert');
 const hotElements = document.querySelectorAll('.na-icon');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
@@ -61,6 +62,20 @@ reportedlinkBlocks.forEach(element => {
       if(!userConfirmed) event.preventDefault();
     });
   };
+});
+
+reportedcommentBlocks.forEach(element => {
+  const boldTag = element.querySelector('b');
+  const rawData = element.textContent.trim().replace('🚨신고 누적 ', '');
+
+  if(boldTag && boldTag.textContent.includes("🚨신고 누적")) {
+    element.textContent = '🚨신고 누적된 댓글입니다. 내용을 보시려면 여기를 클릭하세요.';
+
+    element.addEventListener('click', (event) => {
+      event.preventDefault();
+      alert(rawData);
+    });
+  }
 });
 
 emptyCommentElements.forEach(element => {
