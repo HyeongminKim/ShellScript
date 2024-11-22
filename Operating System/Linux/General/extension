@@ -49,6 +49,16 @@ if [ "$USE_FULL_UPGRADE" == "true" ]; then
   fi
 fi
 
+which p4 &> /dev/null
+if [ $? -eq 0 ]; then
+    echo 'Perforce (P4) release list.'
+    curl -fsSL https://help.perforce.com/helix-core/release-notes/relnotes.txt | grep "Major new functionality in $(date +%Y)"
+    echo -n 'Current installed '
+    p4 -V | tail -1
+    echo 'Please download P4 in below link, if new release available.'
+    echo -e "\thttps://www.perforce.com/downloads/helix-command-line-client-p4"
+fi
+
 which do-release-upgrade &>/dev/null
 if [ $? == 0 ]; then
   do-release-upgrade
