@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2024.11290
+// @version     2024.11300
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -225,6 +225,33 @@ contentsCount.forEach(element => {
     } else {
       boldElement.style.color = 'var(--bs-body-color)'
     }
+  }
+});
+
+document.querySelectorAll('[id^="c_"]').forEach(element => {
+  const numericValue = parseInt(getComputedStyle(element).marginLeft.match(/[\d]+/)[0] / 16, 10);
+
+  if (numericValue === 1) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(255, 0, 0, 0.25)', 'important');
+  } else if (numericValue === 2) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(255, 165, 0, 0.25)', 'important');
+  } else if (numericValue === 3) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(255, 255, 0, 0.25)', 'important');
+  } else if (numericValue === 4) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(0, 128, 0, 0.25)', 'important');
+  } else if (numericValue === 5) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(0, 0, 255, 0.25)', 'important');
+  } else if (numericValue === 6) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(75, 0, 130, 0.25)', 'important');
+  } else if (numericValue === 7) {
+    const target = element.querySelector('.d-flex.align-items-center.border-top.bg-body-tertiary.py-1.px-3');
+    if(target) target.style.setProperty('background-color', 'rgba(238, 130, 238, 0.25)', 'important');
   }
 });
 
