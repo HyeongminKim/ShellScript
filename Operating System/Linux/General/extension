@@ -107,10 +107,18 @@ which zsh &>/dev/null
 if [ $? == 0 ]; then
   /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
   if [ $? == 0 ]; then
-    /bin/zsh -c "source ~/.zshrc; omz update"
-    echo $!
-    if [ $? != 0 ]; then
-      errorCount=$((errorCount + 1))
+    /bin/zsh -c "source ~/.zshrc; omz update" &
+    targetPID=$!
+    for (( i=0 ; i<=10 ; i++ )); do
+        ps | grep $targetPID &> /dev/null
+        if [ $? -ne 0 ]; then
+            break
+        fi
+        sleep 1
+    done
+    ps | grep $targetPID &> /dev/null
+    if [ $? -eq 0 ]; then
+        kill $targetPID &> /dev/null
     fi
   fi
 fi
