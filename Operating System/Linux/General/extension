@@ -103,6 +103,11 @@ if [ -x ~/.local/bin/gitVI_update ]; then
   fi
 fi
 
+which juliaup &> /dev/null
+if [ $? -eq 0 ]; then
+    juliaup update
+fi
+
 which zsh &>/dev/null
 if [ $? == 0 ]; then
   /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
