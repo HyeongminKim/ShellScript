@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2024.12021
+// @version     2024.12040
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -170,6 +170,11 @@ membersInfo.forEach(member => {
     if (xpIcon.getAttribute('data-member-level')) {
       const memberLevel = xpIcon.getAttribute('data-member-level');
       member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님 Lv.' + memberLevel));
+      if(memberLevel < 5) {
+        xpIcon.style.display = 'unset';
+        xpIcon.style.color = 'red';
+        xpIcon.innerHTML = memberLevel;
+      }
     } else if(xpIcon.getAttribute('data-member-level-icon') === 'special') {
       member.setAttribute('title', member.getAttribute('title').replace('자기소개', '광고주님'));
     }
