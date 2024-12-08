@@ -93,9 +93,13 @@ if [ -r "$UEPath/.UnrealEditor.lock~" ]; then
     minutes=$(expr $seconds / 60)
     seconds=$(expr $seconds % 60)
 
-    echo "unable to launch UnrealEditor. target file was locked by another process($locked_PID)."
-    echo "Please wait approximately $hours:$minutes:$seconds for the build to complete."
-    CloseTerminalDelay 5 1
+    echo -e "unable to launch UnrealEditor. target file was locked by another process($locked_PID).\n"
+    if [ $locked_PID -eq 0 ]; then
+        echo "Please recompile UnrealEditor. reason: following channel was altered. This job will take $hours:$minutes:$seconds for the build to complete."
+    else
+        echo "Please wait approximately $hours:$minutes:$seconds for the build to complete."
+    fi
+    CloseTerminalDelay 10 1
 fi
 
 cntBranch=$(git branch --show-current)
