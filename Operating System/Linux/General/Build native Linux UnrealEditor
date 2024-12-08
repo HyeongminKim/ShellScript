@@ -78,7 +78,7 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         echo -n "Are you sure continue this action? (y/N) > "
         read cn
         if [ "$cn" == "y" -o "$cn" == "Y" ]; then
-            echo "" > /dev/null
+            echo 0 > "$UEPath/.UnrealEditor.lock~"
         else
             echo "User abort."
             exit 1
@@ -92,10 +92,10 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         fi
         if [ $? -ne 0 ]; then
             echo "unable to change branch $n."
+            rm "$UEPath/.UnrealEditor.lock~"
             exit 1
         else
             echo "successfully to change branch $n. Please re-run this script to build UnrealEditor."
-            echo 0 > "$UEPath/.UnrealEditor.lock~"
             exit 0
         fi
     fi
