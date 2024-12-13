@@ -17,6 +17,7 @@ elif [ "$1" == "help" -o "$1" == "--help" ]; then
     echo -e "   help\tShow this manual"
     echo -e "  clean\tDelete caches and object files (UnrealEditor only)"
     echo -e "channel\tShow current or change channel to use different UnrealEditor version."
+    echo -e "\tchannel [branch]"
     echo ""
     echo "SUPPORTED BUILD OPTIONS"
     echo "  CrashReportClient"
@@ -56,48 +57,54 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         exit 1
     fi
     git remote update
-    git --no-pager branch -r | sed "s/origin\///g" | grep -v "dev" | grep -v "stag" | grep -v "test" | grep -v "HEAD"
-    echo "current branch: $(git branch --show-current)"
-    echo -n "new branch name: "
-    read n
+
+    if [ x"$2" == x ]; then
+        git --no-pager branch -r | sed "s/origin\///g" | grep -v "dev" | grep -v "stag" | grep -v "test" | grep -v "HEAD"
+        echo "current branch: $(git branch --show-current)"
+        echo -n "new branch name: "
+        read n
+    else
+        n="$2"
+    fi
+
     if [ x"$n" == x ]; then
         echo "User abort." >&2
         exit 1
     elif [ "$(git branch --show-current)" == "$n" ]; then
         echo "current branch and provided branch are identical" >&2
         exit 1
+    fi
+
+    git --no-pager branch -r | sed "s/origin\///g" | grep "$n" &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "unknown branch name $n. Aborted" >&2
+        exit 1
+    fi
+
+    git diff HEAD...origin/$n
+    echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
+    echo -n "Are you sure continue this action? (y/N) > "
+    read cn
+    if [ "$cn" == "y" -o "$cn" == "Y" ]; then
+        echo 0 > "$UEPath/.UnrealEditor.lock~"
     else
-        git --no-pager branch -r | sed "s/origin\///g" | grep "$n" &> /dev/null
-        if [ $? -ne 0 ]; then
-            echo "unknown branch name $n. Aborted" >&2
-            exit 1
-        fi
+        echo "User abort."
+        exit 1
+    fi
 
-        git diff HEAD...origin/$n
-        echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
-        echo -n "Are you sure continue this action? (y/N) > "
-        read cn
-        if [ "$cn" == "y" -o "$cn" == "Y" ]; then
-            echo 0 > "$UEPath/.UnrealEditor.lock~"
-        else
-            echo "User abort."
-            exit 1
-        fi
-
-        git --no-pager branch | grep "$n" &> /dev/null
-        if [ $? -ne 0 ]; then
-            git checkout -t origin/$n
-        else
-            git checkout $n
-        fi
-        if [ $? -ne 0 ]; then
-            echo "unable to change branch $n."
-            rm "$UEPath/.UnrealEditor.lock~"
-            exit 1
-        else
-            echo "successfully to change branch $n. Please re-run this script to build UnrealEditor."
-            exit 0
-        fi
+    git --no-pager branch | grep "$n" &> /dev/null
+    if [ $? -ne 0 ]; then
+        git checkout -t origin/$n
+    else
+        git checkout $n
+    fi
+    if [ $? -ne 0 ]; then
+        echo "unable to change branch $n."
+        rm "$UEPath/.UnrealEditor.lock~"
+        exit 1
+    else
+        echo "successfully to change branch $n. Please re-run this script to build UnrealEditor."
+        exit 0
     fi
 fi
 
