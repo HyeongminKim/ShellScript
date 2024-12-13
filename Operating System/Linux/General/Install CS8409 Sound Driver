@@ -1,7 +1,12 @@
 #!/bin/bash
 
 if [ ! -d $HOME/snap/snd-hda-codec-cs8409 ]; then
-    echo "cs8409: no such file or directory." >&2
+    echo -n "Would you like to download snd-hda-codec-cs8409 from github? (Y/n) > "
+    read n
+    if [ "$n" == "n" -o "$n" == "N" ]; then
+        echo "Abort." >&2
+        exit 1
+    fi
     echo "downloading sound driver: https://github.com/egorenar/snd-hda-codec-cs8409" >&2
     if [ ! -d $HOME/snap ]; then
         mkdir $HOME/snap
