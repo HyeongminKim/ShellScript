@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://ridibooks.com/order/history
 // @grant       none
-// @version     2024.12130
+// @version     2024.12140
 // @author      Hyeongmin Kim
 // @description 12/13/2024, 7:26:20 PM
 // @updateURL https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%A6%AC%EB%94%94%20%EC%B4%9D%20%EA%B2%B0%EC%A0%9C%EA%B8%88%EC%95%A1%20%ED%91%9C%EC%8B%9C.js
@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 var total = 0;
-const museoElements = document.querySelectorAll('.museo_sans');
+const museoElements = document.querySelectorAll('.main_value');
 
 museoElements.forEach(element => {
   const text = element.textContent.trim().replace(/,/g, '');
