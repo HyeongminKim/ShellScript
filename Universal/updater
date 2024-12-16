@@ -33,10 +33,10 @@ if [ "$SKIP_PACKAGE_UPDATER" == "true" ]; then
             ~/Documents/Release/Shellscript/Operating\ System/macOS/Private/extension
         fi
     elif [ "$(uname -s)" == "Linux" ]; then
-        if [ -x ~/Documents/Release/Shellscript/Operating\ System/Linux/General/extension.sh ]; then
-            ~/Documents/Release/Shellscript/Operating\ System/Linux/General/extension.sh
-        elif [ -x ~/Documents/Release/Shellscript/Operating\ System/Linux/RaspberryPi/extension.sh ]; then
-            ~/Documents/Release/Shellscript/Operating\ System/Linux/RaspberryPi/extension.sh
+        if [ -x ~/Documents/Release/Shellscript/Operating\ System/Linux/General/extension ]; then
+            ~/Documents/Release/Shellscript/Operating\ System/Linux/General/extension
+        elif [ -x ~/Documents/Release/Shellscript/Operating\ System/Linux/RaspberryPi/extension ]; then
+            ~/Documents/Release/Shellscript/Operating\ System/Linux/RaspberryPi/extension
         fi
     fi
     echo -e '\a'
