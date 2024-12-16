@@ -147,6 +147,11 @@ else
   fi
 fi
 
+which flatpak &> /dev/null
+if [ $? -eq 0 ]; then
+    flatpak update
+fi
+
 if [ $errorCount -gt 0 ]; then
   exit 1
 else
