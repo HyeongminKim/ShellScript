@@ -14,13 +14,16 @@ elif [ "$1" == "help" -o "$1" == "--help" ]; then
     echo "$0"
     echo "Launch UnrealEditor normally."
     echo ""
+    echo "$0 uproject"
+    echo "Launch UnrealEditor with specified uproject."
+    echo ""
     echo "$0 uproject FILE1 FILE2"
     echo "Compare 2 uasset files."
     echo ""
     echo "$0 uproject origin/FILE ./FILE HEAD master"
     echo "Compare 2 uasset files and merge if possable."
     exit 0
-elif [ $# -eq 0 ]; then
+elif [ $# -eq 0 -o $# -eq 1 ]; then
     echo "" > /dev/null
 else
     echo "unknown command: $@."
@@ -61,7 +64,11 @@ function LaunchUnrealEditor() {
         fi
     else
         echo -n "Launching UnrealEditor in $UEPath... "
-        setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
+        if [ $# -eq 1 ]; then
+            setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" "$1" &> /dev/null &
+        elif [ $# -eq 0 ]; then
+            setsid "$UEPath/Engine/Binaries/Linux/UnrealEditor" &> /dev/null &
+        fi
     fi
     echo "($!)"
     CloseTerminalDelay 5 0
