@@ -1,0 +1,23 @@
+#!/bin/bash
+
+projectName=`basename "$PWD"`
+
+if [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "usage: $0 [option|uproject: dir]"
+    exit 0
+elif [ $# -eq 1 -a -d "$1" ]; then
+    cd "$1" &> /dev/null
+    if [ $? -eq 0 ]; then
+        projectName=`basename "$PWD"`
+    else
+        echo "unable to access $1. Please check permission." >&2
+    fi
+fi
+
+if [ -r "$projectName.uproject" ]; then
+    rm -rf Binaries DerivedDataCache Intermediate Saved 
+    rm -rf .idea .vscode
+    rm *.code-workspace *.DotSettings.user Makefile
+else
+    echo "unable to cleanup $projectName project. reason: $pwd does not seem UnrealProject directory structure." >&2
+fi
