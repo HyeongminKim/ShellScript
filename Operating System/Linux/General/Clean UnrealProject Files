@@ -31,11 +31,12 @@ else
 fi
 
 if [ -r "$projectName.uproject" ]; then
-    rm -rf Binaries DerivedDataCache Intermediate Saved 
+    rm -rf Binaries DerivedDataCache Intermediate
+    rm -rf Saved/Autosaves Saved/Collections Saved/ShaderDebugInfo
     rm Makefile
 
     if [ $aggressive -eq 1 ]; then
-        rm -rf .idea .vscode
+        rm -rf .idea .vscode Saved
         rm *.code-workspace *.DotSettings.user
     fi
 else
