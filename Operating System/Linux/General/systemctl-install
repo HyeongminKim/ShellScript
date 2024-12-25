@@ -7,7 +7,7 @@ launch_date=$(date '+%Y-%m-%d_%H%M%S')
 window_type=
 
 if [ "$1" == "-h" -o "$1" == "--help" ]; then
-    echo "USAGE: $0 <systemd_unit_type|option> <source> [destination]"
+    echo "USAGE: $0 <systemd_unit_type|option> <source|name> [destination]"
     echo ""
     echo "OPTION"
     echo -e " -h, --help:\tprint this message"
@@ -47,18 +47,19 @@ case "$1" in
         ;;
 esac
 
-if ! [ -r "$2" ]; then
-    echo "systemd-inst: cannot access '$2': no such file or directory." >&2
-    exit 1
+if [ -r "$2" ]; then
+    target_path=$(realpath "$2")
+    target_name=$(basename "$2")
+else
+    target_name="$2"
 fi
-
-target_path=$(realpath "$2")
-target_name=$(basename "$2")
 
 if [ $# -eq 2 ]; then
     echo "This script will create $target_name.$1 to /etc/systemd/system"
-    file "$target_path" 2> /dev/null
-    xxd -l 64 "$target_path"
+    if ! [ x"$target_path" == x ]; then
+        file "$target_path" 2> /dev/null
+        xxd -l 64 "$target_path"
+    fi
 
     if [ -r /etc/systemd/system/$target_name.$1 ]; then
         echo "systemd-inst: error: $target_name.$1 already exist in /etc/systemd/system" >&2
@@ -85,8 +86,10 @@ elif [ $# -eq 3 ]; then
         ;;
     esac
     echo "This script will create $target_name.$1 to $inst_location"
-    file "$target_path" 2> /dev/null
-    xxd -l 64 "$target_path"
+    if ! [ x"$target_path" == x ]; then
+        file "$target_path" 2> /dev/null
+        xxd -l 64 "$target_path"
+    fi
 
     if [ -r /etc/systemd/system/$target_name.$1 ]; then
         echo "systemd-inst: error: $target_name.$1 already exist in /etc/systemd/system" >&2
@@ -148,9 +151,15 @@ case $1 in
         echo "# Group=$USER" >> /tmp/systemd-inst-$launch_date
         echo '# Environment="DISPLAY=:0"' >> /tmp/systemd-inst-$launch_date
         echo "# EnvironmentFile=$(dirname $2)" >> /tmp/systemd-inst-$launch_date
-        echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
-        echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
-        echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
+        if ! [ x"$target_path" == x ]; then
+            echo "ExecStart=$target_path" >> /tmp/systemd-inst-$launch_date
+            echo "# ExecReload=$target_path --reload" >> /tmp/systemd-inst-$launch_date
+            echo "# ExecStop=$target_path --stop" >> /tmp/systemd-inst-$launch_date
+        else
+            echo "ExecStart=$target_name" >> /tmp/systemd-inst-$launch_date
+            echo "# ExecReload=$target_name --reload" >> /tmp/systemd-inst-$launch_date
+            echo "# ExecStop=$target_name --stop" >> /tmp/systemd-inst-$launch_date
+        fi
     ;;
     "socket")
         echo "[Socket]" >> /tmp/systemd-inst-$launch_date
