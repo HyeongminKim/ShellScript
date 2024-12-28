@@ -49,11 +49,11 @@ hotElements.forEach(element => {
 
 disciplines.forEach(element => {
   if (element.textContent.trim() === "경고") {
-    element.style.color = "yellow";
-  } else if (element.textContent.trim() === "영구") {
-    element.style.color = "red";
-  } else {
     element.style.color = "orange";
+  } else if (element.textContent.trim() === "영구") {
+    element.style.color = "magenta";
+  } else {
+    element.style.color = "red";
   }
 });
 
