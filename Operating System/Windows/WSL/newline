@@ -22,7 +22,12 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                     echo ""
                 fi
                 file "${params[$i]}" 2> /dev/null
-                xxd -l 32 "${params[$i]}"
+                which xxd &> /dev/null
+                if [ $? -eq 0 ]; then
+                    xxd -l 32 "${params[$i]}"
+                else
+                    echo "Please install vim to use xxd command." >&2
+                fi
                 newline=$(expr $newline + 1)
             fi
         fi
