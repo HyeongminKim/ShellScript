@@ -158,7 +158,7 @@ else
     exit 1
 fi
 
-df -h
+df -h | grep -v tmpfs
 
 cd "$UEPath"
 if [ $? -ne 0 ]; then
