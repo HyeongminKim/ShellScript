@@ -7,6 +7,20 @@ function gracefully_exit() {
     exit 1
 }
 
+function check_editor_running() {
+    ps -e | grep UnrealEditor | grep -v grep &> /dev/null
+    if [ $? -eq 0 ]; then
+        echo -n 'Are you sure terminate UnrealEditor process? (y/N) > '
+        read n
+        if [ "$n" == "y" -o "$n" == "Y" ]; then
+            killall UnrealEditor
+        else
+            echo 'User abort' >&2
+            exit 1
+        fi
+    fi
+}
+
 if [ x"$1" == x ]; then
     echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>" >&2
     exit 1
@@ -56,6 +70,8 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
     if [ $? -ne 0 ]; then
         exit 1
     fi
+    check_editor_running
+
     git remote update
 
     if [ x"$2" == x ]; then
@@ -170,6 +186,8 @@ if [ -r "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" ]; then
     cat "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" | sed 's/\t/    /' | grep -v "BranchName"
     echo ''
 fi
+
+check_editor_running
 
 echo "Check for updates in repo: $UEPath..."
 last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
