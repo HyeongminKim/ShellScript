@@ -58,6 +58,7 @@ elif [ "$1" == "-h" -o "$1" == "--help" ]; then
     echo ''
     echo "Convert files EOL type to LF recursively from specified directory"
     echo "% find /path/to/directory -type f | newline --type=LF"
+    echo "% find /path/to/directory -type f -exec newline --type=LF {} \\;"
     exit 0
 fi
 
