@@ -21,6 +21,11 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                 if [ $newline -gt 0 ]; then
                     echo ""
                 fi
+                binary_check=$(file -bL --mime "${params[$i]}" | grep "binary")
+                if [ $? -eq 0 ]; then
+                    echo "skipping ${params[$i]} file. reason: binary file." >&2
+                    continue
+                fi
                 file "${params[$i]}" 2> /dev/null
                 which xxd &> /dev/null
                 if [ $? -eq 0 ]; then
