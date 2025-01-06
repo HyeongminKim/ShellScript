@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2025.01021
+// @version     2025.01060
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -29,10 +29,12 @@ const newElements = document.querySelectorAll('.na-icon.na-new');
 const hotElements = document.querySelectorAll('.na-icon.na-hot');
 const toTop = document.getElementById('toTop');
 const disciplines = document.querySelectorAll('.wr-period.text-nowrap.order-5.order-md-2');
+const xbutton = document.querySelector('.clearfix.pt-2');
 
 const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
 
 if(toTop) toTop.remove();
+if(xbutton) xbutton.remove();
 
 schWordElements.forEach(element => {
   element.style.backgroundColor = 'yellow';
