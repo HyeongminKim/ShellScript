@@ -51,9 +51,13 @@ fi
 
 which p4 &> /dev/null
 if [ $? -eq 0 ]; then
+    relnotes="https://help.perforce.com/helix-core/release-notes/current/relnotes.txt"
     echo 'Perforce (P4) release list.'
-    curl -fsSL https://help.perforce.com/helix-core/release-notes/current/relnotes.txt | grep "Major new functionality in $(date +%Y)" | sed "s/Major new functionality in //"
-    echo -n 'Current installed '
+    echo "--- $(/usr/bin/date '+%Y') ---"
+    curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y')" | sed "s/Major new functionality in //"
+    echo "--- $(/usr/bin/date '+%Y' -d '1 year ago') ---"
+    curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y' -d '1 year ago')" | sed "s/Major new functionality in //"
+    echo -en '\nCurrent installed '
     p4 -V | tail -1 | sed "s/Rev. P4\/LINUX26X86_64\///"
     echo 'Please download P4 in below link, if new release available.'
     echo -e "\thttps://www.perforce.com/downloads/helix-command-line-client-p4"
