@@ -21,6 +21,22 @@ function check_editor_running() {
     fi
 }
 
+function check_unrealengine_dir() {
+    if [ x"$UEPath" == x ]; then
+        echo "unable to locate UnrealEditor. please set UEPath with absolute path." >&2
+        exit 1
+    elif [ ! -x "$UEPath/Setup.sh" ]; then
+        echo "UnrealEngine directory structure does not seem here." >&2
+        echo "UEPath: $UEPath"
+        exit 1
+    fi
+
+    cd "$UEPath"
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+}
+
 if [ x"$1" == x ]; then
     echo "usage: $0 [option] <[build-options [build-options1.2..]] [build-preset]>" >&2
     exit 1
@@ -57,22 +73,7 @@ elif [ "$1" == "help" -o "$1" == "--help" ]; then
 elif [ "$1" == "clean" -o "$1" == "--clean" ]; then
     shouldProjectClean=1
 elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
-    if [ x"$UEPath" == x ]; then
-        echo "unable to locate UnrealEditor. please provide absolute path." >&2
-        exit 1
-    elif [ ! -x "$UEPath/Setup.sh" ]; then
-        echo "UnrealEngine directory structure does not seem here." >&2
-        echo "$UEPath" >&2
-        exit 1
-    fi
-
-    cd "$UEPath"
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
-    check_editor_running
-
-    git remote update
+    check_unrealengine_dir
 
     if [ x"$2" == x ]; then
         git --no-pager branch -r | sed "s/origin\///g" | grep -v "dev" | grep -v "stag" | grep -v "test" | grep -v "HEAD"
@@ -96,6 +97,9 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         echo "unknown branch name $n. Aborted" >&2
         exit 1
     fi
+
+    git remote update
+    check_editor_running
 
     git diff HEAD...origin/$n
     echo -e "\e[33mWarning\e[m: If you want to change UnrealEditor branch, you should rebuild UnrealEditor changes effect. This action can not be undo."
@@ -137,16 +141,7 @@ git --version
 clang --version
 cmake --version
 
-if [ x"$UEPath" == x ]; then
-    echo "unable to locate UnrealEditor. please set UEPath with absolute path." >&2
-    exit 1
-elif [ ! -x "$UEPath/Setup.sh" ]; then
-    echo "UnrealEngine directory structure does not seem here." >&2
-    echo "UEPath: $UEPath"
-    exit 1
-else
-    echo "UEPath: $UEPath"
-fi
+check_unrealengine_dir
 
 if [ ! -r "$UEPath/.DS_Store" ]; then
     echo "0" > "$UEPath/.DS_Store"
@@ -176,22 +171,18 @@ fi
 
 df -h | grep -v tmpfs
 
-cd "$UEPath"
-if [ $? -ne 0 ]; then
-    exit 1
-fi
-
 if [ -r "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" ]; then
     echo "Current UnrealEditor information..."
     cat "$UEPath/Engine/Binaries/Linux/UnrealEditor.version" | sed 's/\t/    /' | grep -v "BranchName"
     echo ''
 fi
 
-check_editor_running
-
 echo "Check for updates in repo: $UEPath..."
 last_revision=$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B' $(git rev-parse --short HEAD) -n 1)
 cntBranch=$(git branch --show-current)
+
+check_editor_running
+
 git fetch origin $cntBranch --verbose &> "$UEPath/.UnrealEditor.tmp"
 cat "$UEPath/.UnrealEditor.tmp"
 echo -e "--- REVISION HISTORIES in 모⎇ $cntBranch ---\n$(git --no-pager log --author UnrealBot --grep release --format='[%h] %B%N%-C() at %ar%N%-C()' -n 5)"
