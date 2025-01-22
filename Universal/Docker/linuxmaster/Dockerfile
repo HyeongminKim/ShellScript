@@ -9,7 +9,7 @@ RUN yum update -y && \
         vim git wget curl sudo make gcc gcc-c++ autoconf automake \
         e2fsprogs util-linux coreutils cronie crontabs squid \
         nfs-utils samba samba-client network-scripts \
-        iproute iputils tar gzip bzip2 xz dump cpio \
+        iproute iputils tar gzip bzip2 xz dump cpio file \
         vsftpd pciutils quota sed iptables firewalld && \
     yum upgrade -y yum autoremove -y && yum clean all && mandb
 
