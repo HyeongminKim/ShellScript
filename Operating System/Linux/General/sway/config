@@ -60,7 +60,7 @@ output * bg `find $HOME/Pictures/wallpapers -type f | shuf -n 1` fill
 #
 # Basics:
 #
-    bindsym $mod+Ctrl+q exec swaylock -f -c 00000 -i `find $HOME/Pictures/wallpapers -type f | shuf -n 1`
+    bindsym $mod+Ctrl+q exec swaylock -efF -i `find $HOME/Pictures/wallpapers -type f | shuf -n 1`
     # Start a terminal
     bindsym $mod+Return exec $term
 
