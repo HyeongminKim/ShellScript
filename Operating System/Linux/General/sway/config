@@ -216,7 +216,7 @@ bar {
 
     # When the status_command prints a new line to stdout, swaybar updates.
     # The default just shows the current date and time.
-    status_command while echo "$(uptime -r | awk '{ print $4 \" \" $5 \" \" $6 }') $(date +'%Y-%m-%d (%a) %H:%M ')"; do sleep 1; done
+    status_command while echo "$(cat /proc/loadavg | awk '{ print $1 \" \" $2 \" \" $3 }') $(/usr/bin/date +'%Y-%m-%d (%a) %H:%M ')"; do sleep 1; done
 
     colors {
         statusline #ffffff
