@@ -60,6 +60,7 @@ output * bg `find $HOME/Pictures/wallpapers -type f | shuf -n 1` fill
 #
 # Basics:
 #
+    bindsym $mod+r output * bg `find $HOME/Pictures/wallpapers -type f | shuf -n 1` fill
     bindsym $mod+Ctrl+q exec swaylock -efF -i `find $HOME/Pictures/wallpapers -type f | shuf -n 1`
     # Start a terminal
     bindsym $mod+Return exec $term
@@ -193,7 +194,7 @@ mode "resize" {
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-bindsym $mod+r mode "resize"
+bindsym $mod+Shift+r mode "resize"
 #
 # Utilities:
 #
