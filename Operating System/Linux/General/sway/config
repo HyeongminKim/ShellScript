@@ -234,5 +234,6 @@ input type:keyboard {
 
 exec fcitx5
 exec nm-applet --indicator
+exec wdisplays
 
 include /etc/sway/config.d/*
