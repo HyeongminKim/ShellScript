@@ -27,7 +27,12 @@ RUN wget https://downloads.apache.org//httpd/httpd-2.4.62.tar.gz && \
 
 WORKDIR /root/pcre-8.36
 RUN ./configure --prefix=/usr/local/apache && \
-    make && make install
+    make && make install && \
+    ln -s /etc/httpd/conf /usr/local/apache && \
+    ln -s /etc/httpd/conf.d /usr/local/apache && \
+    ln -s /etc/httpd/conf.modules.d /usr/local/apache && \
+    ln -s /etc/httpd/modules /usr/local/apache && \
+    ln -s /usr/sbin/apachectl /usr/local/apache/bin
 
 WORKDIR /root
 RUN rm -rf *.tar.* httpd-2.4.62 pcre-8.36
