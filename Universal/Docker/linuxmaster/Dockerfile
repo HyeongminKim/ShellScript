@@ -26,7 +26,7 @@ RUN wget https://downloads.apache.org//httpd/httpd-2.4.62.tar.gz && \
     mv apr-1.7.5 httpd-2.4.62/srclib/apr && mv apr-util-1.6.3 httpd-2.4.62/srclib/apr-util
 
 WORKDIR /root/pcre-8.36
-RUN ./configure --prefix=/usr/local && \
+RUN ./configure --prefix=/usr/local/apache && \
     make && make install
 
 WORKDIR /root
