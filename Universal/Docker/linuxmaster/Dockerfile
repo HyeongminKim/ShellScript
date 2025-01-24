@@ -23,7 +23,7 @@ RUN yum update -y && \
         e2fsprogs util-linux coreutils cronie crontabs squid \
         nfs-utils samba samba-client network-scripts tomcat log4j \
         iproute iputils tar gzip bzip2 xz dump cpio file \
-        vsftpd pciutils quota sed iptables firewalld && \
+        vsftpd pciutils quota sed iptables firewalld bind-utils && \
     yum upgrade -y yum autoremove -y && yum clean all && mandb
 
 RUN wget https://downloads.apache.org//httpd/httpd-$httpd_version.tar.gz && \
