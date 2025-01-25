@@ -1,0 +1,63 @@
+#!/bin/bash
+
+container=
+image=
+
+function permission_check() {
+    if [ $UID -ne 0 ]; then
+        echo "error: $USER does not enough permission accesing docker daemon. Are you root?" >&2
+        exit 1
+    fi
+}
+
+if [ $# -eq 2 ]; then
+    container=$1
+    image=$2
+elif [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "usage: $0 [option | container image]"
+    echo -e "--help\tShow this help and exit."
+    exit 0
+else
+    permission_check
+    docker container ls
+
+    echo -n "container ID or NAME: "
+    read n
+    container=$n
+    if [ x$n == x ]; then
+        echo "User Abort." >&2
+        exit 1
+    fi
+
+    echo -n "image ID or NAME: "
+    read n
+    if [ x$n == x ]; then
+        echo "User Abort." >&2
+        exit 1
+    fi
+    image=$n
+fi
+
+docker container inspect $container &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "error: no such container: $container" >&2
+    exit 1
+else
+    docker container logs $container
+fi
+
+docker image inspect $image &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "error: no such image: $image" >&2
+    exit 1
+else
+    docker image history $image
+fi
+
+permission_check
+docker top $container &>/dev/null
+if [ $? -eq 0 ]; then
+    docker stop $container
+fi
+docker rm $container
+docker rm $image
