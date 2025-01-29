@@ -21,9 +21,10 @@ RUN yum update -y && \
         net-tools rsync kmod lvm2 openssl-devel bind dhcp-server dhcp-client \
         vim git wget curl sudo make gcc gcc-c++ autoconf automake flex \
         e2fsprogs util-linux coreutils cronie crontabs squid mdadm telnet \
-        nfs-utils samba samba-client network-scripts bison nmap \
+        nfs-utils samba samba-client network-scripts bison nmap traceroute \
         iproute iputils tar gzip bzip2 xz dump cpio file passwd ncurses ncurses-devel \
-        vsftpd pciutils quota sed iptables firewalld bind-utils expat expat-devel
+        vsftpd pciutils quota sed iptables firewalld bind-utils expat expat-devel \
+        ypbind ypserv yp-tools rpcbind xinetd
 
 RUN curl -fSL https://dlcdn.apache.org//httpd/httpd-$httpd_version.tar.gz > httpd-$httpd_version.tar.gz && \
     tar -xf httpd-$httpd_version.tar.gz && \
