@@ -65,12 +65,6 @@ RUN ./configure \
     make && make install && \
     /usr/local/apache/bin/httpd -V
 
-# RUN ln -s /etc/httpd/conf /usr/local/apache && \
-#     ln -s /etc/httpd/conf.d /usr/local/apache && \
-#     ln -s /etc/httpd/conf.modules.d /usr/local/apache && \
-#     ln -s /etc/httpd/modules /usr/local/apache && \
-#     ln -s /usr/sbin/apachectl /usr/local/apache/bin && \
-
 WORKDIR /root
 RUN yum upgrade -y yum autoremove -y && yum clean all && \
     mandb
