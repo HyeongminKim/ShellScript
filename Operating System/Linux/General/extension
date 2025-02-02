@@ -1,52 +1,25 @@
 #!/bin/bash
 
-errorCount=0
-
 which aptitude &>/dev/null
 if [ $? == 0 ]; then
   sudo aptitude safe-upgrade
-  if [ $? != 0 ]; then
-    errorCount=$((errorCount + 1))
-  fi
 fi
 
 if [ "$USE_FULL_UPGRADE" == "true" ]; then
   which pip3 &>/dev/null
   if [ $? == 0 ]; then
     python3 -m pip config set global.break-system-packages true
-    if [ $? -ne 0 ]; then
-      if [ $LANG == "ko_KR.UTF-8" ]; then
-        echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
-      else
-        echo "An error occured when updating pip3."
-      fi
-      errorCount=$((errorCount + 1))
-    else
+    if [ $? -eq 0 ]; then
       pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
-      if [ $? != 0 ]; then
-        if [ $LANG == "ko_KR.UTF-8" ]; then
-          echo "pip3 을 업데이트 하는 도중 에러가 발생하였습니다. "
-        else
-          echo "An error occured when updating pip3."
-        fi
-        errorCount=$((errorCount + 1))
-      fi
     fi
   fi
 
   which pip3.exe &>/dev/null
   if [ $? == 0 ]; then
     pip3.exe list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3.exe install -U {}
-    if [ $? != 0 ]; then
-      if [ $LANG == "ko_KR.UTF-8" ]; then
-        echo "pip3.exe 을 업데이트 하는 도중 에러가 발생하였습니다. "
-      else
-        echo "An error occured when updating pip3.exe."
-      fi
-      errorCount=$((errorCount + 1))
-    fi
     python.exe -m pip install -U pip
   fi
+  echo -e "\n"
 fi
 
 which p4 &> /dev/null
@@ -63,12 +36,16 @@ if [ $? -eq 0 ]; then
     echo -e "\thttps://www.perforce.com/downloads/helix-command-line-client-p4"
 fi
 
-which do-release-upgrade &>/dev/null
-if [ $? == 0 ]; then
-  do-release-upgrade
-  if [ $? != 0 ]; then
-    errorCount=$((errorCount + 1))
-  fi
+which nvim &> /dev/null
+if [ $? -eq 0 ]; then
+    local=$(nvim --version | grep NVIM | awk '{ print $2 }')
+    release=$(curl -fsSL https://github.com/neovim/neovim/releases/latest | grep '<title>' | awk '{ print $3 }')
+    if [ "$local" != "$release" ]; then
+        echo 'Please download neovim in below link.'
+        echo -e "\thttps://github.com/neovim/neovim/releases/latest"
+    else
+        echo "Neovim is up to date ($local)."
+    fi
 fi
 
 which wsl.exe &>/dev/null
@@ -85,36 +62,22 @@ fi
 which pip3 &>/dev/null
 if [ $? == 0 ]; then
   pip3 cache purge
-  if [ $? != 0 ]; then
-    errorCount=$((errorCount + 1))
-  fi
 fi
 
 which winget.exe &>/dev/null
 if [ $? == 0 ]; then
   #     cmd.exe "/c" "winget.exe upgrade --all"
   cmd.exe "/c" "winget.exe upgrade"
-  if [ $? != 0 ]; then
-    errorCount=$((errorCount + 1))
-  fi
   echo -e "\e[m"
 fi
 
 if [ -x ~/.local/bin/gitVI_update ]; then
   ~/.local/bin/gitVI_update
-  if [ $? != 0 ]; then
-    errorCount=$((errorCount + 1))
-  fi
 fi
 
 which juliaup &> /dev/null
 if [ $? -eq 0 ]; then
     juliaup update
-fi
-
-which bob &> /dev/null
-if [ $? -eq 0 ]; then
-    bob update
 fi
 
 which zsh &>/dev/null
@@ -156,8 +119,3 @@ if [ $? -eq 0 ]; then
     flatpak update
 fi
 
-if [ $errorCount -gt 0 ]; then
-  exit 1
-else
-  exit 0
-fi
