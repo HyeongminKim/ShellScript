@@ -156,10 +156,22 @@ if [ $? -eq 0 ]; then
     flatpak update
 fi
 
+if [ -x /usr/bin/vmplayer ]; then
+    ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep vm &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo 'Installing VMware modules: vmnet, vmmon'
+        sudo vmware-modconfig --console --install-all
+    else
+        echo 'Requirement already satisfied: vmware-modconfig'
+    fi
+fi
+
 if [ -d ~/snap/snd-hda-codec-cs8409 ]; then
     ls /lib/modules/$(uname -r)/updates 2> /dev/null | grep snd-hda-codec-cs8409.ko &> /dev/null
     if [ $? -ne 0 ]; then
         echo "unable to locate CS8409 sound module. Please re-install it."
+    else
+        echo 'Requirement already satisfied: snd-hda-codec-cs8409'
     fi
 fi
 
