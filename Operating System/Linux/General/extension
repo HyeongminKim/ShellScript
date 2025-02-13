@@ -156,3 +156,10 @@ if [ $? -eq 0 ]; then
     flatpak update
 fi
 
+if [ -d ~/snap/snd-hda-codec-cs8409 ]; then
+    ls /lib/modules/$(uname -r)/updates 2> /dev/null | grep snd-hda-codec-cs8409.ko &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "unable to locate CS8409 sound module. Please re-install it."
+    fi
+fi
+
