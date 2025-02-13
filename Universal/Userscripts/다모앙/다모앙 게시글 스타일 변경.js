@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://damoang.net/*
 // @grant       none
-// @version     2025.02131
+// @version     2025.02132
 // @author      Hyeongmin Kim
 // @description 9/13/2024, 3:13:33 PM
 // @updateURL   https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EA%B2%8C%EC%8B%9C%EA%B8%80%20%EC%8A%A4%ED%83%80%EC%9D%BC%20%EB%B3%80%EA%B2%BD.js
@@ -56,22 +56,6 @@ disciplines.forEach(element => {
     element.style.color = "red";
   }
 });
-
-const menubar = document.querySelector('.ms-auto');
-const targetMenu = document.querySelector('.site-nav.d-none.d-lg-block');
-const not_logind_text = document.createElement('b');
-
-if(targetMenu) targetMenu.remove();
-not_logind_text.style.color = "magenta"
-not_logind_text.classList.add('rainbow-text');
-
-if(menubar && !(navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
-not_logind_text.innerHTML = '비로그인 상태 [RO]: ' + navigator.userAgent;
-menubar.appendChild(not_logind_text);
-} else if(menubar && (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
-not_logind_text.innerHTML = '비로그인 [RO]';
-menubar.appendChild(not_logind_text);
-}
 
 linkBlocks.forEach(element => {
   if(!element.classList.contains('list-group-item') && !element.classList.contains('fw-normal')) {
