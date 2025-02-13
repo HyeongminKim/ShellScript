@@ -31,8 +31,6 @@ const toTop = document.getElementById('toTop');
 const disciplines = document.querySelectorAll('.wr-period.text-nowrap.order-5.order-md-2');
 const xbutton = document.querySelector('.clearfix.pt-2');
 
-const userOnline = (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1) ? document.querySelector('.d-flex.justify-content-between.mb-1.small') : document.querySelector('.d-flex.align-items-center.justify-content-between.small');
-
 if(toTop) toTop.remove();
 if(xbutton) xbutton.remove();
 
@@ -59,22 +57,20 @@ disciplines.forEach(element => {
   }
 });
 
-if(!userOnline) {
-  const menubar = document.querySelector('.ms-auto');
-  const targetMenu = document.querySelector('.site-nav.d-none.d-lg-block');
-  const not_logind_text = document.createElement('b');
+const menubar = document.querySelector('.ms-auto');
+const targetMenu = document.querySelector('.site-nav.d-none.d-lg-block');
+const not_logind_text = document.createElement('b');
 
-  if(targetMenu) targetMenu.remove();
-  not_logind_text.style.color = "magenta"
-  not_logind_text.classList.add('rainbow-text');
+if(targetMenu) targetMenu.remove();
+not_logind_text.style.color = "magenta"
+not_logind_text.classList.add('rainbow-text');
 
-  if(menubar && !(navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
-    not_logind_text.innerHTML = '비로그인 상태 [RO]: ' + navigator.userAgent;
-    menubar.appendChild(not_logind_text);
-  } else if(menubar && (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
-    not_logind_text.innerHTML = '비로그인 [RO]';
-    menubar.appendChild(not_logind_text);
-  }
+if(menubar && !(navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
+not_logind_text.innerHTML = '비로그인 상태 [RO]: ' + navigator.userAgent;
+menubar.appendChild(not_logind_text);
+} else if(menubar && (navigator.userAgent.indexOf('iPhone') > -1 || navigator.userAgent.indexOf('Android') > -1)) {
+not_logind_text.innerHTML = '비로그인 [RO]';
+menubar.appendChild(not_logind_text);
 }
 
 linkBlocks.forEach(element => {
@@ -93,7 +89,7 @@ reportedlinkBlocks.forEach(element => {
 
   if (boldTag && boldTag.textContent.includes("🚨신고 누적")) {
     element.addEventListener('click', (event) => {
-      const userConfirmed = userOnline ? confirm("🚨신고 누적된 항목 \"" + element.textContent.trim().replace('🚨신고 누적 ', '') + "\" 을 열람하려고 합니다.\n계속하시겠습니까?") : alert("🚨신고 누적된 항목 \"" + element.textContent.trim().replace('🚨신고 누적 ', '') + "\" 을 열람하려면 먼저 로그인하세요.");
+      const userConfirmed = confirm("🚨신고 누적된 항목 \"" + element.textContent.trim().replace('🚨신고 누적 ', '') + "\" 을 열람하려고 합니다.\n계속하시겠습니까?");
 
       if(!userConfirmed) event.preventDefault();
     });
@@ -105,16 +101,12 @@ reportedcommentBlocks.forEach(element => {
   const rawData = element.textContent.trim().replace('🚨신고 누적 ', '');
 
   if(boldTag && boldTag.textContent.includes("🚨신고 누적")) {
-    if(userOnline) {
-      element.textContent = '[🚨신고 누적된 댓글입니다. 내용을 보시려면 여기를 클릭하세요]';
+    element.textContent = '[🚨신고 누적된 댓글입니다. 내용을 보시려면 여기를 클릭하세요]';
 
-      element.addEventListener('click', (event) => {
-        event.preventDefault();
-        alert(rawData);
-      });
-    } else {
-      element.textContent = '[🚨신고 누적된 댓글입니다. 내용을 보시려면 로그인하세요]';
-    }
+    element.addEventListener('click', (event) => {
+    event.preventDefault();
+    alert(rawData);
+    });
   }
 });
 
@@ -123,10 +115,6 @@ emptyCommentElements.forEach(element => {
     const buttonElement = element.querySelector('.bi');
     if(buttonElement) buttonElement.textContent = '빈';
   }
-});
-
-userOnlyElements.forEach(element => {
-  if(!userOnline) element.style.color = 'red';
 });
 
 memberLeaveBtn.forEach(element => {
@@ -177,15 +165,13 @@ visitCountElements.forEach(element => {
 
 yourPostsElements.forEach(listItem => {
   const svNameElement = listItem.querySelector('.sv_name.text-truncate');
-  if (userOnline && svNameElement) {
-    svNameElement.textContent = '<< YOU >>';
-  }
+  if (svNameElement) svNameElement.textContent = '<< YOU >>';
 });
 
 membersInfo.forEach(member => {
   const xpIcon = member.querySelector('.xp-icon');
 
-  if ((userOnline && xpIcon) && parseInt(navigator.maxTouchPoints) === 0) {
+  if (xpIcon && parseInt(navigator.maxTouchPoints) === 0) {
     if (xpIcon.getAttribute('data-member-level')) {
       const memberLevel = xpIcon.getAttribute('data-member-level');
       member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님 Lv.' + memberLevel));
@@ -201,17 +187,13 @@ membersInfo.forEach(member => {
     } else if(xpIcon.getAttribute('data-member-level-icon') === 'special') {
       member.setAttribute('title', member.getAttribute('title').replace('자기소개', '광고주님'));
     }
-  } else if((userOnline && xpIcon) && parseInt(navigator.maxTouchPoints) > 0) {
+  } else if(xpIcon && parseInt(navigator.maxTouchPoints) > 0) {
     if (xpIcon.getAttribute('data-member-level')) {
       const memberLevel = xpIcon.getAttribute('data-member-level');
       xpIcon.style.display = 'unset';
       xpIcon.style.color = parseInt(memberLevel) < 5 ? 'red' : parseInt(memberLevel) < 10 ? 'orange' : 'green';
       xpIcon.innerHTML = memberLevel;
     }
-  } else if(!userOnline && xpIcon) {
-    member.setAttribute('title', member.getAttribute('title').replace(' 자기소개', '님의 정보를 확인하시려면 로그인하세요.'));
-    xpIcon.setAttribute('data-member-level', '');
-    xpIcon.setAttribute('data-member-level-icon', '');
   }
 });
 
