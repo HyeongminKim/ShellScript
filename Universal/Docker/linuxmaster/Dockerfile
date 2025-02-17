@@ -69,6 +69,5 @@ WORKDIR /root
 RUN yum upgrade -y yum autoremove -y && yum clean all && \
     ln -s /usr/local/apache/man/man1/* /usr/share/man/man1 &&\
     ln -s /usr/local/apache/man/man8/* /usr/share/man/man8 &&\
-    ln -s /usr/local/apache/bin/* /usr/local/bin &&\
     mandb
 
