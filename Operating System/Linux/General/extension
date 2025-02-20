@@ -79,8 +79,8 @@ fi
 
 if [ -x /usr/bin/vmplayer ]; then
     if [ -d /lib/modules/$(uname -r) ]; then
-        ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep vm &> /dev/null
-        if [ $? -ne 0 ]; then
+        vm_count=$(ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep -c 'vm')
+        if [ $vm_count -ne 2 ]; then
             echo 'Installing VMware modules: vmnet, vmmon'
             sudo vmware-modconfig --console --install-all
         else
