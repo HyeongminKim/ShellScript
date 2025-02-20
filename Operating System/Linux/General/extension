@@ -24,46 +24,7 @@ fi
 
 which p4 &> /dev/null
 if [ $? -eq 0 ]; then
-    relnotes="https://help.perforce.com/helix-core/release-notes/current/relnotes.txt"
-    thisyear_revision=( $(curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y')" | sed "s/Major new functionality in //" | awk '{ print $2 }' | awk -F '/' '{ print $2 }' | sed 's/)$//') )
-    lastyear_revision=( $(curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y' -d '1 year ago')" | sed "s/Major new functionality in //" | awk '{ print $2 }' | awk -F '/' '{ print $2 }' | sed 's/)$//') )
-    current_revision=$(p4 -V | tail -1 | sed 's/Rev. P4\///' | sed 's/ /\//g' | awk -F '/' '{ print $3 }')
-    new_revision=0
-
-    if [ "${#thisyear_revision[@]}" -gt 0 ]; then
-        for i in "${thisyear_revision[@]}"; do
-            if [ $current_revision -lt $i ]; then
-                new_revision=$i
-                break
-            fi
-        done
-        if [ $new_revision -gt 0 ]; then
-            echo 'Perforce (P4) release list.'
-            echo "--- $(/usr/bin/date '+%Y') ---"
-            curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y')" | sed "s/Major new functionality in //"
-        fi
-    fi
-    if [ $new_revision -eq 0 -a "${#lastyear_revision[@]}" -gt 0 ]; then
-        for i in "${lastyear_revision[@]}"; do
-            if [ $current_revision -lt $i ]; then
-                new_revision=$i
-                break
-            fi
-        done
-        if [ $new_revision -gt 0 ]; then
-            echo 'Perforce (P4) release list.'
-            echo "--- $(/usr/bin/date '+%Y' -d '1 year ago') ---"
-            curl -fsSL $relnotes | grep "Major new functionality in $(/usr/bin/date '+%Y' -d '1 year ago')" | sed "s/Major new functionality in //"
-        fi
-    fi
-
-    if [ $new_revision -eq 0 ]; then
-        echo "Requirement already satisfied: $(p4 -V | tail -1 | sed 's/Rev. P4\///' | sed 's/ /\//g' | awk -F '/' '{ print "Rev. P4/" $2 " (" $2 "/" $3 ") " $4 "/" $5 "/" $6 }' | sed 's/.$//')"
-    else
-        echo "Update available! $(p4 -V | tail -1 | sed 's/Rev. P4\///' | sed 's/ /\//g' | awk -F '/' '{ print "Rev. P4/" $2 " (" $2 "/" $3 ") " $4 "/" $5 "/" $6 }' | sed 's/.$//')"
-        echo 'Please download P4 in below link, if new release available.'
-        echo -e "\thttps://www.perforce.com/downloads/helix-command-line-client-p4"
-    fi
+    ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ Perforce
 fi
 
 which nvim &> /dev/null
