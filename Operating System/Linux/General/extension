@@ -2,24 +2,24 @@
 
 which aptitude &>/dev/null
 if [ $? == 0 ]; then
-  sudo aptitude safe-upgrade
+    sudo aptitude safe-upgrade
 fi
 
 if [ "$USE_FULL_UPGRADE" == "true" ]; then
-  which pip3 &>/dev/null
-  if [ $? == 0 ]; then
-    python3 -m pip config set global.break-system-packages true
-    if [ $? -eq 0 ]; then
-      pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
+    which pip3 &>/dev/null
+    if [ $? == 0 ]; then
+        python3 -m pip config set global.break-system-packages true
+        if [ $? -eq 0 ]; then
+            pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
+        fi
     fi
-  fi
 
-  which pip3.exe &>/dev/null
-  if [ $? == 0 ]; then
-    pip3.exe list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3.exe install -U {}
-    python.exe -m pip install -U pip
-  fi
-  echo -e "\n"
+    which pip3.exe &>/dev/null
+    if [ $? == 0 ]; then
+        pip3.exe list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3.exe install -U {}
+        python.exe -m pip install -U pip
+    fi
+    echo -e "\n"
 fi
 
 which p4 &> /dev/null
@@ -48,29 +48,25 @@ fi
 
 which wsl.exe &>/dev/null
 if [ $? == 0 ]; then
-  wsl.exe --status
-  wsl.exe --version
-  if [ $LANG == "ko_KR.UTF-8" ]; then
-    echo 'WSL 업데이트를 확인하려면 `wsl.exe --update --web-download` 코드를 실행하세요.'
-  else
+    wsl.exe --status
+    wsl.exe --version
     echo 'Please enter `wsl.exe --update --web-download` command if you wanna check WSL updates.'
-  fi
 fi
 
 which pip3 &>/dev/null
 if [ $? == 0 ]; then
-  pip3 cache purge
+    pip3 cache purge
 fi
 
 which winget.exe &>/dev/null
 if [ $? == 0 ]; then
   #     cmd.exe "/c" "winget.exe upgrade --all"
-  cmd.exe "/c" "winget.exe upgrade"
-  echo -e "\e[m"
+    cmd.exe "/c" "winget.exe upgrade"
+    echo -e "\e[m"
 fi
 
 if [ -x ~/.local/bin/gitVI_update ]; then
-  ~/.local/bin/gitVI_update
+    ~/.local/bin/gitVI_update
 fi
 
 which juliaup &> /dev/null
@@ -80,36 +76,36 @@ fi
 
 which zsh &>/dev/null
 if [ $? == 0 ]; then
-  /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
-  if [ $? == 0 ]; then
-    /bin/zsh -c "source ~/.zshrc; omz update" &
-    targetPID=$!
-    for (( i=0 ; i<=10 ; i++ )); do
+    /bin/zsh -c "source ~/.zshrc; which omz > /dev/null 2>&1"
+    if [ $? == 0 ]; then
+        /bin/zsh -c "source ~/.zshrc; omz update" &
+        targetPID=$!
+        for (( i=0 ; i<=10 ; i++ )); do
+            ps | grep $targetPID &> /dev/null
+            if [ $? -ne 0 ]; then
+                break
+            fi
+            sleep 1
+        done
         ps | grep $targetPID &> /dev/null
-        if [ $? -ne 0 ]; then
-            break
+        if [ $? -eq 0 ]; then
+            kill $targetPID &> /dev/null
         fi
-        sleep 1
-    done
-    ps | grep $targetPID &> /dev/null
-    if [ $? -eq 0 ]; then
-        kill $targetPID &> /dev/null
     fi
-  fi
 fi
 
 if [ ! -x /mnt/c/Windows/System32/cmd.exe ]; then
-  which flutter &>/dev/null
-  if [ $? == 0 ]; then
-    flutter upgrade
-    flutter doctor
-  fi
+    which flutter &>/dev/null
+    if [ $? == 0 ]; then
+        flutter upgrade
+        flutter doctor
+    fi
 else
-  where.exe flutter &>/dev/null
-  if [ $? == 0 ]; then
-    cmd.exe "/c" "flutter upgrade"
-    cmd.exe "/c" "flutter doctor"
-  fi
+    where.exe flutter &>/dev/null
+    if [ $? == 0 ]; then
+        cmd.exe "/c" "flutter upgrade"
+        cmd.exe "/c" "flutter doctor"
+    fi
 fi
 
 which flatpak &> /dev/null
