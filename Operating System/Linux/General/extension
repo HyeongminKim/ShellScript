@@ -157,12 +157,16 @@ if [ $? -eq 0 ]; then
 fi
 
 if [ -x /usr/bin/vmplayer ]; then
-    ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep vm &> /dev/null
-    if [ $? -ne 0 ]; then
-        echo 'Installing VMware modules: vmnet, vmmon'
-        sudo vmware-modconfig --console --install-all
+    if [ -d /lib/modules/$(uname -r) ]; then
+        ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep vm &> /dev/null
+        if [ $? -ne 0 ]; then
+            echo 'Installing VMware modules: vmnet, vmmon'
+            sudo vmware-modconfig --console --install-all
+        else
+            echo 'Requirement already satisfied: vmware-modconfig'
+        fi
     else
-        echo 'Requirement already satisfied: vmware-modconfig'
+        echo 'Please reboot system first to applying kernel updates!'
     fi
 fi
 
