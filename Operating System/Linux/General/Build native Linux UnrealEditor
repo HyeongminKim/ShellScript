@@ -112,6 +112,7 @@ elif [ "$1" == "channel" -o "$1" == "--channel" ]; then
         exit 1
     fi
 
+    git restore .
     git --no-pager branch | grep "$n" &> /dev/null
     if [ $? -ne 0 ]; then
         git checkout -t origin/$n
