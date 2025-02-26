@@ -99,7 +99,7 @@ if [ -d ~/snap/snd-hda-codec-cs8409 ]; then
         if [ "$n" == "n" -o "$n" == "N" ]; then
             echo 'User Abort.'
         else
-            ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ CS8409\ Sound\ Driver
+            ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ CS8409\ Sound\ Driver "-y"
         fi
     else
         echo 'Requirement already satisfied: snd-hda-codec-cs8409'

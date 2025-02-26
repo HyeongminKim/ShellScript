@@ -1,5 +1,17 @@
 #!/bin/bash
 
+trigger=0
+
+if [ "$1" == "help" -o "$1" == "--help" ]; then
+    echo "$0 [help|-y]"
+    exit 0
+elif [ "$1" == "-y" ]; then
+    trigger=1
+elif [ $# -ne 0 ]; then
+    echo "usage: $0 [option]"
+    exit 1
+fi
+
 if [ ! -d $HOME/snap/snd-hda-codec-cs8409 ]; then
     echo -n "Would you like to download snd-hda-codec-cs8409 from github? (Y/n) > "
     read n
@@ -21,11 +33,13 @@ fi
 echo "$(lsb_release -d | sed 's/Description:\t//'), kernel version: $(uname -r)"
 echo "NOTICE: You should install again if you upgrade kernel version."
 echo -e "\n*** REBOOT REQUIRED ***\n"
-echo -n "Do you want to continue setup CS8409 driver? (Y/n) > "
-read input
-if [ "$input" == "n" -o "$input" == "N" ]; then
-    echo "Abort." >&2
-    exit 1
+if [ $trigger -eq 0 ]; then
+    echo -n "Do you want to continue setup CS8409 driver? (Y/n) > "
+    read input
+    if [ "$input" == "n" -o "$input" == "N" ]; then
+        echo "Abort." >&2
+        exit 1
+    fi
 fi
 
 cd $HOME/snap/snd-hda-codec-cs8409
@@ -50,10 +64,14 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "NOTICE: You should reboot your computer to changes take effect."
-echo -n "Are you sure you want to reboot your computer now? (Y/n) > "
-read input
-if [ "$input" == "n" -o "$input" == "N" ]; then
-    echo "Please reboot your computer later."
+if [ $trigger -eq 0 ]; then
+    echo -n "Are you sure you want to reboot your computer now? (Y/n) > "
+    read input
+    if [ "$input" == "n" -o "$input" == "N" ]; then
+        echo "Please reboot your computer later."
+    else
+        sudo reboot
+    fi
 else
-    sudo reboot
+    echo "Please reboot your computer to changes take effect."
 fi
