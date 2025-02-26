@@ -4,8 +4,19 @@ container=
 image=
 
 function permission_check() {
-    if [ $UID -ne 0 ]; then
+    id | grep docker &> /dev/null
+    if [ $? -ne 0 ]; then
         echo "error: $USER does not enough permission accesing docker daemon. Are you root?" >&2
+        echo -n "Do you want to make changes docker with $USER account? (y/N) > "
+        read n
+        if [ "$n" == "y" -o "$n" == "Y"]; then
+            sudo usermod -aG docker $USER
+            if [ $? -ne 0 ]; then
+                echo "error: unable to write /etc/group." >&2
+            else
+                echo "relogin $USER account to changes effect."
+            fi
+        fi
         exit 1
     fi
 }
