@@ -1,6 +1,6 @@
 #!/bin/bash
 
 while true; do
-    killall -s 9 -v MicrosoftEdgeUp
+    killall -qs 9 MicrosoftEdgeUp
     sleep 1
 done
