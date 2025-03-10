@@ -33,13 +33,11 @@ fi
 echo "$(lsb_release -d | sed 's/Description:\t//'), kernel version: $(uname -r)"
 echo "NOTICE: You should install again if you upgrade kernel version."
 echo -e "\n*** REBOOT REQUIRED ***\n"
-if [ $trigger -eq 0 ]; then
-    echo -n "Do you want to continue setup CS8409 driver? (Y/n) > "
-    read input
-    if [ "$input" == "n" -o "$input" == "N" ]; then
-        echo "Abort." >&2
-        exit 1
-    fi
+echo -n "Do you want to continue setup CS8409 driver? (Y/n) > "
+read input
+if [ "$input" == "n" -o "$input" == "N" ]; then
+    echo "Abort." >&2
+    exit 1
 fi
 
 cd $HOME/snap/snd-hda-codec-cs8409

@@ -5,18 +5,6 @@ if [ $? == 0 ]; then
     sudo aptitude safe-upgrade
 fi
 
-if [ "$USE_FULL_UPGRADE" == "true" ]; then
-    which pip3 &>/dev/null
-    if [ $? == 0 ]; then
-        python3 -m pip config set global.break-system-packages true
-        if [ $? -eq 0 ]; then
-            pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
-            pip3 cache purge
-        fi
-    fi
-    echo -e "\n"
-fi
-
 which p4 &> /dev/null
 if [ $? -eq 0 ]; then
     ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ Perforce
@@ -94,15 +82,21 @@ fi
 if [ -d ~/snap/snd-hda-codec-cs8409 ]; then
     ls /lib/modules/$(uname -r)/updates 2> /dev/null | grep snd-hda-codec-cs8409.ko &> /dev/null
     if [ $? -ne 0 ]; then
-        echo -n 'Would you like to re-install CS8409 sound driver? (Y/n) > '
-        read n
-        if [ "$n" == "n" -o "$n" == "N" ]; then
-            echo 'User Abort.'
-        else
-            ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ CS8409\ Sound\ Driver "-y"
-        fi
+        ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ CS8409\ Sound\ Driver "-y"
     else
         echo 'Requirement already satisfied: snd-hda-codec-cs8409'
     fi
+fi
+
+if [ "$USE_FULL_UPGRADE" == "true" ]; then
+    which pip3 &>/dev/null
+    if [ $? == 0 ]; then
+        python3 -m pip config set global.break-system-packages true
+        if [ $? -eq 0 ]; then
+            pip3 list --format=freeze | awk -F"==" '{print $1}' | xargs -i pip3 install -U {}
+            pip3 cache purge
+        fi
+    fi
+    echo -e "\n"
 fi
 
