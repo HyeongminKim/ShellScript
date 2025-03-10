@@ -94,7 +94,7 @@ fi
 if [ -d ~/snap/snd-hda-codec-cs8409 ]; then
     ls /lib/modules/$(uname -r)/updates 2> /dev/null | grep snd-hda-codec-cs8409.ko &> /dev/null
     if [ $? -ne 0 ]; then
-        echo 'Would you like to re-install CS8409 sound driver? (Y/n) > '
+        echo -n 'Would you like to re-install CS8409 sound driver? (Y/n) > '
         read n
         if [ "$n" == "n" -o "$n" == "N" ]; then
             echo 'User Abort.'
