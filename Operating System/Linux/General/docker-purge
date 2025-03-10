@@ -34,20 +34,20 @@ else
 
     echo -n "container ID: "
     read n
-    container=$n
+    container="$n"
 
     docker images
     echo -n "image ID: "
     read n
-    if [ x$n == x -a x$container == x ]; then
+    image="$n"
+    if [ x"$image" == x -a x"$container" == x ]; then
         echo "User Abort." >&2
         exit 1
     fi
-    image=$n
     echo ""
 fi
 
-if ! [ x$container == x ]; then
+if ! [ x"$container" == x ]; then
     docker container inspect $container &> /dev/null
     if [ $? -ne 0 ]; then
         echo "error: no such container: $container" >&2
@@ -57,7 +57,7 @@ if ! [ x$container == x ]; then
     fi
 fi
 
-if ! [ x$image == x ]; then
+if ! [ x"$image" == x ]; then
     docker image inspect $image &> /dev/null
     if [ $? -ne 0 ]; then
         echo "error: no such image: $image" >&2
@@ -68,7 +68,7 @@ if ! [ x$image == x ]; then
 fi
 
 permission_check
-if ! [ x$container == x ]; then
+if ! [ x"$container" == x ]; then
     docker top $container &>/dev/null
     if [ $? -eq 0 ]; then
         docker stop $container
@@ -76,6 +76,6 @@ if ! [ x$container == x ]; then
     docker rm $container
 fi
 
-if ! [ x$image == x ]; then
+if ! [ x"$image" == x ]; then
     docker rmi $image
 fi
