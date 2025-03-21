@@ -21,7 +21,7 @@ RUN yum update -y && \
         net-tools rsync kmod lvm2 openssl-devel bind dhcp-server dhcp-client \
         vim git wget curl sudo make gcc gcc-c++ autoconf automake flex cups \
         e2fsprogs util-linux coreutils cronie crontabs squid mdadm telnet telnet-server \
-        nfs-utils samba samba-client network-scripts bison nmap traceroute \
+        nfs-utils samba samba-client network-scripts bison nmap traceroute epel-release \
         iproute iputils tar gzip bzip2 xz dump cpio file passwd ncurses ncurses-devel \
         vsftpd pciutils quota sed iptables firewalld bind-utils expat expat-devel \
         ypbind ypserv yp-tools rpcbind xinetd elfutils-libelf-devel openssh-server
@@ -66,7 +66,8 @@ RUN ./configure \
     /usr/local/apache/bin/httpd -V
 
 WORKDIR /root
-RUN yum upgrade -y yum autoremove -y && yum clean all && \
+RUN yum install -y --allowerasing tldr && \
+    yum upgrade -y yum autoremove -y && yum clean all && \
     ln -s /usr/local/apache/man/man1/* /usr/share/man/man1 &&\
     ln -s /usr/local/apache/man/man8/* /usr/share/man/man8 &&\
     mandb
