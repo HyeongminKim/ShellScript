@@ -11,7 +11,7 @@ if [ "$1" == "--help" ]; then
     echo -e " --all\t\tShow both IPv4 address if possable"
     echo -e " --mask=N\tMask N octet address (default: 2)"
     echo -e " --mask=NM\tMask N address public & Mask M address private"
-    echo -e "\t\t\`--mask=NM\` option should using with \`--all\` options"
+    echo -e "\t\t\`--mask=NM\` option will trigger \`--all\` flags"
     exit 0
 fi
 
@@ -123,6 +123,10 @@ for i in "${params[@]}"; do
         ;;
     esac
 done
+
+if [ $mask -le 0 -o $mask -gt 4 ]; then
+    addr_mode=2
+fi
 
 if [ $addr_mode -eq 1 ]; then
     cnt_ip="$(curl -s $chk_url)"
