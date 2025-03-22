@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sed -i 's/^MimeType/\# MimeType/' /usr/share/applications/chromium.desktop
+# sed -i 's/chromium.desktop\;//g' /usr/share/applications/mimeinfo.cache
+
+update-desktop-database -v
