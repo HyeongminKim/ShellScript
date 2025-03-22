@@ -1,6 +1,22 @@
 #!/bin/bash
 
-sed -i 's/^MimeType/\# MimeType/' /usr/share/applications/chromium.desktop
-# sed -i 's/chromium.desktop\;//g' /usr/share/applications/mimeinfo.cache
+target_path=/usr/share/applications/chromium.desktop
 
-update-desktop-database -v
+lsattr -l $target_path | grep Immutable &> /dev/null
+if [ $? -ne 0 ]; then
+    if [ -w $target_path ]; then
+        sed -i 's/^MimeType/\# MimeType/' $target_path
+        if [ $? -eq 0 ]; then
+            update-desktop-database
+        else
+            echo "$target_path: requirements already satisfied"
+        fi
+    else
+        echo "error: unable to write $target_path. Access denied." >&2
+        exit 1
+    fi
+else
+    echo "error: unable to write $target_path. Immutable flags enabled." >&2
+    exit 1
+fi
+
