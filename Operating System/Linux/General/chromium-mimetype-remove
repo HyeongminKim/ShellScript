@@ -1,6 +1,11 @@
 #!/bin/bash
 
 target_path=/usr/share/applications/chromium.desktop
+alt_target_path=/usr/share/applications/chromium-browser.desktop
+
+if ! [ -w $target_path ]; then
+    target_path=$alt_target_path
+fi
 
 lsattr -l $target_path | grep Immutable &> /dev/null
 if [ $? -ne 0 ]; then
