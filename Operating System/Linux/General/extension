@@ -21,8 +21,10 @@ if [ $? -eq 0 ]; then
         local=$(nvim --version | grep NVIM | awk '{ print $2 }')
         release=$(curl -fsSL https://github.com/neovim/neovim/releases/latest | grep '<title>' | awk '{ print $3 }')
         if [ "$local" != "$release" ]; then
-            echo 'Please download neovim in below link.'
-            echo -e "\thttps://github.com/neovim/neovim/releases/latest"
+	    cd ~/snap/neovim
+	    git pull --rebase origin $(git branch | sed '/* /!d' | sed 's/* //g')
+	    make CMAKE_BUILD_TYPE=Release
+	    sudo make install
         else
             echo "Neovim is up to date ($local)."
         fi
