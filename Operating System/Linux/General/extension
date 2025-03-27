@@ -18,13 +18,18 @@ if [ $? -eq 0 ]; then
         echo 'Please re-install neovim in below link.'
         echo -e "\thttps://github.com/neovim/neovim/releases/latest"
     else
-        local=$(nvim --version | grep NVIM | awk '{ print $2 }')
-        release=$(curl -fsSL https://github.com/neovim/neovim/releases/latest | grep '<title>' | awk '{ print $3 }')
+        local=$(nvim --version | grep NVIM | awk '{ print $2 }' | awk -F '-' '{ print $1 }')
+        release=$(curl -fsSL https://github.com/neovim/neovim/releases/latest | grep 'css-truncate css-truncate-target' | awk -F '/' '{ print $5 }' | cut -d\" -f1)
         if [ "$local" != "$release" ]; then
-	    cd ~/snap/neovim
-	    git pull --rebase origin $(git branch | sed '/* /!d' | sed 's/* //g')
-	    make CMAKE_BUILD_TYPE=Release
-	    sudo make install
+            if [ -d ~/snap/neovim ]; then
+                cd ~/snap/neovim
+                git pull --rebase origin $(git branch | sed '/* /!d' | sed 's/* //g')
+                make CMAKE_BUILD_TYPE=Release
+                sudo make install
+            else
+                echo 'Please download neovim in below link.'
+                echo -e "\thttps://github.com/neovim/neovim/releases/latest"
+            fi
         else
             echo "Neovim is up to date ($local)."
         fi
