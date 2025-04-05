@@ -38,7 +38,7 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
     ls /etc/mbpfan.d
-elif [ $# -eq 2 -a "$1" == "new" ]; then
+elif [ "$1" == "new" ]; then
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             echo "error: $2 profile already exist." >&2
@@ -54,8 +54,10 @@ elif [ $# -eq 2 -a "$1" == "new" ]; then
         else
             if [ $UID -ne 0 ]; then
                 sudo mv $filename /etc/mbpfan.d/$2
+                sudo chown root:root /etc/mbpfan.d/$2
             else
                 mv $filename /etc/mbpfan.d/$2
+                chown root:root /etc/mbpfan.d/$2
             fi
             echo "please re-run this script to apply $2 profile."
         fi
@@ -77,11 +79,46 @@ elif [ $# -eq 2 -a "$1" == "new" ]; then
         else
             if [ $UID -ne 0 ]; then
                 sudo mv $filename /etc/mbpfan.d/$3
+                sudo chown root:root /etc/mbpfan.d/$3
             else
                 mv $filename /etc/mbpfan.d/$3
+                chown root:root /etc/mbpfan.d/$3
             fi
             echo "please re-run this script to apply $3 profile."
         fi
+    fi
+elif [ "$1" == "lnk" -o "$1" == "link" ]; then
+    if [ $# -eq 2 ]; then
+        if [ -r /etc/mbpfan.d/$2 ]; then
+            echo "error: $2 profile already exist." >&2
+            exit 1
+        fi
+
+        if [ $UID -ne 0 ]; then
+            sudo ln $(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
+            sudo chown root:root /etc/mbpfan.d/$2
+        else
+            ln $(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
+            chown root:root /etc/mbpfan.d/$2
+        fi
+        echo "please re-run this script to apply $2 profile."
+    elif [ $# -eq 3 ]; then
+        if ! [ -r /etc/mbpfan.d/$2 ]; then
+            echo "error: no such profile: $2" >&2
+            exit 1
+        elif [ -r /etc/mbpfan.d/$3 ]; then
+            echo "error: $3 profile already exist." >&2
+            exit 1
+        fi
+
+        if [ $UID -ne 0 ]; then
+            sudo ln /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
+            sudo chown root:root /etc/mbpfan.d/$3
+        else
+            ln /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
+            chown root:root /etc/mbpfan.d/$3
+        fi
+        echo "please re-run this script to apply $3 profile."
     fi
 elif [ "$1" == "edit" ]; then
     if [ $# -eq 1 ]; then
@@ -125,24 +162,60 @@ elif [ "$1" == "edit" ]; then
             fi
         done
     fi
-elif [ $# -eq 2 -a "$1" == "set" ]; then
-    if [ -r /etc/mbpfan.d/$2 ]; then
+elif [ "$1" == "set" ]; then
+    if [ $# -eq 2 ]; then
+        if [ -r /etc/mbpfan.d/$2 ]; then
+            prev_profile=$(basename `readlink /etc/mbpfan.conf`)
+            if [ "$prev_profile" == "$2" ]; then
+                echo "error: current and provided profile are identical" >&2
+                exit 1
+            fi
+
+            if [ $UID -ne 0 ]; then
+                sudo ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
+            else
+                ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
+            fi
+            daemon-reload
+            echo "profile changed $prev_profile to $2"
+        else
+            echo "error: no such profile: $2" >&2
+            exit 1
+        fi
+    else
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
-        if [ "$prev_profile" == "$2" ]; then
-            echo "error: current and provided profile are identical" >&2
+        if [ "$prev_profile" == "default" ]; then
+            echo "error: current and default profile are identical" >&2
             exit 1
         fi
 
         if [ $UID -ne 0 ]; then
+            sudo ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
+        else
+            ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
+        fi
+        daemon-reload
+        echo "profile changed $prev_profile to default"
+    fi
+elif [ "$1" == "rename" -o "$1" == "rn" ]; then
+    if [ $# -eq 1 ]; then
+        prev_profile=$(basename `readlink /etc/mbpfan.conf`)
+        if [ $UID -ne 0 ]; then
+            sudo mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
             sudo ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
         else
+            mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
         fi
         daemon-reload
-        echo "profile changed $prev_profile to $2"
+        echo "profile renamed $prev_profile to $2"
     else
-        echo "error: no such profile: $2" >&2
-        exit 1
+        if [ $UID -ne 0 ]; then
+            sudo mv /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
+        else
+            mv /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
+        fi
+        echo "profile renamed $2 to $3"
     fi
 elif [ "$1" == "remove" -o "$1" == "rm" ]; then
     prev_profile=$(basename `readlink /etc/mbpfan.conf`)
@@ -168,13 +241,15 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
         fi
     done
 elif [ "$1" == "help" ]; then
-    echo 'usage: mbpfan [option|profile]'
+    echo 'usage: mbpfan [option]'
     echo -e '\nOPTIONS'
     echo -e "  list\t\t\t\tshow available profiles."
-    echo -e "   set <profile>\t\tupdate new profile for mbpfan."
+    echo -e "   set [profile]\t\tupdate new profile for mbpfan."
     echo -e "   new [source] <name>\t\tcreate new profile."
+    echo -e "   link [source] <name>\t\tlinking exist profile."
     echo -e "  edit [name ...]\t\tedit specific or current profile."
     echo -e "remove <name ...>\t\tdelete specific profile."
+    echo -e "rename [old] <new>\t\trename specific or current profile."
     echo -e "  help\t\t\t\tshow this help."
     echo -e '\nAVAILABLE PROFILES'
     ls /etc/mbpfan.d
