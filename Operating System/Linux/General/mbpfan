@@ -57,7 +57,6 @@ elif [ $# -eq 2 -a "$1" == "new" ]; then
         fi
         echo "please re-run this script to apply $2 profile."
     fi
-    rm $filename
 elif [ "$1" == "edit" ]; then
     if [ $# -eq 1 ]; then
         filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$(basename `readlink /etc/mbpfan.conf`)
@@ -74,7 +73,6 @@ elif [ "$1" == "edit" ]; then
             fi
             daemon-reload
         fi
-        rm $filename
     else
         filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$2
         cp /etc/mbpfan.d/$2 $filename
@@ -91,7 +89,6 @@ elif [ "$1" == "edit" ]; then
             fi
             daemon-reload
         fi
-        rm $filename
     fi
 elif [ $# -eq 2 -a "$1" == "set" ]; then
     if [ -r /etc/mbpfan.d/$2 ]; then
