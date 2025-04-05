@@ -246,7 +246,7 @@ elif [ "$1" == "help" ]; then
     echo -e "  list\t\t\t\tshow available profiles."
     echo -e "   set [profile]\t\tupdate new profile for mbpfan."
     echo -e "   new [source] <name>\t\tcreate new profile."
-    echo -e "   link [source] <name>\t\tlinking exist profile."
+    echo -e "  link [source] <name>\t\tlinking exist profile."
     echo -e "  edit [name ...]\t\tedit specific or current profile."
     echo -e "remove <name ...>\t\tdelete specific profile."
     echo -e "rename [old] <new>\t\trename specific or current profile."
