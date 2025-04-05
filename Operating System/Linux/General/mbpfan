@@ -87,7 +87,6 @@ elif [ "$1" == "edit" ]; then
             else
                 mv -f $filename /etc/mbpfan.d/$2
             fi
-            daemon-reload
         fi
     fi
 elif [ $# -eq 2 -a "$1" == "set" ]; then
