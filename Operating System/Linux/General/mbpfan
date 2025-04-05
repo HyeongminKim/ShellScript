@@ -34,8 +34,38 @@ fi
 
 if [ $# -eq 0 -o "$1" == "status" ]; then
     echo "current_profile = $(basename `readlink /etc/mbpfan.conf`)"
+
+    target_inode=$(stat -c '%i' /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`))
+    match_inode=0
+    target=($(ls -li /etc/mbpfan.d | grep -v $(basename `readlink /etc/mbpfan.conf`) | grep -v 'total' | awk '{ print $1 }'))
+    for i in "${!target[@]}"; do
+        if [ $target_inode -eq ${target[$i]} ]; then
+            match_inode=${target[$i]}
+        fi
+    done
+    if [ $match_inode -ne 0 ]; then
+        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $(basename `readlink /etc/mbpfan.conf`) | grep $match_inode | awk '{ print $10 }' | head -n 1)"
+    fi
+
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
+elif [ $# -eq 2 -o "$1" == "show" ]; then
+    echo "profile_name = $2"
+
+    target_inode=$(stat -c '%i' /etc/mbpfan.d/$2)
+    match_inode=0
+    target=($(ls -li /etc/mbpfan.d | grep -v $2 | grep -v 'total' | awk '{ print $1 }'))
+    for i in "${!target[@]}"; do
+        if [ $target_inode -eq ${target[$i]} ]; then
+            match_inode=${target[$i]}
+        fi
+    done
+    if [ $match_inode -ne 0 ]; then
+        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $2 | grep $match_inode | awk '{ print $10 }' | head -n 1)"
+    fi
+
+    cat /etc/mbpfan.d/$2 | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
+    cat /etc/mbpfan.d/$2 | grep 'temp =' | awk -F '#' '{ print $1 }'
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
     ls /etc/mbpfan.d
 elif [ "$1" == "new" ]; then
@@ -243,6 +273,8 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
 elif [ "$1" == "help" ]; then
     echo 'usage: mbpfan [option]'
     echo -e '\nOPTIONS'
+    echo -e "status\t\t\t\tshow detail about current profiles."
+    echo -e "  show <profile>\t\tshow detail about specific profiles."
     echo -e "  list\t\t\t\tshow available profiles."
     echo -e "   set [profile]\t\tupdate new profile for mbpfan."
     echo -e "   new [source] <name>\t\tcreate new profile."
