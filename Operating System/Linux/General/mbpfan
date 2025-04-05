@@ -43,6 +43,7 @@ elif [ $# -eq 2 -a "$1" == "new" ]; then
         echo "error: $2 profile already exist." >&2
         exit 1
     fi
+
     filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$2
     cp /etc/mbpfan.d/default $filename
     vi $filename
@@ -92,6 +93,11 @@ elif [ "$1" == "edit" ]; then
 elif [ $# -eq 2 -a "$1" == "set" ]; then
     if [ -r /etc/mbpfan.d/$2 ]; then
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
+        if [ "$prev_profile" == "$2" ]; then
+            echo "error: current and provided profile are identical" >&2
+            exit 1
+        fi
+
         if [ $UID -ne 0 ]; then
             sudo ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
         else
@@ -101,6 +107,7 @@ elif [ $# -eq 2 -a "$1" == "set" ]; then
         echo "profile changed $prev_profile to $2"
     else
         echo "error: no such profile: $2" >&2
+        exit 1
     fi
 elif [ $# -eq 1 -a "$1" == "help" ]; then
     echo 'usage: mbpfan [option|profile]'
