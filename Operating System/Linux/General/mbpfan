@@ -273,18 +273,18 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
 elif [ "$1" == "help" ]; then
     echo 'usage: mbpfan [option]'
     echo -e '\nOPTIONS'
-    echo -e "status\t\t\t\tshow detail about current profiles."
-    echo -e "  show <profile>\t\tshow detail about specific profiles."
-    echo -e "  list\t\t\t\tshow available profiles."
-    echo -e "   set [profile]\t\tupdate new profile for mbpfan."
-    echo -e "   new [source] <name>\t\tcreate new profile."
-    echo -e "  link [source] <name>\t\tlinking exist profile."
-    echo -e "  edit [name ...]\t\tedit specific or current profile."
-    echo -e "remove <name ...>\t\tdelete specific profile."
-    echo -e "rename [old] <new>\t\trename specific or current profile."
-    echo -e "  help\t\t\t\tshow this help."
+    echo -e " status\t\t\t\tshow detail about current profiles."
+    echo -e "   show <profile>\t\tshow detail about specific profiles."
+    echo -e "   list\t\t\t\tshow available profiles."
+    echo -e "    set [profile]\t\tupdate new profile for mbpfan."
+    echo -e "    new [source] <name>\t\tcreate new profile."
+    echo -e "   link [source] <name>\t\tlinking exist profile."
+    echo -e "   edit [name ...]\t\tedit specific or current profile."
+    echo -e " remove <name ...>\t\tdelete specific profile."
+    echo -e " rename [old] <new>\t\trename specific or current profile."
+    echo -e "   help\t\t\t\tshow this help."
     echo -e '\nAVAILABLE PROFILES'
-    ls /etc/mbpfan.d
+    ls /etc/mbpfan.d | grep -v $(basename `readlink /etc/mbpfan.conf`) | sed 's/^/ /'
 else
     echo "unknown options: $@" >&2
     exit 1
