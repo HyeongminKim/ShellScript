@@ -1,42 +1,92 @@
 #!/bin/bash
 
-if ! [ -d /etc/mbpfan.d ]; then
-    echo 'error: unable to find mbpfan profile directory.' >&2
-    exit 1
-fi
+function daemon-reload() {
+    if [ $UID -ne 0 ]; then
+        sudo systemctl daemon-reload
+        sudo systemctl restart mbpfan
+    else
+        systemctl daemon-reload
+        systemctl restart mbpfan
+    fi
+}
 
 if ! [ -r /etc/mbpfan.conf ]; then
     echo 'error: unable to find mbpfan config file.' >&2
     exit 1
 fi
 
+if ! [ -d /etc/mbpfan.d ]; then
+    if [ $(file /etc/mbpfan.conf | grep -c 'symbolic') -gt 0 ]; then
+        echo 'error: unable to find mbpfan profile directory.' >&2
+        exit 1
+    fi
+    if [ $UID -ne 0 ]; then
+        sudo mkdir /etc/mbpfan.d
+        sudo mv /etc/mbpfan.conf /etc/mbpfan.d/default
+        sudo ln -s /etc/mbpfan.d/default /etc/mbpfan.conf
+    else
+        mkdir /etc/mbpfan.d
+        mv /etc/mbpfan.conf /etc/mbpfan.d/default
+        ln -s /etc/mbpfan.d/default /etc/mbpfan.conf
+    fi
+    daemon-reload
+fi
+
 if [ $# -eq 0 -o "$1" == "status" ]; then
     echo "current_profile = $(basename `readlink /etc/mbpfan.conf`)"
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
-elif [ "$1" == "list" ]; then
+elif [ $# -eq 1 -a "$1" == "list" ]; then
     ls /etc/mbpfan.d
-elif [ "$1" == "set" ]; then
+elif [ $# -eq 2 -a "$1" == "new" ]; then
+    if [ -r /etc/mbpfan.d/$2 ]; then
+        echo "error: $2 profile already exist." >&2
+        exit 1
+    fi
+    if [ $UID -ne 0 ]; then
+        sudo cp /etc/mbpfan.d/default /etc/mbpfan.d/$2
+        sudo vi /etc/mbpfan.d/$2
+    else
+        cp /etc/mbpfan.d/default /etc/mbpfan.d/$2
+        vi /etc/mbpfan.d/$2
+    fi
+    echo "please re-run this script to apply $2 profile."
+elif [ "$1" == "edit" ]; then
+    if [ $# -eq 1 ]; then
+        if [ $UID -ne 0 ]; then
+            sudo vi /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
+        else
+            vi /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
+        fi
+    else
+        if [ $UID -ne 0 ]; then
+            sudo vi /etc/mbpfan.d/$2
+        else
+            vi /etc/mbpfan.d/$2
+        fi
+    fi
+    daemon-reload
+elif [ $# -eq 2 -a "$1" == "set" ]; then
     if [ -r /etc/mbpfan.d/$2 ]; then
         if [ $UID -ne 0 ]; then
             sudo ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
-            sudo systemctl restart mbpfan
         else
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
-            systemctl restart mbpfan
         fi
+        daemon-reload
     else
         echo "error: no such profile: $2" >&2
     fi
-elif [ "$1" == "help" ]; then
+elif [ $# -eq 1 -a "$1" == "help" ]; then
     echo 'usage: mbpfan [option|profile]'
     echo -e '\nOPTIONS'
-    echo -e " list\tshow available profiles."
-    echo -e "  set\tupdate new profile for mbpfan."
-    echo -e " help\tshow this help."
+    echo -e " list\t\tshow available profiles."
+    echo -e "  set <profile>\tupdate new profile for mbpfan."
+    echo -e "  new <name>\tcreate new profile."
+    echo -e " edit [name]\tedit specific or current profile."
+    echo -e " help\t\tshow this help."
     echo -e '\nAVAILABLE PROFILES'
     ls /etc/mbpfan.d
-    echo ''
 else
     echo "unknown options: $@" >&2
     exit 1
