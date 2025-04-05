@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if ! [ -d /etc/mbpfan.d ]; then
+    echo 'error: unable to find mbpfan profile directory.' >&2
+    exit 1
+fi
+
+if ! [ -r /etc/mbpfan.conf ]; then
+    echo 'error: unable to find mbpfan config file.' >&2
+    exit 1
+fi
+
+if [ $# -eq 0 -o "$1" == "status" ]; then
+    echo "current_profile = $(basename `readlink /etc/mbpfan.conf`)"
+    cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
+    cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
+elif [ "$1" == "list" ]; then
+    ls /etc/mbpfan.d
+elif [ "$1" == "set" ]; then
+    if [ -r /etc/mbpfan.d/$2 ]; then
+        if [ $UID -ne 0 ]; then
+            sudo ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
+            sudo systemctl restart mbpfan
+        else
+            ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
+            systemctl restart mbpfan
+        fi
+    else
+        echo "error: no such profile: $2" >&2
+    fi
+elif [ "$1" == "help" ]; then
+    echo 'usage: mbpfan [option|profile]'
+    echo -e '\nOPTIONS'
+    echo -e " list\tshow available profiles."
+    echo -e "  set\tupdate new profile for mbpfan."
+    echo -e " help\tshow this help."
+    echo -e '\nAVAILABLE PROFILES'
+    ls /etc/mbpfan.d
+    echo ''
+else
+    echo "unknown options: $@" >&2
+    exit 1
+fi
