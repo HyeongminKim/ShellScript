@@ -49,7 +49,7 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
 
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
-elif [ $# -eq 2 -o "$1" == "show" ]; then
+elif [ $# -eq 2 -a "$1" == "show" ]; then
     echo "profile_name = $2"
 
     target_inode=$(stat -c '%i' /etc/mbpfan.d/$2)
