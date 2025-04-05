@@ -44,7 +44,7 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
         fi
     done
     if [ $match_inode -ne 0 ]; then
-        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $(basename `readlink /etc/mbpfan.conf`) | grep $match_inode | awk '{ print $10 }' | head -n 1)"
+        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $(basename `readlink /etc/mbpfan.conf`) | grep $match_inode | awk '{ print $10 }' | tr '\n' ' ')"
     fi
 
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
@@ -61,7 +61,7 @@ elif [ $# -eq 2 -a "$1" == "show" ]; then
         fi
     done
     if [ $match_inode -ne 0 ]; then
-        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $2 | grep $match_inode | awk '{ print $10 }' | head -n 1)"
+        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $2 | grep $match_inode | awk '{ print $10 }' | tr '\n' ' ')"
     fi
 
     cat /etc/mbpfan.d/$2 | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
