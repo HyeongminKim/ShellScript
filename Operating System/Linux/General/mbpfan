@@ -67,7 +67,7 @@ elif [ $# -eq 2 -a "$1" == "show" ]; then
     cat /etc/mbpfan.d/$2 | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
     cat /etc/mbpfan.d/$2 | grep 'temp =' | awk -F '#' '{ print $1 }'
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
-    ls /etc/mbpfan.d
+    ls /etc/mbpfan.d | sed "s/$(basename `readlink /etc/mbpfan.conf`)/$(basename `readlink /etc/mbpfan.conf`)*/"
 elif [ "$1" == "new" ]; then
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
