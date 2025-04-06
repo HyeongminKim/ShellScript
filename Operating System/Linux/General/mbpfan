@@ -48,6 +48,7 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
     fi
 
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
+    sensors -u applesmc-isa-0300 | grep fan | grep input | cut -d. -f1 | sed 's/^  //' | sed 's/:/ = /'
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
 
     current_mode=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo)
