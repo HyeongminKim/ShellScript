@@ -288,12 +288,14 @@ elif [ "$1" == "turbo" ]; then
             else
                 echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
             fi
+            echo 'turbo boost is enabled'
         else
             if [ $UID -ne 0 ]; then
                 echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo > /dev/null
             else
                 echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
             fi
+            echo 'turbo boost is disabled'
         fi
     fi
 elif [ "$1" == "help" ]; then
