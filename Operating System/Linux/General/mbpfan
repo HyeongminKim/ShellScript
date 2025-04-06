@@ -49,6 +49,13 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
 
     cat /etc/mbpfan.conf | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
     cat /etc/mbpfan.conf | grep 'temp =' | awk -F '#' '{ print $1 }'
+
+    current_mode=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo)
+    if [ $current_mode -eq 0 ]; then
+        echo "intel_turbo_boost = $(cat /sys/devices/system/cpu/intel_pstate/turbo_pct)"
+    else
+        echo 'intel_turbo_boost = 0 (disabled)'
+    fi
 elif [ $# -eq 2 -a "$1" == "show" ]; then
     echo "profile_name = $2"
 
@@ -188,6 +195,10 @@ elif [ "$1" == "edit" ]; then
                     sudo mv -f $filename /etc/mbpfan.d/${target[$i]}
                 else
                     mv -f $filename /etc/mbpfan.d/${target[$i]}
+                fi
+
+                if [ "${target[$i]}" == "$(basename `readlink /etc/mbpfan.conf`)" ]; then
+                    daemon-reload
                 fi
             fi
         done
