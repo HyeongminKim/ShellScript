@@ -319,7 +319,7 @@ elif [ "$1" == "help" ]; then
     echo -e "    new [source] <name>\t\tcreate new profile."
     echo -e "   link [source] <name>\t\tlinking exist profile."
     echo -e "   edit [name ...]\t\tedit specific or current profile."
-    echo -e "  turbo [status|1|0]\t\t\tenable(1) or disable(0) Intel turbo boost."
+    echo -e "  turbo [1|0]\t\t\tenable(1) or disable(0) Intel turbo boost."
     echo -e " remove <name ...>\t\tdelete specific profile."
     echo -e " rename [old] <new>\t\trename specific or current profile."
     echo -e "   help\t\t\t\tshow this help."
