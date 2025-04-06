@@ -88,6 +88,7 @@ elif [ "$1" == "new" ]; then
         cmp -s /etc/mbpfan.d/default $filename
         if [ $? -eq 0 ]; then
             echo "Aborting create $2 profile due to identical default profile." >&2
+            rm $filename
         else
             if [ $UID -ne 0 ]; then
                 sudo mv $filename /etc/mbpfan.d/$2
@@ -113,6 +114,7 @@ elif [ "$1" == "new" ]; then
         cmp -s /etc/mbpfan.d/$2 $filename
         if [ $? -eq 0 ]; then
             echo "Aborting create $3 profile due to identical $2 profile." >&2
+            rm $filename
         else
             if [ $UID -ne 0 ]; then
                 sudo mv $filename /etc/mbpfan.d/$3
@@ -165,6 +167,7 @@ elif [ "$1" == "edit" ]; then
         cmp -s /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename
         if [ $? -eq 0 ]; then
             echo "Aborting edit $(basename `readlink /etc/mbpfan.conf`) profile due to identical." >&2
+            rm $filename
         else
             if [ $UID -ne 0 ]; then
                 sudo mv -f $filename /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
@@ -190,6 +193,7 @@ elif [ "$1" == "edit" ]; then
             cmp -s /etc/mbpfan.d/${target[$i]} $filename
             if [ $? -eq 0 ]; then
                 echo "Aborting edit ${target[$i]} profile due to identical." >&2
+                rm $filename
             else
                 if [ $UID -ne 0 ]; then
                     sudo mv -f $filename /etc/mbpfan.d/${target[$i]}
