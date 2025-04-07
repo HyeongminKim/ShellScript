@@ -1,27 +1,39 @@
 #!/bin/bash
 
+function check-permission() {
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        logger --tag mbpfan --priority auth.err "access denied. $USER does not have any super-user permissions."
+        exit 1
+    fi
+}
 
 function daemon-reload() {
-    logger --tag mbpfan --priority user.info '`daemon-reload` called. reloading /etc/mbpfan.conf...'
-    logger --tag mbpfan --priority user.debug "loaded profile name: $(basename `readlink /etc/mbpfan.conf`)"
+    logger --tag mbpfan --priority daemon.notice '`daemon-reload` called. reloading /etc/mbpfan.conf...'
+    logger --tag mbpfan --priority daemon.debug "loaded profile name: $(basename `readlink /etc/mbpfan.conf`)"
     systemctl daemon-reload
-    cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority user.debug
+    cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority daemon.debug
     systemctl restart mbpfan
+    logger --tag mbpfan --priority daemon.debug 'successfully restarted mbpfan daemon'
 }
 
 if ! [ -r /etc/mbpfan.conf ]; then
     echo 'error: unable to find mbpfan config file.' >&2
+    logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.conf. no such file or directory.'
     exit 1
 fi
 
 if ! [ -d /etc/mbpfan.d ]; then
     if [ $(file /etc/mbpfan.conf | grep -c 'symbolic') -gt 0 ]; then
+        logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.d. no such file or directory.'
+        logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.conf. unlinked symbolic file detected.'
         echo 'error: unable to find mbpfan profile directory.' >&2
         exit 1
     fi
     mkdir /etc/mbpfan.d
     mv /etc/mbpfan.conf /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
     ln -s /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.conf
+    logger --tag mbpfan --priority daemon.info 'successfully created config directory structures and linked /etc/mbpfan.conf <--> /etc/mbpfan.d/default'
     daemon-reload
 fi
 
@@ -52,6 +64,11 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
         echo -e "intel_turbo_boost = 0\t\t(disabled)"
     fi
 elif [ $# -eq 2 -a "$1" == "show" ]; then
+    if ! [ -r /etc/mbpfan.d/$2 ]; then
+        echo "error: no such profile: $2" >&2
+        exit 1
+    fi
+
     echo "profile_name = $2"
 
     target_inode=$(stat -c '%i' /etc/mbpfan.d/$2)
@@ -71,10 +88,7 @@ elif [ $# -eq 2 -a "$1" == "show" ]; then
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
     ls /etc/mbpfan.d | sed "s/$(basename `readlink /etc/mbpfan.conf`)/$(basename `readlink /etc/mbpfan.conf`)*/"
 elif [ "$1" == "new" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             echo "error: $2 profile already exist." >&2
@@ -91,6 +105,7 @@ elif [ "$1" == "new" ]; then
         else
             mv $filename /etc/mbpfan.d/$2
             chown root:root /etc/mbpfan.d/$2
+            logger --tag mbpfan --priority user.info "successfully created $2 profile with $(basename `readlink /etc/mbpfan.conf`)"
             echo "please re-run this script to apply $2 profile."
         fi
     elif [ $# -eq 3 ]; then
@@ -112,14 +127,12 @@ elif [ "$1" == "new" ]; then
         else
             mv $filename /etc/mbpfan.d/$3
             chown root:root /etc/mbpfan.d/$3
+            logger --tag mbpfan --priority user.info "successfully created $3 profile with $2"
             echo "please re-run this script to apply $3 profile."
         fi
     fi
 elif [ "$1" == "lnk" -o "$1" == "link" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             echo "error: $2 profile already exist." >&2
@@ -128,6 +141,7 @@ elif [ "$1" == "lnk" -o "$1" == "link" ]; then
 
         ln $(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
         chown root:root /etc/mbpfan.d/$2
+        logger --tag mbpfan --priority user.info "successfully linked $2 profile with $(basename `readlink /etc/mbpfan.conf`)"
         echo "please re-run this script to apply $2 profile."
     elif [ $# -eq 3 ]; then
         if ! [ -r /etc/mbpfan.d/$2 ]; then
@@ -140,13 +154,11 @@ elif [ "$1" == "lnk" -o "$1" == "link" ]; then
 
         ln /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
         chown root:root /etc/mbpfan.d/$3
+        logger --tag mbpfan --priority user.info "successfully linked $3 profile with $2"
         echo "please re-run this script to apply $3 profile."
     fi
 elif [ "$1" == "edit" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     if [ $# -eq 1 ]; then
         filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$(basename `readlink /etc/mbpfan.conf`)
         cp /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename
@@ -156,7 +168,10 @@ elif [ "$1" == "edit" ]; then
             echo "Aborting edit $(basename `readlink /etc/mbpfan.conf`) profile due to identical." >&2
             rm $filename
         else
+            diff /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename | logger --tag mbpfan --priority user.debug
             mv -f $filename /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
+            logger --tag mbpfan --priority user.debug "currently using $(basename `readlink /etc/mbpfan.conf`) profile changed. reloading..."
+            logger --tag mbpfan --priority user.info "successfully altered $(basename `readlink /etc/mbpfan.conf`) profile"
             daemon-reload
         fi
     else
@@ -178,18 +193,20 @@ elif [ "$1" == "edit" ]; then
                 echo "Aborting edit ${target[$i]} profile due to identical." >&2
                 rm $filename
             else
+                diff /etc/mbpfan.d/${target[$i]} $filename | logger --tag mbpfan --priority user.debug
                 mv -f $filename /etc/mbpfan.d/${target[$i]}
                 if [ "${target[$i]}" == "$(basename `readlink /etc/mbpfan.conf`)" ]; then
+                    logger --tag mbpfan --priority user.debug "currently using $(basename `readlink /etc/mbpfan.conf`) profile changed. reloading..."
+                    logger --tag mbpfan --priority user.info "successfully altered $(basename `readlink /etc/mbpfan.conf`) profile"
                     daemon-reload
+                else
+                    logger --tag mbpfan --priority user.info "successfully altered ${target[$i]} profile"
                 fi
             fi
         done
     fi
 elif [ "$1" == "set" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             prev_profile=$(basename `readlink /etc/mbpfan.conf`)
@@ -201,6 +218,7 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to $2"
+            logger --tag mbpfan --priority user.info "successfully relinked /etc/mbpfan.conf to $2"
         else
             echo "error: no such profile: $2" >&2
             exit 1
@@ -216,31 +234,42 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to default"
+            logger --tag mbpfan --priority user.info "successfully relinked /etc/mbpfan.conf to default"
         else
             echo "unable to set profile to default. no such profile: default" >&2
+            logger --tag mbpfan --priority user.err "unable to find default profile in /etc/mbpfan.d. no such file or directory"
             exit 1
         fi
     fi
 elif [ "$1" == "rename" -o "$1" == "rn" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     if [ $# -eq 2 ]; then
+        if [ -r /etc/mbpfan.d/$2 ]; then
+            echo "error: $2 profile already exist." >&2
+            exit 1
+        fi
+
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
         mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
         ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
         daemon-reload
         echo "successfully renamed $prev_profile profile to $2"
+        logger --tag mbpfan --priority user.info "successfully renamed $prev_profile profile to $2"
     else
+        if ! [ -r /etc/mbpfan.d/$2 ]; then
+            echo "error: no such profile: $2" >&2
+            exit 1
+        elif [ -r /etc/mbpfan.d/$3 ]; then
+            echo "error: $3 profile already exist." >&2
+            exit 1
+        fi
+
         mv /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
+        logger --tag mbpfan --priority user.info "successfully renamed $2 profile to $3"
         echo "successfully renamed $2 profile to $3"
     fi
 elif [ "$1" == "remove" -o "$1" == "rm" ]; then
-    if [ $UID -ne 0 ]; then
-        echo "$USER is not in super-user group. Are you root?" >&2
-        exit 1
-    fi
+    check-permission
     prev_profile=$(basename `readlink /etc/mbpfan.conf`)
     target=("$@")
 
@@ -255,8 +284,11 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
 
         if [ "$prev_profile" == "${target[$i]}" ]; then
             echo "error: unable to remove provided profile in currently use. Skipping" >&2
+            logger --tag mbpfan --priority user.err "unable to drop ${target[$i]} profile due to dependancy failure"
         else
             rm /etc/mbpfan.d/${target[$i]}
+            logger --tag mbpfan --priority user.info "successfully drop ${target[$i]} profile"
+            echo "successfully deleted ${target[$i]} profile"
         fi
     done
 elif [ "$1" == "turbo" ]; then
@@ -271,24 +303,25 @@ elif [ "$1" == "turbo" ]; then
         echo "error: unknown parameter: $2" >&2
         exit 1
     else
-        if [ $UID -ne 0 ]; then
-            echo "$USER is not in super-user group. Are you root?" >&2
-            exit 1
-        fi
+        check-permission
         if [ $2 -eq 1 ]; then
             if [ $(cat /sys/devices/system/cpu/intel_pstate/no_turbo) -eq 0 ]; then
                 echo 'turbo boost is already enabled.' >&2
+                logger --tag mbpfan --priority user.warn "unable to change intel_turbo_boost value. requirements already satisfied."
                 exit 1
             else
                 echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
                 echo 'turbo boost is enabled'
+                logger --tag mbpfan --priority user.info "successfully enabled intel_turbo_boost."
             fi
         else
             if [ $(cat /sys/devices/system/cpu/intel_pstate/no_turbo) -eq 1 ]; then
                 echo 'turbo boost is already disabled.' >&2
+                logger --tag mbpfan --priority user.warn "unable to change intel_turbo_boost value. requirements already satisfied."
                 exit 1
             else
                 echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+                logger --tag mbpfan --priority user.info "successfully disabled intel_turbo_boost."
                 echo 'turbo boost is disabled'
             fi
         fi
