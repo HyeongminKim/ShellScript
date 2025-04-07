@@ -288,7 +288,7 @@ which pactl &> /dev/null
 if [ $? == 0 ]; then
     volume=$(pactl list sinks | grep '^[[:space:]]Volume:' | \
     head -n $(( $SINK + 1  )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,')
-    muted=$(pacmd list-sinks | grep muted | sed 's/\tmuted: //')
+    muted=$(pactl list sinks | grep Mute | sed 's/\tMute: //')
     if [ "$muted" == "no" ]; then
         muted="false"
     elif [ "$muted" == "yes" ]; then
