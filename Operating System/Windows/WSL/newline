@@ -37,6 +37,8 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                 fi
                 newline=$(expr $newline + 1)
                 logger --tag newline --priority user.info "viewing ${params[$i]} file"
+            else
+                echo "unable to locate ${params[$i]} file. no such file or directory" >&2
             fi
         fi
     done
@@ -85,6 +87,8 @@ for i in "${!params[@]}"; do
         elif [ "${params[$i]}" == "--type=CRLF" -o "${params[$i]}" == "--type=crlf" ]; then
             constantEOF="CRLF"
             logger --tag newline --priority user.debug "locking EOF type to CRLF"
+        else
+            logger --tag newline --priority user.warn "unknown EOF type: ${params[$i]}. skipping."
         fi
         continue
     fi
@@ -97,6 +101,12 @@ for i in "${!params[@]}"; do
         else
             echo "or use this command: \`find $change_params -type f | newline --type=$constantEOF\`" >&2
         fi
+        continue
+    elif ! [ -r "${params[$i]}" ]; then
+        echo "unable to locate ${params[$i]} file. no such file or directory" >&2
+        continue
+    elif ! [ -w "${params[$i]}" ]; then
+        echo "unable to access ${params[$i]} file. permission denied." >&2
         continue
     fi
 
