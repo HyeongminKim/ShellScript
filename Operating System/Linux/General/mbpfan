@@ -303,13 +303,13 @@ elif [ "$1" == "turbo" ]; then
         echo "error: unknown parameter: $2" >&2
         exit 1
     else
-        check-permission
         if [ $2 -eq 1 ]; then
             if [ $(cat /sys/devices/system/cpu/intel_pstate/no_turbo) -eq 0 ]; then
                 echo 'turbo boost is already enabled.' >&2
                 logger --tag mbpfan --priority user.warn "unable to change intel_turbo_boost value. requirements already satisfied."
                 exit 1
             else
+                check-permission
                 echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
                 echo 'turbo boost is enabled'
                 logger --tag mbpfan --priority user.info "successfully enabled intel_turbo_boost."
@@ -320,6 +320,7 @@ elif [ "$1" == "turbo" ]; then
                 logger --tag mbpfan --priority user.warn "unable to change intel_turbo_boost value. requirements already satisfied."
                 exit 1
             else
+                check-permission
                 echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
                 logger --tag mbpfan --priority user.info "successfully disabled intel_turbo_boost."
                 echo 'turbo boost is disabled'
