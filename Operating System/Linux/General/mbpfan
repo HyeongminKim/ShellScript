@@ -19,7 +19,7 @@ function daemon-reload() {
         systemctl restart mbpfan
         if [ $? -eq 0 ]; then
             logger --tag mbpfan --priority daemon.debug 'successfully restarted mbpfan daemon'
-            logger --tag mbpfan --priority daemon.info 'NOTE: If the current fan speed is greater than the maximum fan speed, it may take longer for the changes to take effect.'
+            logger --tag mbpfan --priority daemon.notice 'If the current fan speed is greater than the maximum fan speed, it may take longer for the changes to take effect.'
         else
             logger --tag mbpfan --priority daemon.err 'failed to restart mbpfan daemon. try again later.'
         fi
