@@ -20,8 +20,8 @@ if ! [ -d /etc/mbpfan.d ]; then
         exit 1
     fi
     mkdir /etc/mbpfan.d
-    mv /etc/mbpfan.conf /etc/mbpfan.d/default
-    ln -s /etc/mbpfan.d/default /etc/mbpfan.conf
+    mv /etc/mbpfan.conf /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
+    ln -s /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.conf
     daemon-reload
 fi
 
@@ -82,11 +82,11 @@ elif [ "$1" == "new" ]; then
         fi
 
         filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$2
-        cp /etc/mbpfan.d/default $filename
+        cp /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename
         vi $filename
-        cmp -s /etc/mbpfan.d/default $filename
+        cmp -s /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename
         if [ $? -eq 0 ]; then
-            echo "Aborting create $2 profile due to identical default profile." >&2
+            echo "Aborting create $2 profile due to identical $(basename `readlink /etc/mbpfan.conf`) profile." >&2
             rm $filename
         else
             mv $filename /etc/mbpfan.d/$2
@@ -207,21 +207,21 @@ elif [ "$1" == "set" ]; then
         fi
     else
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
-        if [ "$prev_profile" == "default" ]; then
-            echo "error: current and default profile are identical" >&2
+        if [ "$prev_profile" == "$(basename `readlink /etc/mbpfan.conf`)" ]; then
+            echo "error: current and $(basename `readlink /etc/mbpfan.conf`) profile are identical" >&2
             exit 1
         fi
 
-        ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
+        ln -sf /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.conf
         daemon-reload
-        echo "profile changed $prev_profile to default"
+        echo "profile changed $prev_profile to $(basename `readlink /etc/mbpfan.conf`)"
     fi
 elif [ "$1" == "rename" -o "$1" == "rn" ]; then
     if [ $UID -ne 0 ]; then
         echo "$USER is not in super-user group. Are you root?" >&2
         exit 1
     fi
-    if [ $# -eq 1 ]; then
+    if [ $# -eq 2 ]; then
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
         mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
         ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
