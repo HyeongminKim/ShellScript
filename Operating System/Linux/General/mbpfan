@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if [ $UID -ne 0 ]; then
-    echo "$USER is not in super-user group. Are you root?" >&2
-    exit 1
-fi
 
 function daemon-reload() {
     systemctl daemon-reload
@@ -72,6 +68,10 @@ elif [ $# -eq 2 -a "$1" == "show" ]; then
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
     ls /etc/mbpfan.d | sed "s/$(basename `readlink /etc/mbpfan.conf`)/$(basename `readlink /etc/mbpfan.conf`)*/"
 elif [ "$1" == "new" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             echo "error: $2 profile already exist." >&2
@@ -113,6 +113,10 @@ elif [ "$1" == "new" ]; then
         fi
     fi
 elif [ "$1" == "lnk" -o "$1" == "link" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             echo "error: $2 profile already exist." >&2
@@ -136,6 +140,10 @@ elif [ "$1" == "lnk" -o "$1" == "link" ]; then
         echo "please re-run this script to apply $3 profile."
     fi
 elif [ "$1" == "edit" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 1 ]; then
         filename=/tmp/mbpfan-$(date +'%Y-%m-%d_%H:%M:%S')-$(basename `readlink /etc/mbpfan.conf`)
         cp /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename
@@ -175,6 +183,10 @@ elif [ "$1" == "edit" ]; then
         done
     fi
 elif [ "$1" == "set" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 2 ]; then
         if [ -r /etc/mbpfan.d/$2 ]; then
             prev_profile=$(basename `readlink /etc/mbpfan.conf`)
@@ -202,6 +214,10 @@ elif [ "$1" == "set" ]; then
         echo "profile changed $prev_profile to default"
     fi
 elif [ "$1" == "rename" -o "$1" == "rn" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 1 ]; then
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
         mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
@@ -213,6 +229,10 @@ elif [ "$1" == "rename" -o "$1" == "rn" ]; then
         echo "profile renamed $2 to $3"
     fi
 elif [ "$1" == "remove" -o "$1" == "rm" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     prev_profile=$(basename `readlink /etc/mbpfan.conf`)
     target=("$@")
 
@@ -232,6 +252,10 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
         fi
     done
 elif [ "$1" == "turbo" ]; then
+    if [ $UID -ne 0 ]; then
+        echo "$USER is not in super-user group. Are you root?" >&2
+        exit 1
+    fi
     if [ $# -eq 1 -o "$2" == "status" ]; then
         current_mode=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo)
         if [ $current_mode -eq 0 ]; then
@@ -265,6 +289,7 @@ elif [ "$1" == "help" ]; then
     echo -e " remove <name ...>\t\tdelete specific profile."
     echo -e " rename [old] <new>\t\trename specific or current profile."
     echo -e "   help\t\t\t\tshow this help."
+    echo -e "* some options will require super-user permission."
     echo -e '\nAVAILABLE PROFILES'
     ls /etc/mbpfan.d | grep -v $(basename `readlink /etc/mbpfan.conf`) | sed 's/^/ /'
 else
