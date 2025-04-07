@@ -2,7 +2,10 @@
 
 
 function daemon-reload() {
+    logger --tag mbpfan --priority user.info '`daemon-reload` called. reloading /etc/mbpfan.conf...'
+    logger --tag mbpfan --priority user.debug "current target profile name: $(basename `readlink /etc/mbpfan.conf`)"
     systemctl daemon-reload
+    cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority user.debug
     systemctl restart mbpfan
 }
 
@@ -268,11 +271,21 @@ elif [ "$1" == "turbo" ]; then
         exit 1
     else
         if [ $2 -eq 1 ]; then
-            echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
-            echo 'turbo boost is enabled'
+            if [ $(cat /sys/devices/system/cpu/intel_pstate/no_turbo) -eq 0 ]; then
+                echo 'turbo boost is already enabled.' >&2
+                exit 1
+            else
+                echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+                echo 'turbo boost is enabled'
+            fi
         else
-            echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
-            echo 'turbo boost is disabled'
+            if [ $(cat /sys/devices/system/cpu/intel_pstate/no_turbo) -eq 1 ]; then
+                echo 'turbo boost is already disabled.' >&2
+                exit 1
+            else
+                echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+                echo 'turbo boost is disabled'
+            fi
         fi
     fi
 elif [ "$1" == "help" ]; then
