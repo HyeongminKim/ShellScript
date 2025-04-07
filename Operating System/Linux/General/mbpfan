@@ -27,19 +27,19 @@ function daemon-reload() {
         logger --tag mbpfan --priority daemon.alert 'unable to verify symbolic link /etc/mbpfan.conf <--> <UNKNOWN>'
         logger --tag mbpfan --priority daemon.notice "unable to following symbolic link to <UNKNOWN>. <UNKNOWN> is not correct file or directory name."
         if [ -d /etc/mbpfan.d -a -f /etc/mbpfan.d/default ]; then
-            logger --tag mbpfan --priority daemon.notice 'attempt to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default'
+            logger --tag mbpfan --priority daemon.notice 'attempt to redefine symbolic link /etc/mbpfan.conf <--> /etc/mbpfan.d/default'
             ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
             if [ $? -eq 0 ]; then
-                logger --tag mbpfan --priority daemon.notice 'successfully redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default'
-                logger --tag mbpfan --priority daemon.info 'restart `daemon-reload` function'
+                logger --tag mbpfan --priority daemon.debug 'successfully redefine symbolic link /etc/mbpfan.conf <--> /etc/mbpfan.d/default'
+                logger --tag mbpfan --priority daemon.info 'restarting `daemon-reload` function'
                 daemon-reload
             else
-                logger --tag mbpfan --priority daemon.crit 'unable to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default. Exiting!'
+                logger --tag mbpfan --priority daemon.crit 'unable to redefine symbolic link /etc/mbpfan.conf <--> /etc/mbpfan.d/default. Exiting!'
                 logger --tag mbpfan --priority daemon.alert 'exiting `mbpfan` script due to unrecoverable error detected. all unsaved data will be lost.'
                 exit 1
             fi
         elif [ -d /etc/mbpfan.d ]; then
-            logger --tag mbpfan --priority daemon.crit 'unable to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default. no such default profile. Exiting!'
+            logger --tag mbpfan --priority daemon.crit 'unable to redefine symbolic link /etc/mbpfan.conf <--> /etc/mbpfan.d/default. no such default profile. Exiting!'
             logger --tag mbpfan --priority daemon.alert 'exiting `mbpfan` script due to unrecoverable error detected. all unsaved data will be lost.'
             exit 1
         else
@@ -254,7 +254,7 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to $2"
-            logger --tag mbpfan --priority daemon.info "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/$2"
+            logger --tag mbpfan --priority daemon.debug "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/$2"
         else
             echo "error: no such profile: $2" >&2
             exit 1
@@ -271,7 +271,7 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to default"
-            logger --tag mbpfan --priority daemon.info "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/default"
+            logger --tag mbpfan --priority daemon.debug "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/default"
         else
             echo "unable to set profile to default. no such profile: default" >&2
             logger --tag mbpfan --priority user.err "unable to find default profile in /etc/mbpfan.d. no such file or directory"
