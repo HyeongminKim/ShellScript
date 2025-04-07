@@ -207,7 +207,7 @@ elif [ "$1" == "set" ]; then
         fi
     else
         prev_profile=$(basename `readlink /etc/mbpfan.conf`)
-        if [ "$prev_profile" == "$(basename `readlink /etc/mbpfan.conf`)" ]; then
+        if [ "$prev_profile" == "default" ]; then
             echo "error: current and $(basename `readlink /etc/mbpfan.conf`) profile are identical" >&2
             exit 1
         fi
