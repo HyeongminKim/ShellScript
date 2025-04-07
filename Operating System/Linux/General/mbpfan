@@ -10,23 +10,55 @@ function check-permission() {
 
 function daemon-reload() {
     logger --tag mbpfan --priority daemon.notice '`daemon-reload` called. reloading /etc/mbpfan.conf...'
-    logger --tag mbpfan --priority daemon.debug "loaded profile name: $(basename `readlink /etc/mbpfan.conf`)"
-    systemctl daemon-reload
-    cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority daemon.debug
-    systemctl restart mbpfan
-    logger --tag mbpfan --priority daemon.debug 'successfully restarted mbpfan daemon'
+    logger --tag mbpfan --priority daemon.info 'checking symbolic link for /etc/mbpfan.conf'
+    if [ -r "$(readlink /etc/mbpfan.conf)" ]; then
+        logger --tag mbpfan --priority daemon.info "successfully verified symbolic link /etc/mbpfan.conf <--> /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)"
+        logger --tag mbpfan --priority daemon.debug "loaded profile name: $(basename `readlink /etc/mbpfan.conf`)"
+        systemctl daemon-reload
+        cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority daemon.debug
+        systemctl restart mbpfan
+        if [ $? -eq 0 ]; then
+            logger --tag mbpfan --priority daemon.debug 'successfully restarted mbpfan daemon'
+        else
+            logger --tag mbpfan --priority daemon.err 'failed to restart mbpfan daemon. try again later.'
+        fi
+    else
+        logger --tag mbpfan --priority daemon.alert 'unable to verify symbolic link /etc/mbpfan.conf <--> <UNKNOWN>'
+        logger --tag mbpfan --priority daemon.notice "unable to following symbolic link to <UNKNOWN>. <UNKNOWN> is not correct file or directory name."
+        if [ -d /etc/mbpfan.d -a -f /etc/mbpfan.d/default ]; then
+            logger --tag mbpfan --priority daemon.notice 'attempt to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default'
+            ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
+            if [ $? -eq 0 ]; then
+                logger --tag mbpfan --priority daemon.notice 'successfully redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default'
+                logger --tag mbpfan --priority daemon.info 'restart `daemon-reload` function'
+                daemon-reload
+            else
+                logger --tag mbpfan --priority daemon.crit 'unable to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default. Exiting!'
+                logger --tag mbpfan --priority daemon.alert 'exiting `mbpfan` script due to unrecoverable error detected. all unsaved data will be lost.'
+                exit 1
+            fi
+        elif [ -d /etc/mbpfan.d ]; then
+            logger --tag mbpfan --priority daemon.crit 'unable to redefine /etc/mbpfan.conf symbolic link to /etc/mbpfan.d/default. no such default profile. Exiting!'
+            logger --tag mbpfan --priority daemon.alert 'exiting `mbpfan` script due to unrecoverable error detected. all unsaved data will be lost.'
+            exit 1
+        else
+            logger --tag mbpfan --priority daemon.crit "unable to locate /etc/mbpfan.d directory. Exiting!"
+            logger --tag mbpfan --priority daemon.alert 'exiting `mbpfan` script due to unrecoverable error detected. all unsaved data will be lost.'
+            exit 1
+        fi
+    fi
 }
 
 if ! [ -r /etc/mbpfan.conf ]; then
     echo 'error: unable to find mbpfan config file.' >&2
-    logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.conf. no such file or directory.'
+    logger --tag mbpfan --priority syslog.crit 'unable to find /etc/mbpfan.conf. no such file or directory.'
     exit 1
 fi
 
 if ! [ -d /etc/mbpfan.d ]; then
     if [ $(file /etc/mbpfan.conf | grep -c 'symbolic') -gt 0 ]; then
-        logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.d. no such file or directory.'
-        logger --tag mbpfan --priority syslog.err 'unable to find /etc/mbpfan.conf. unlinked symbolic file detected.'
+        logger --tag mbpfan --priority syslog.crit 'unable to find /etc/mbpfan.d. no such file or directory.'
+        logger --tag mbpfan --priority syslog.crit 'unable to find /etc/mbpfan.conf. unlinked symbolic file detected.'
         echo 'error: unable to find mbpfan profile directory.' >&2
         exit 1
     fi
@@ -221,7 +253,7 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to $2"
-            logger --tag mbpfan --priority user.info "successfully relinked /etc/mbpfan.conf to $2"
+            logger --tag mbpfan --priority daemon.info "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/$2"
         else
             echo "error: no such profile: $2" >&2
             exit 1
@@ -238,7 +270,7 @@ elif [ "$1" == "set" ]; then
             ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
             daemon-reload
             echo "successfully changed $prev_profile profile to default"
-            logger --tag mbpfan --priority user.info "successfully relinked /etc/mbpfan.conf to default"
+            logger --tag mbpfan --priority daemon.info "successfully redefined /etc/mbpfan.conf <--> /etc/mbpfan.d/default"
         else
             echo "unable to set profile to default. no such profile: default" >&2
             logger --tag mbpfan --priority user.err "unable to find default profile in /etc/mbpfan.d. no such file or directory"
@@ -289,6 +321,7 @@ elif [ "$1" == "remove" -o "$1" == "rm" ]; then
         if [ "$prev_profile" == "${target[$i]}" ]; then
             echo "error: unable to remove provided profile in currently use. Skipping" >&2
             logger --tag mbpfan --priority user.err "unable to drop ${target[$i]} profile due to dependancy failure"
+            exit 1
         else
             check-permission
             rm /etc/mbpfan.d/${target[$i]}
