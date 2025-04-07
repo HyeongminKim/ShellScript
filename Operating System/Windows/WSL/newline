@@ -24,6 +24,7 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                 binary_check=$(file -bL --mime "${params[$i]}" | grep "binary")
                 if [ $? -eq 0 ]; then
                     echo "skipping ${params[$i]} file. reason: binary file." >&2
+                    logger --tag newline --priority user.warn "skipping ${params[$i]} file due to binary type"
                     continue
                 fi
                 file "${params[$i]}" 2> /dev/null
@@ -31,9 +32,11 @@ elif [ "$1" == "-i" -o "$1" == "--info" ]; then
                 if [ $? -eq 0 ]; then
                     xxd -l 32 "${params[$i]}"
                 else
+                    logger --tag newline --priority user.notice "xxd command not found. please install vim"
                     echo "Please install vim to use xxd command." >&2
                 fi
                 newline=$(expr $newline + 1)
+                logger --tag newline --priority user.info "viewing ${params[$i]} file"
             fi
         fi
     done
@@ -78,8 +81,10 @@ for i in "${!params[@]}"; do
     if [[ "${params[$i]}" == "-"* ]]; then
         if [ "${params[$i]}" == "--type=LF" -o "${params[$i]}" == "--type=lf" ]; then
             constantEOF="LF"
+            logger --tag newline --priority user.debug "locking EOF type to LF"
         elif [ "${params[$i]}" == "--type=CRLF" -o "${params[$i]}" == "--type=crlf" ]; then
             constantEOF="CRLF"
+            logger --tag newline --priority user.debug "locking EOF type to CRLF"
         fi
         continue
     fi
@@ -97,6 +102,7 @@ for i in "${!params[@]}"; do
 
     binary_check=$(file -bL --mime "${params[$i]}" | grep "binary")
     if [ $? -eq 0 ]; then
+        logger --tag newline --priority user.warn "skipping ${params[$i]} file due to binary type"
         echo "skipping ${params[$i]} file. reason: binary file." >&2
         continue
     fi
@@ -104,13 +110,16 @@ for i in "${!params[@]}"; do
     file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CRLF" &> /dev/null
     if [ $? == 0 ]; then
         if [ "$constantEOF" == "CRLF" ]; then
+            logger --tag newline --priority user.debug "skipping ${params[$i]} file due to requirement already satisfied: CRLF"
             echo "skipping ${params[$i]} file. reason: requirement already satisfied.">&2
             continue
         fi
         sed -i 's/\r$//' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
+            logger --tag newline --priority user.info "successfully converted ${params[$i]} file CRLF to LF"
             echo "${params[$i]}: operation complete. EOL was converted CRLF to LF."
         else
+            logger --tag newline --priority user.warn "unable to convert ${params[$i]} file"
             echo "unable to convert ${params[$i]} file. reason: access denied.">&2
         fi
         continue
@@ -118,6 +127,7 @@ for i in "${!params[@]}"; do
 
     file -b "${params[$i]}" 2> /dev/null | grep "text" 2> /dev/null | grep "CR" &> /dev/null
     if [ $? == 0 ]; then
+        logger --tag newline --priority user.err "unable to convert ${params[$i]} file with CR type"
         echo "unable to convert ${params[$i]} file. reason: unsupported EOL CR(Macintosh) type.">&2
         continue
     fi
@@ -125,13 +135,16 @@ for i in "${!params[@]}"; do
     file -b "${params[$i]}" 2> /dev/null | grep "text" &> /dev/null
     if [ $? == 0 ]; then
         if [ "$constantEOF" == "LF" ]; then
+            logger --tag newline --priority user.debug "skipping ${params[$i]} file due to requirement already satisfied: LF"
             echo "skipping ${params[$i]} file. reason: requirement already satisfied.">&2
             continue
         fi
         sed -i 's/$/\r/' "${params[$i]}" &> /dev/null
         if [ $? == 0 ]; then
+            logger --tag newline --priority user.info "successfully converted ${params[$i]} file LF to CRLF"
             echo "${params[$i]}: operation complete. EOL was converted LF to CRLF."
         else
+            logger --tag newline --priority user.warn "unable to convert ${params[$i]} file"
             echo "unable to convert ${params[$i]} file. reason: access denied.">&2
         fi
         continue
