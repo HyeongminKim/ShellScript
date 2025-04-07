@@ -3,7 +3,7 @@
 
 function daemon-reload() {
     logger --tag mbpfan --priority user.info '`daemon-reload` called. reloading /etc/mbpfan.conf...'
-    logger --tag mbpfan --priority user.debug "current target profile name: $(basename `readlink /etc/mbpfan.conf`)"
+    logger --tag mbpfan --priority user.debug "loaded profile name: $(basename `readlink /etc/mbpfan.conf`)"
     systemctl daemon-reload
     cat /etc/mbpfan.conf | sed 's/#.*//' | sed '/^$/d' | logger --tag mbpfan --priority user.debug
     systemctl restart mbpfan
@@ -200,7 +200,7 @@ elif [ "$1" == "set" ]; then
 
             ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
             daemon-reload
-            echo "profile changed $prev_profile to $2"
+            echo "successfully changed $prev_profile profile to $2"
         else
             echo "error: no such profile: $2" >&2
             exit 1
@@ -212,9 +212,14 @@ elif [ "$1" == "set" ]; then
             exit 1
         fi
 
-        ln -sf /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.conf
-        daemon-reload
-        echo "profile changed $prev_profile to $(basename `readlink /etc/mbpfan.conf`)"
+        if [ -r /etc/mbpfan.d/default ]; then
+            ln -sf /etc/mbpfan.d/default /etc/mbpfan.conf
+            daemon-reload
+            echo "successfully changed $prev_profile profile to default"
+        else
+            echo "unable to set profile to default. no such profile: default" >&2
+            exit 1
+        fi
     fi
 elif [ "$1" == "rename" -o "$1" == "rn" ]; then
     if [ $UID -ne 0 ]; then
@@ -226,10 +231,10 @@ elif [ "$1" == "rename" -o "$1" == "rn" ]; then
         mv /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
         ln -sf /etc/mbpfan.d/$2 /etc/mbpfan.conf
         daemon-reload
-        echo "profile renamed $prev_profile to $2"
+        echo "successfully renamed $prev_profile profile to $2"
     else
         mv /etc/mbpfan.d/$2 /etc/mbpfan.d/$3
-        echo "profile renamed $2 to $3"
+        echo "successfully renamed $2 profile to $3"
     fi
 elif [ "$1" == "remove" -o "$1" == "rm" ]; then
     if [ $UID -ne 0 ]; then
