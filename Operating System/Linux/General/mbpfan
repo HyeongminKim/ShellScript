@@ -96,28 +96,38 @@ if [ $# -eq 0 -o "$1" == "status" ]; then
     else
         echo -e "intel_turbo_boost = 0\t\t(disabled)"
     fi
-elif [ $# -eq 2 -a "$1" == "show" ]; then
+elif [ $# -ge 2 -a "$1" == "show" ]; then
     if ! [ -r /etc/mbpfan.d/$2 ]; then
         echo "error: no such profile: $2" >&2
         exit 1
     fi
 
-    echo "profile_name = $2"
-
-    target_inode=$(stat -c '%i' /etc/mbpfan.d/$2)
-    match_inode=0
-    target=($(ls -li /etc/mbpfan.d | grep -v $2 | grep -v 'total' | awk '{ print $1 }'))
+    target=("$@")
     for i in "${!target[@]}"; do
-        if [ $target_inode -eq ${target[$i]} ]; then
-            match_inode=${target[$i]}
+        if [ "${target[$i]}" == "show" ]; then
+            continue
         fi
-    done
-    if [ $match_inode -ne 0 ]; then
-        echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v $2 | grep $match_inode | awk '{ print $10 }' | tr '\n' ' ')"
-    fi
+        if ! [ -r /etc/mbpfan.d/${target[$i]} ]; then
+            echo "error: no such profile: ${target[$i]}. Skipping" >&2
+            continue
+        fi
+        echo "profile_name = ${target[$i]}"
 
-    cat /etc/mbpfan.d/$2 | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }' | sed 's/$/\t(±0.35%)/'
-    cat /etc/mbpfan.d/$2 | grep 'temp =' | awk -F '#' '{ print $1 }'
+        target_inode=$(stat -c '%i' /etc/mbpfan.d/${target[$i]})
+        match_inode=0
+        configs=($(ls -li /etc/mbpfan.d | grep -v ${target[$i]} | grep -v 'total' | awk '{ print $1 }'))
+        for j in "${!configs[@]}"; do
+            if [ $target_inode -eq ${configs[$j]} ]; then
+                match_inode=${configs[$j]}
+            fi
+        done
+        if [ $match_inode -ne 0 ]; then
+            echo "inherited = $(ls -li /etc/mbpfan.d | grep -v 'total' | grep -v ${target[$i]} | grep $match_inode | awk '{ print $10 }' | tr '\n' ' ')"
+        fi
+
+        cat /etc/mbpfan.d/${target[$i]} | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }' | sed 's/$/\t(±0.35%)/'
+        cat /etc/mbpfan.d/${target[$i]} | grep 'temp =' | awk -F '#' '{ print $1 }'
+    done
 elif [ "$1" == "ls" -o "$1" == "list" ]; then
     ls /etc/mbpfan.d | sed "s/$(basename `readlink /etc/mbpfan.conf`)/$(basename `readlink /etc/mbpfan.conf`)*/"
 elif [ "$1" == "new" ]; then
@@ -370,7 +380,7 @@ elif [ "$1" == "help" ]; then
     echo 'usage: mbpfan [option]'
     echo -e '\nOPTIONS'
     echo -e " status\t\t\t\tshow detail about current profiles."
-    echo -e "   show <profile>\t\tshow detail about specific profiles."
+    echo -e "   show <profile [...]>\t\tshow detail about specific profiles."
     echo -e "   list\t\t\t\tshow available profiles."
     echo -e "    set [profile]\t\tupdate new profile for mbpfan."
     echo -e "    new [source] <name>\t\tcreate new profile."
