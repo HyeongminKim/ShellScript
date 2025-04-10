@@ -134,11 +134,14 @@ elif [ "$1" == "get" ] && [ $# -ge 2 -a $# -le 3 ]; then
     elif [ "$2" == "speed" ]; then
         if [ $# -eq 2 ]; then
             cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep '^m.._fan._speed =' | awk -F '#' '{ print $1 }'
+            sensors -u applesmc-isa-0300 | grep fan | grep input | cut -d. -f1 | sed 's/^  /cnt_/' | sed 's/: / = /' | sed 's/input/speed/'
         else
             if [ "$3" == 'min' ]; then
                 cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep '^min_fan._speed =' | awk -F '#' '{ print $1 }'
             elif [ "$3" == 'max' ]; then
                 cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep '^max_fan._speed =' | awk -F '#' '{ print $1 }'
+            elif [ "$3" == 'cnt' ]; then
+                sensors -u applesmc-isa-0300 | grep fan | grep input | cut -d. -f1 | sed 's/^  /cnt_/' | sed 's/: / = /' | sed 's/input/speed/'
             else
                 echo "unknown options: $@" >&2
                 exit 1
@@ -147,6 +150,7 @@ elif [ "$1" == "get" ] && [ $# -ge 2 -a $# -le 3 ]; then
     elif [ "$2" == "temp" ]; then
         if [ $# -eq 2 ]; then
             cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep 'temp =' | awk -F '#' '{ print $1 }'
+            sensors -u coretemp-isa-0000 | grep temp._input | cut -d. -f1 | sed 's/^  /cnt_cpu_/' | sed 's/: / = /' | sed 's/_input//'
         else
             if [ "$3" == 'low' ]; then
                 cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep 'low_temp =' | awk -F '#' '{ print $1 }'
@@ -154,6 +158,8 @@ elif [ "$1" == "get" ] && [ $# -ge 2 -a $# -le 3 ]; then
                 cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep 'high_temp =' | awk -F '#' '{ print $1 }'
             elif [ "$3" == 'max' ]; then
                 cat /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) | grep 'max_temp =' | awk -F '#' '{ print $1 }'
+            elif [ "$3" == 'cnt' ]; then
+                sensors -u coretemp-isa-0000 | grep temp._input | cut -d. -f1 | sed 's/^  /cnt_cpu_/' | sed 's/: / = /' | sed 's/_input//'
             else
                 echo "unknown options: $@" >&2
                 exit 1
@@ -419,9 +425,9 @@ elif [ "$1" == "help" ]; then
     echo -e "   list\t\t\t\tshow available profiles."
     echo -e "    set [profile]\t\tupdate new profile for mbpfan."
     echo -e "    get <name|speed|temp>\tget current profile infomations."
-    echo -e "\t\t\t\t \`name\`: show current profile name."
-    echo -e "\t\t\t\t\`speed\`: [min|max]: show preset for fan speed."
-    echo -e "\t\t\t\t \`temp\`: [low|high|max]: show preset for temp."
+    echo -e "\t\t\t\t \`name\`: \t\t\tshow current profile name."
+    echo -e "\t\t\t\t\`speed\` [min|max|cnt]: \t\tshow preset for fan speed."
+    echo -e "\t\t\t\t \`temp\` [low|high|max|cnt]: \tshow preset for temp."
     echo -e "    new [source] <name>\t\tcreate new profile."
     echo -e "   link [source] <name>\t\tlinking exist profile."
     echo -e "   edit [name ...]\t\tedit specific or current profile."
