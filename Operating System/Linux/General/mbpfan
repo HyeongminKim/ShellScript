@@ -435,7 +435,7 @@ elif [ "$1" == "help" ]; then
     echo -e " remove <name ...>\t\tdelete specific profile."
     echo -e " rename [old] <new>\t\trename specific or current profile."
     echo -e "   help\t\t\t\tshow this help."
-    echo -e "* some options will require super-user permission."
+    echo -e "\n※ Some options will request super-user permission."
     echo -e '\nAVAILABLE PROFILES'
     ls /etc/mbpfan.d | grep -v $(basename `readlink /etc/mbpfan.conf`) | sed 's/^/ /'
 else
