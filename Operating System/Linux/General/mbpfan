@@ -254,7 +254,7 @@ elif [ "$1" == "edit" ]; then
             echo "Aborting edit $(basename `readlink /etc/mbpfan.conf`) profile due to identical." >&2
             rm $filename
         else
-            diff /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename | logger --tag mbpfan --priority user.debug
+            diff /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) $filename | sed 's/\#.*//g' | logger --tag mbpfan --priority user.debug
             mv -f $filename /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`)
             logger --tag mbpfan --priority user.debug "currently using $(basename `readlink /etc/mbpfan.conf`) profile changed. reloading..."
             logger --tag mbpfan --priority user.info "successfully altered $(basename `readlink /etc/mbpfan.conf`) profile"
@@ -280,7 +280,7 @@ elif [ "$1" == "edit" ]; then
                 echo "Aborting edit ${target[$i]} profile due to identical." >&2
                 rm $filename
             else
-                diff /etc/mbpfan.d/${target[$i]} $filename | logger --tag mbpfan --priority user.debug
+                diff /etc/mbpfan.d/${target[$i]} $filename | sed 's/\#.*//g' | logger --tag mbpfan --priority user.debug
                 mv -f $filename /etc/mbpfan.d/${target[$i]}
                 if [ "${target[$i]}" == "$(basename `readlink /etc/mbpfan.conf`)" ]; then
                     logger --tag mbpfan --priority user.debug "currently using $(basename `readlink /etc/mbpfan.conf`) profile changed. reloading..."
