@@ -224,7 +224,7 @@ elif [ "$1" == "lnk" -o "$1" == "link" ]; then
         fi
 
         check-permission
-        ln $(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
+        ln /etc/mbpfan.d/$(basename `readlink /etc/mbpfan.conf`) /etc/mbpfan.d/$2
         chown root:root /etc/mbpfan.d/$2
         logger --tag mbpfan --priority user.info "successfully linked $2 profile with $(basename `readlink /etc/mbpfan.conf`)"
         echo "please re-run this script to apply $2 profile."
