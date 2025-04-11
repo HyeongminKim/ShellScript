@@ -24,7 +24,7 @@ RUN yum update -y && \
         nfs-utils samba samba-client network-scripts bison nmap traceroute epel-release \
         iproute iputils tar gzip bzip2 xz dump cpio file passwd ncurses ncurses-devel \
         vsftpd pciutils quota sed iptables firewalld bind-utils expat expat-devel \
-        ypbind ypserv yp-tools rpcbind xinetd elfutils-libelf-devel openssh-server
+        ypbind ypserv yp-tools rpcbind xinetd elfutils-libelf-devel openssh-server postfix
 
 RUN curl -fSL https://dlcdn.apache.org//httpd/httpd-$httpd_version.tar.gz > httpd-$httpd_version.tar.gz && \
     tar -xf httpd-$httpd_version.tar.gz && \
