@@ -80,7 +80,7 @@ if [ $? -ne 0 ]; then
     error=1
 fi
 
-if [ $trigger -eq 0 -a $reboot -eq 1 ]; then
+if [ $trigger -eq 0 -a $error -eq 1 ]; then
     echo "NOTICE: You should reboot your computer to changes take effect."
     echo -n "Are you sure you want to reboot your computer now? (Y/n) > "
     read input
@@ -89,7 +89,7 @@ if [ $trigger -eq 0 -a $reboot -eq 1 ]; then
     else
         sudo reboot
     fi
-elif [ $trigger -eq 1 -a $reboot -eq 1 ]; then
+elif [ $trigger -eq 1 -a $error -eq 1 ]; then
     echo "Please reboot your computer to changes take effect." >&2
 fi
 
