@@ -72,6 +72,13 @@ if [ $? -eq 0 ]; then
     flatpak update -y
 fi
 
+which yay &> /dev/null
+if [ $? -eq 0 ]; then
+    yay -Ps
+    echo 'if you want cleanup yay & pacman cache directory, you should run below commands.'
+    echo 'yay -Scc'
+fi
+
 if [ -x /usr/bin/vmplayer ]; then
     if [ -d /lib/modules/$(uname -r) ]; then
         vm_count=$(ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep -c 'vm')
