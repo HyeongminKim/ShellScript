@@ -100,6 +100,11 @@ aptall() {
     fi
 }
 
+unalias grep
+grep() {
+    /usr/bin/grep $@ --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv} | /usr/bin/grep -v grep
+}
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
