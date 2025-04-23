@@ -223,8 +223,8 @@ function removeMedia() {
 ##### 스크립트 함수 끝 #####
 
 ##### 종속 패키지 체크 시작 #####
-checkDependence youtube-dl
 checkDependence yt-dlp
+checkDependence youtube-dl
 
 if [ x"$yt_dlp" == x ]; then
     echo -e "\033[33mWARN: 알려진 youtube-dl 패키지를 검색했지만 설치된 패키지를 찾을 수 없습니다. \033[m"
