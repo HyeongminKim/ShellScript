@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function default() {
+    if [ $(pactl list sinks short | wc -l) -le 1 ]; then
+        rofi -e "No alternative sinks available. resetting $(pactl get-default-sink)"
+    else
+        pactl set-default-sink $(echo "$(pactl list sinks short | awk '{ print $1 "  " $2 "  " $3 "  " $5 "  " $6 }')" | rofi -dmenu -p "Set sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $2 }') 2> /dev/null
+    fi
+}
+
+function per_source() {
+    if [ $(pactl list sink-inputs | wc -l) -lt 1 ]; then
+        rofi -e 'No players found.'
+    else
+        pactl move-sink-input $(pactl list sink-inputs | grep -E '(Input|icon_name|Sink:)' | sed 's/Sink: /O/' | sed 's/Sink Input \#/I/' | sed 's/.*application.icon_name =//' | sed 's/\"//g' | tr -d '\n' | rofi -dmenu -p 'Choose program' | awk '{ print $1 }' | sed 's/I//') $(pactl list sinks short | awk '{ print $1 " " $2 }' | rofi -dmenu -p "$(pactl list sink-inputs | grep 'Sink:' | sed 's/.*Sink: /Set new sinks (cnt\./')" | awk '{ print $1 }')
+    fi
+}
+
+########    DO NOT CHANGE OR REMOVE BELOW LINES    ########
+#   This script will not work after changing below code   #
+###########################################################
+if [ $# -eq 0 ]; then                                     #
+    echo "usage: $0 <function [options]>" >&2             #
+    exit 127                                              #
+else $@; fi                                               #
+###########################################################

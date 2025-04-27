@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# This script will helps you without reload your sway program after below codes changed.
+# NOTE: status_command will not work properly. Please write theese settings in configuration file.
+
+sleep_target=hybrid-sleep
+
+function logout() {
+    swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? or save/load workspace session.' -Z 'Logout' 'swaymsg exit'
+}
+
+function power() {
+    swaynag -t warning -m 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.' -Z 'Sleep' '~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"' -Z 'Shut down' 'poweroff' -Z 'Reboot' 'reboot'
+}
+
+function change_wallpaper() {
+    find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1
+}
+
+function lock_session() {
+    swaylock -efF --clock -i `find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1`
+}
+
+function enter_sleep() {
+    if ! [ "$(systemctl is-enabled sleep.target)" == 'masked' ]; then
+        systemctl $sleep_target
+    fi
+}
+
+function current_sink_status() {
+    if [ $(pactl list sinks | grep Active | grep -c headphones) -eq 1 ]; then echo '🎧'; fi
+    if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo '🔊'; else echo '🔈'; fi
+    amixer get Master | grep 'Left' | grep '%' | awk '{ print $5 }' | tr -d \[ | tr -d \]
+}
+
+function current_playing_media() {
+    current_sink_status
+
+    echo -n 'Now'
+    if [ $(playerctl --player playerctld status | grep 'Playing') == 'Playing' ]; then echo '▶︎'; elif [ $(playerctl --player playerctld status | grep 'Paused') == 'Paused' ]; then echo '⏸'; else echo '■'; fi
+
+    if [ $(playerctl -a status | grep Playing | wc -l) -gt 1 ]; then
+        playerctl -a status | grep Playing | wc -l
+    elif [ -z "$(playerctl --player playerctld status | grep -v Stopped)" ]; then
+        echo ''
+    else
+        playerctl --player playerctld metadata -f '{{xesam:title}}' | cut -d: -f1
+        playerctl --player playerctld metadata -f '{{xesam:album}}' | cut -d: -f1
+        playerctl --player playerctld metadata -f '{{xesam:artist}}' | cut -d: -f1
+    fi
+}
+
+function media_controller() {
+    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$(current_playing_media)" \
+    -B 'Next' 'playerctl next' \
+    -B "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
+    -B 'Previous' 'playerctl previous'
+}
+
+function sinks_controller() {
+    swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+    -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
+    -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
+    -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
+    -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
+    -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
+    -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
+    -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
+    -Z "$(if [ $(pactl list sinks short | wc -l) -gt 1 ]; then echo 'defaults'; fi)" "~/.config/sway/src/change_sink 'default'"\
+    -Z "$(if [ $(pactl list sink-inputs | wc -l) -ge 1 ]; then echo 'mixer'; fi)" "~/.config/sway/src/change_sink 'per_source'"\
+    -Z "pavucontrol" 'pavucontrol'
+}
+
+########    DO NOT CHANGE OR REMOVE BELOW LINES    ########
+#   This script will not work after changing below code   #
+###########################################################
+if [ $# -eq 0 ]; then                                     #
+    echo "usage: $0 <function [options]>" >&2             #
+    exit 127                                              #
+else $@; fi                                               #
+###########################################################
+

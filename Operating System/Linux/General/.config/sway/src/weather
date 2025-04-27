@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# NOTE: If you wanna to change weather reports format, please check https://github.com/chubin/wttr.in#one-line-output
+
+lock_file=/tmp/widget-sway-weather.lock
+prev_output=/tmp/widget-sway-weather.log
+target_url=wttr.in?M\&format="%c+%t+%w+%p\n"
+refresh_interval=60
+
+if [ "$1" == "--reload" -o "$1" == "-r" ]; then
+    echo 0 > $lock_file
+fi
+
+if [ $(cat $lock_file) -eq 0 ]; then
+    echo 'Fetching weather data...'
+    curl -s $target_url > $prev_output
+    parse_err=$?
+    if [ $parse_err -ne 0 ]; then
+        echo "(-$parse_err)" | tee $prev_output
+    else
+        echo 1 > $lock_file
+    fi
+elif [ $(cat $lock_file) -ge $(expr $refresh_interval \* 60) ]; then
+    cat $prev_output
+    echo 0 > $lock_file
+else
+    cat $prev_output
+    echo $(expr $(cat $lock_file) + 1) > $lock_file
+fi
