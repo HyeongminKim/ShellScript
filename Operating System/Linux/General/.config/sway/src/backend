@@ -21,7 +21,7 @@ function lock_session() {
 
 function enter_sleep() {
     if ! [ "$(systemctl is-enabled sleep.target)" == 'masked' ]; then
-        #NOTE: To change SleepOperation features, please enter below commands.
+        #NOTE: To change SleepOperation features, please enter below commands and reboot to changes take effect.
         # echo 'SleepOperation=suspend' | sudo tee /etc/systemd/logind.conf.d/sleep-operation.conf
         # vailed sleep targets in SleepOperation: suspend, suspend-then-hibernate, hibernate, hybrid-sleep
         # refuse sleep operation, please enter `systemctl mask sleep.target` commands
