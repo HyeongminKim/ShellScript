@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # This script will helps you without reload your sway program after below codes changed.
-# NOTE: status_command will not work properly. Please write theese settings in configuration file.
-
-sleep_target=hybrid-sleep
+# NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
 function logout() {
     swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? or save/load workspace session.' -Z 'Logout' 'swaymsg exit'
@@ -23,7 +21,21 @@ function lock_session() {
 
 function enter_sleep() {
     if ! [ "$(systemctl is-enabled sleep.target)" == 'masked' ]; then
-        systemctl $sleep_target
+        #NOTE: To change SleepOperation features, please enter below commands.
+        # echo 'SleepOperation=suspend' | sudo tee /etc/systemd/logind.conf.d/sleep-operation.conf
+        # vailed sleep targets in SleepOperation: suspend, suspend-then-hibernate, hibernate, hybrid-sleep
+        # refuse sleep operation, please enter `systemctl mask sleep.target` commands
+        
+        vailed_target=$(find /etc/systemd -type f -exec grep '^SleepOperation' {} \; | sed 's/SleepOperation=//')
+        if [ -n "$vailed_target" -a "$(systemctl is-enabled $vailed_target.target)" == 'masked' ]; then
+            logger --tag sway --priority user.notice "backend: $vailed_target.target was masked. Skipping \`enter_sleep\` operation."
+            return 1
+        fi
+
+        systemctl sleep
+    else
+        logger --tag sway --priority user.notice 'backend: sleep.target was masked. Skipping `enter_sleep` operation.'
+        return 1
     fi
 }
 
