@@ -3,12 +3,18 @@
 # This script will helps you without reload your sway program after below codes changed.
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
+nag=swaynag
+which swaynagmode &> /dev/null
+if [ $? -eq 0 ]; then
+    nag=swaynagmode
+fi
+
 function logout() {
-    swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -Z 'Logout' 'swaymsg exit'
+    $nag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -Z 'Logout' 'swaymsg exit'
 }
 
 function power() {
-    swaynag -t warning -m 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.' -Z 'Sleep' '~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"' -Z 'Shut down' 'poweroff' -Z 'Reboot' 'reboot'
+    $nag -t warning -m 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.' -Z 'Sleep' '~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"' -Z 'Shut down' 'poweroff' -Z 'Reboot' 'reboot'
 }
 
 function change_wallpaper() {
@@ -63,14 +69,14 @@ function current_playing_media() {
 }
 
 function media_controller() {
-    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$(current_playing_media)" \
+    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | $nag -t warning -e bottom -y bottom -lm "$(current_playing_media)" \
     -B 'Next' 'playerctl next' \
     -B "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
     -B 'Previous' 'playerctl previous'
 }
 
 function sinks_controller() {
-    swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+    $nag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
     -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
     -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
     -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
