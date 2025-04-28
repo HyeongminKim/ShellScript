@@ -4,7 +4,7 @@
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
 function logout() {
-    swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? or save/load workspace session.' -Z 'Logout' 'swaymsg exit'
+    swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -Z 'Logout' 'swaymsg exit'
 }
 
 function power() {
