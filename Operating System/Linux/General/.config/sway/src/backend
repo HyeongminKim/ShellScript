@@ -16,7 +16,7 @@ function change_wallpaper() {
 }
 
 function lock_session() {
-    swaylock -efF --clock -i `find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1` && "~/.config/sway/src/weather '--reload'"
+    swaylock -efF --clock -i `find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1` && ~/.config/sway/src/weather '--reload'
 }
 
 function enter_sleep() {
