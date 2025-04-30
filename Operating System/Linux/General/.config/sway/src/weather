@@ -4,7 +4,7 @@
 
 lock_file=/tmp/widget-sway-weather.lock
 prev_output=/tmp/widget-sway-weather.log
-target_url=wttr.in?M\&format="%c+%t+%w+%p\n"
+target_url=wttr.in?M\&format="%c+%t+%w+%p+%h\n"
 refresh_interval=30
 
 if [ "$1" == "--reload" -o "$1" == "-r" ]; then
@@ -12,13 +12,19 @@ if [ "$1" == "--reload" -o "$1" == "-r" ]; then
 fi
 
 if [ $(cat $lock_file) -eq 0 ]; then
-    echo 'Fetching weather data...'
     curl -s $target_url > $prev_output
     parse_err=$?
     if [ $parse_err -ne 0 ]; then
         echo "(-$parse_err)" | tee $prev_output
+        exit 1
     else
         echo 1 > $lock_file
+    fi
+
+    if [ "$(cat $prev_output | awk '{ print $4 }')" == '0.0mm' ]; then
+        cat $prev_output | awk '{ print $1 " " $2 " " $3 " " $5 }' | tee $prev_output
+    else
+        cat $prev_output | awk '{ print $1 " " $2 " " $3 " " $4 }' | tee $prev_output
     fi
 elif [ $(cat $lock_file) -ge $(expr $refresh_interval \* 60) ]; then
     cat $prev_output
