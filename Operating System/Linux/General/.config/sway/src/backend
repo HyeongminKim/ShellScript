@@ -12,11 +12,29 @@ function power() {
 }
 
 function change_wallpaper() {
-    find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1
+    tries=3
+    while [ $tries -ge 0 ]; do
+        target_splash="$(find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1)"
+        if [ -n "$target_splash" ]; then
+            echo "$target_splash"
+            return 0
+        else
+            tries=$(expr $tries - 1)
+            sleep 1
+        fi
+    done
+
+    logger --tag sway --priority user.warn 'backend: unable to load wallpaper. please check `~/Pictures/Wallpaper-Bank/wallpapers` directory permission.'
+    return 1
 }
 
 function lock_session() {
-    swaylock -efF --clock -i `find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1`
+    target_splash=$(~/.config/sway/src/backend 'change_wallpaper')
+    if [ $? -ne 0 ]; then
+        echo 'unable to load splash image.' >&2
+        return 1
+    fi
+    swaylock -efF --clock -i "$target_splash"
 
     while :; do
         if [ -z "$(pgrep -x swaylock)" ]; then
