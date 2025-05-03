@@ -26,6 +26,16 @@ function per_source() {
     fi
 }
 
+function check_current_state() {
+    if [ "$1" == "sinks" ]; then
+        pactl list sinks short | wc -l
+    elif [ "$1" == "inputs" ]; then
+        pactl list sink-inputs | wc -l
+    else
+        return 127
+    fi
+}
+
 ########    DO NOT CHANGE OR REMOVE BELOW LINES    ########
 #   This script will not work after changing below code   #
 ###########################################################

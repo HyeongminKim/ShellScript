@@ -75,15 +75,16 @@ function current_sink_status() {
 }
 
 function current_playing_media() {
-    current_sink_status
+    if [ -z "$(playerctl --player playerctld status)" ]; then
+        return 1
+    fi
 
+    current_sink_status
     echo -n 'Now'
     if [ $(playerctl --player playerctld status | grep 'Playing') == 'Playing' ]; then echo '▶︎'; elif [ $(playerctl --player playerctld status | grep 'Paused') == 'Paused' ]; then echo '⏸'; else echo '■'; fi
 
     if [ $(playerctl -a status | grep Playing | wc -l) -gt 1 ]; then
         playerctl -a status | grep Playing | wc -l
-    elif [ -z "$(playerctl --player playerctld status | grep -v Stopped)" ]; then
-        echo ''
     else
         playerctl --player playerctld metadata -f '{{xesam:title}}' | cut -d: -f1
         playerctl --player playerctld metadata -f '{{xesam:album}}' | cut -d: -f1
@@ -92,24 +93,64 @@ function current_playing_media() {
 }
 
 function media_controller() {
-    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$(current_playing_media)" \
+    media_info="$(current_playing_media)"
+    if [ $? -ne 0 ]; then
+        swaynag -t warning -e bottom -y bottom -m 'No players found'
+        return 1
+    fi
+
+    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$media_info" \
     -B 'Next' 'playerctl next' \
     -B "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
     -B 'Previous' 'playerctl previous'
 }
 
 function sinks_controller() {
-    swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
-    -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
-    -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
-    -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
-    -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
-    -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
-    -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
-    -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
-    -Z "$(if [ $(pactl list sinks short | wc -l) -gt 1 ]; then echo 'defaults'; fi)" "~/.config/sway/src/change_sink 'default'"\
-    -Z "$(if [ $(pactl list sink-inputs | wc -l) -ge 1 ]; then echo 'mixer'; fi)" "~/.config/sway/src/change_sink 'per_source'"\
-    -Z "pavucontrol" 'pavucontrol'
+    if [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 -a $(~/.config/sway/src/change_sink 'check_current_state' 'inputs') -gt 0 ]; then
+        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
+        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
+        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
+        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
+        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
+        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
+        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
+        -Z 'defaults' "~/.config/sway/src/change_sink 'default'"\
+        -Z 'mixer' "~/.config/sway/src/change_sink 'per_source'"\
+        -Z "pavucontrol" 'pavucontrol'
+    elif [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 ]; then
+        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
+        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
+        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
+        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
+        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
+        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
+        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
+        -Z 'defaults' "~/.config/sway/src/change_sink 'default'"\
+        -Z "pavucontrol" 'pavucontrol'
+    elif [ $(~/.config/sway/src/change_sink 'check_current_state' 'inputs') -gt 0 ]; then
+        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
+        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
+        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
+        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
+        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
+        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
+        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
+        -Z 'mixer' "~/.config/sway/src/change_sink 'per_source'"\
+        -Z "pavucontrol" 'pavucontrol'
+    else
+        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
+        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
+        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
+        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
+        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
+        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
+        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
+        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
+        -Z "pavucontrol" 'pavucontrol'
+    fi
 }
 
 ########    DO NOT CHANGE OR REMOVE BELOW LINES    ########
