@@ -129,17 +129,6 @@ function sinks_controller() {
         -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
         -Z 'defaults' "~/.config/sway/src/change_sink 'default'"\
         -Z "pavucontrol" 'pavucontrol'
-    elif [ $(~/.config/sway/src/change_sink 'check_current_state' 'inputs') -gt 0 ]; then
-        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
-        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
-        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
-        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
-        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
-        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
-        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
-        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
-        -Z 'mixer' "~/.config/sway/src/change_sink 'per_source'"\
-        -Z "pavucontrol" 'pavucontrol'
     else
         swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
         -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
