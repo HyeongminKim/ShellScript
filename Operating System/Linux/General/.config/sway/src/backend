@@ -17,7 +17,14 @@ function change_wallpaper() {
 
 function lock_session() {
     swaylock -efF --clock -i `find ~/Pictures/Wallpaper-Bank/wallpapers -type f | shuf -n 1`
-    sleep 2
+
+    while :; do
+        if [ -z "$(pgrep -x swaylock)" ]; then
+            break
+        fi
+        sleep 1
+    done
+
     ~/.config/sway/src/weather '--reload'
 }
 
