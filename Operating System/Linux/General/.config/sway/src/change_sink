@@ -14,7 +14,7 @@ function per_source() {
     elif [ $(pactl list sink-inputs | wc -l) -lt 1 ]; then
         rofi -e 'No players found.'
     else
-        target_app=$(pactl list sink-inputs | grep -E '(Input|application\.process\.binary|Sink:)' | sed 's/Sink: /O/' | sed 's/Sink Input \#/I/' | sed 's/.*application.process.binary =//' | sed 's/\"//g' | xargs | sed 's/I/\nI/g' | sed '1d' | rofi -dmenu -p 'Choose program' | awk '{ print $1 " " $2 }' | sed -E 's/(I|O)//g')
+        target_app=$(pactl list sink-inputs | grep -E '(Input|media\.name|application\.process\.binary|Sink:)' | sed 's/Sink: /O/' | sed 's/Sink Input \#/I/' | sed 's/.*application.process.binary =//' | sed 's/.*media.name =//' | sed 's/\"//g' | xargs | sed 's/I/\nI/g' | sed '1d' | rofi -dmenu -p 'Choose program' | awk '{ print $1 " " $2 }' | sed -E 's/(I|O)//g')
         if [ -z "$target_app" ]; then
             return $?
         else
