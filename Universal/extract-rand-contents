@@ -2,11 +2,13 @@
 
 params=("$@")
 verbose=0
+count=1
 
 if [ "$1" == '--help' -o "$1" == '-h' ]; then
     echo 'extract-rand-contents [option] [<file>]'
     echo -e "-h, --help:\tshow this help"
     echo -e "-v, --verbose:\tshow what's going on"
+    echo -e "    --count=N:\thow many generate results"
     exit 0
 fi
 
@@ -29,6 +31,11 @@ for i in "${!params[@]}"; do
         fi
     elif [ "${params[$i]}" == '-v' -o "${params[$i]}" == '--verbose' ]; then
         verbose=1
+    elif [[ "${params[$i]}" == '--count='* ]]; then
+        if [ $verbose -eq 1 ]; then
+            echo "[INFO] altered generate elements count: $count to $(echo ${params[$i]} | sed 's/--count=//')"
+        fi
+        count=$(echo "${params[$i]}" | sed 's/--count=//')
     fi
 done
 
@@ -37,12 +44,26 @@ if [ $verbose -eq 1 ]; then
 fi
 for i in "${!contents[@]}"; do
     if [ $verbose -eq 1 ]; then
-        echo -e "[INFO] ($i/$(expr ${#contents[@]} - 1)):\t\t${contents[$i]}"
+        echo -e "[INFO] ($(expr $i + 1)/${#contents[@]}):\t\t^${contents[$i]}$"
     fi
 done
 if [ $verbose -eq 1 ]; then
     echo '[INFO] EOF'
 fi
 
-result=$(expr $RANDOM % ${#contents[@]})
-echo -e "\e[32mresult index: $result, value: ${contents[$result]}\e[m"
+if [ ${#contents[@]} -lt $count ]; then
+    echo -e '\e[33m[WARN] possible ArrayIndexOutOfBounds excception\e[m'
+    echo -e "\e[33m[WARN] provided count: $count, total length: ${#contents[@]}\e[m"
+fi
+
+for ((i=1;i<=$count;i++)); do
+    if [ ${#contents[@]} -eq 0 ]; then
+        echo -e "\e[31m[ ERR] Array index out of range: ${#contents[@]}. Aborting.\e[m"
+        exit 1
+    fi
+
+    result=$(expr $RANDOM % ${#contents[@]})
+    echo -e "\e[32mresult[$i]: ${contents[$result]}\e[m"
+    unset "contents[$result]"
+    contents=("${contents[@]}")
+done
