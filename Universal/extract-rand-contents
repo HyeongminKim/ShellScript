@@ -1,12 +1,5 @@
 #!/bin/bash
 
-verify=$(echo "$(uptime -r | awk '{ print $1 }')Z$(shasum -a 256 $0 | awk '{ print $1 }')A$(uptime -r | awk '{ print $2 }' | cut -d. -f1)")
-if [ -z $verify ]; then
-    exit 127
-else
-    echo -e "\e[5;37m[SEED] $verify\e[m"
-fi
-
 params=("$@")
 verbose=0
 
@@ -15,6 +8,13 @@ if [ "$1" == '--help' -o "$1" == '-h' ]; then
     echo -e "-h, --help:\tshow this help"
     echo -e "-v, --verbose:\tshow what's going on"
     exit 0
+fi
+
+verify=$(echo "$(uptime -r | awk '{ print $1 }')Z$(shasum -a 256 $0 | awk '{ print $1 }')A$(uptime -r | awk '{ print $2 }' | cut -d. -f1)")
+if [ -z $verify ]; then
+    exit 127
+else
+    echo -e "\e[5;37m[SEED] $verify\e[m"
 fi
 
 for i in "${!params[@]}"; do
