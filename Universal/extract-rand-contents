@@ -33,7 +33,7 @@ for i in "${!params[@]}"; do
         verbose=1
     elif [[ "${params[$i]}" == '--count='* ]]; then
         if [ $verbose -eq 1 ]; then
-            echo "[INFO] altered generate elements count: $count to $(echo ${params[$i]} | sed 's/--count=//')"
+            echo "[INFO] altered generate elements count: $(echo ${params[$i]} | sed 's/--count=//') (prev. $count)"
         fi
         count=$(echo "${params[$i]}" | sed 's/--count=//')
     fi
