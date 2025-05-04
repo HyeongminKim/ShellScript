@@ -19,7 +19,7 @@ function gitUpdate() {
 
             if [ $(git remote get-url origin | grep -c unstable-code) -ne 1 ]; then
                 echo "updater: Updating remoteURL for $target"
-                git remote set-url origin https://github.com/unstable-code/$target.git
+                git remote set-url origin https://github.com/unstable-code/$(echo $target | sed 's/Release\///').git
             fi
 
             cd - &>/dev/null
