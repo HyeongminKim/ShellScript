@@ -3,11 +3,11 @@
 // @namespace    http://tampermonkey.net/
 // @version      2024.11141
 // @description  임시 저장글 목록에 "모두 삭제" 버튼을 추가합니다.
-// @author      LiNE (fork: HyeongminKim)
+// @author      LiNE (fork: Hyeongmin Kim)
 // @match        *://damoang.net/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9E%84%EC%8B%9C%EC%A0%80%EC%9E%A5%EA%B8%80%20%EB%AA%A8%EB%91%90%EC%82%AD%EC%A0%9C%20%EB%B2%84%ED%8A%BC%20%EC%B6%94%EA%B0%80.js
-// @downloadURL  https://raw.githubusercontent.com/HyeongminKim/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9E%84%EC%8B%9C%EC%A0%80%EC%9E%A5%EA%B8%80%20%EB%AA%A8%EB%91%90%EC%82%AD%EC%A0%9C%20%EB%B2%84%ED%8A%BC%20%EC%B6%94%EA%B0%80.js
+// @updateURL    https://raw.githubusercontent.com/unstable-code/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9E%84%EC%8B%9C%EC%A0%80%EC%9E%A5%EA%B8%80%20%EB%AA%A8%EB%91%90%EC%82%AD%EC%A0%9C%20%EB%B2%84%ED%8A%BC%20%EC%B6%94%EA%B0%80.js
+// @downloadURL  https://raw.githubusercontent.com/unstable-code/ShellScript/refs/heads/master/Universal/Userscripts/%EB%8B%A4%EB%AA%A8%EC%95%99/%EB%8B%A4%EB%AA%A8%EC%95%99%20%EC%9E%84%EC%8B%9C%EC%A0%80%EC%9E%A5%EA%B8%80%20%EB%AA%A8%EB%91%90%EC%82%AD%EC%A0%9C%20%EB%B2%84%ED%8A%BC%20%EC%B6%94%EA%B0%80.js
 // ==/UserScript==
 
 (function() {
