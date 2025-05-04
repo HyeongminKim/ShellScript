@@ -1,6 +1,7 @@
 #!/bin/bash
 
 params=("$@")
+filename=()
 verbose=0
 count=1
 
@@ -10,13 +11,16 @@ if [ "$1" == '--help' -o "$1" == '-h' ]; then
     echo -e "-v, --verbose:\tshow what's going on"
     echo -e "    --count=N:\thow many generate results"
     exit 0
+elif [ $# -eq 0 ]; then
+    echo -e "\e[31m[ ERR] does not exist provided input. please check help.\e[m"
+    exit 1
 fi
 
 verify=$(echo "$(uptime -r | awk '{ print $1 }')Z$(shasum -a 256 $0 | awk '{ print $1 }')A$(uptime -r | awk '{ print $2 }' | cut -d. -f1)")
 if [ -z $verify ]; then
     exit 127
 else
-    echo -e "\e[5;37m[SEED] $verify\e[m"
+    echo -e "\e[30m[SEED] $verify\e[m"
 fi
 
 for i in "${!params[@]}"; do
@@ -28,6 +32,7 @@ for i in "${!params[@]}"; do
                 echo -e "\e[33m[WARN] please replace all spacing character to \`-\` or \`_\` to avoid unexpected operation. check ${params[$i]}\e[m"
             fi
             contents+=($(cat ${params[$i]} | tr '\n' ' '))
+            filename+=("${params[$i]}")
         fi
     elif [ "${params[$i]}" == '-v' -o "${params[$i]}" == '--verbose' ]; then
         verbose=1
@@ -39,8 +44,16 @@ for i in "${!params[@]}"; do
     fi
 done
 
+if [ ${#contents[@]} -eq 0 ]; then
+    echo -e "\e[31m[ ERR] does not exist provided input or empty array. Aborting.\e[m"
+    exit 1
+fi
+
 if [ $verbose -eq 1 ]; then
     echo '[INFO] Loading provided input..'
+    for i in "${!filename[@]}"; do
+        echo "[INFO] provided file[$i]: ${filename[$i]}"
+    done
 fi
 for i in "${!contents[@]}"; do
     if [ $verbose -eq 1 ]; then
@@ -48,7 +61,7 @@ for i in "${!contents[@]}"; do
     fi
 done
 if [ $verbose -eq 1 ]; then
-    echo '[INFO] EOF'
+    echo '[INFO] Successfully loaded provided input.'
 fi
 
 if [ ${#contents[@]} -lt $count ]; then
