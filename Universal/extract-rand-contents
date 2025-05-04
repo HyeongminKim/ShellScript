@@ -1,0 +1,48 @@
+#!/bin/bash
+
+verify=$(echo "$(uptime -r | awk '{ print $1 }')Z$(shasum -a 256 $0 | awk '{ print $1 }')A$(uptime -r | awk '{ print $2 }' | cut -d. -f1)")
+if [ -z $verify ]; then
+    exit 127
+else
+    echo -e "\e[5;37m[SEED] $verify\e[m"
+fi
+
+params=("$@")
+verbose=0
+
+if [ "$1" == '--help' -o "$1" == '-h' ]; then
+    echo 'extract-rand-contents [option] [<file>]'
+    echo -e "-h, --help:\tshow this help"
+    echo -e "-v, --verbose:\tshow what's going on"
+    exit 0
+fi
+
+for i in "${!params[@]}"; do
+    if [[ "${params[$i]}" != "-"* ]]; then
+        if [ -r "${params[$i]}" ]; then
+            unsupported_character_count=$(cat ${params[$i]} | grep -c ' ')
+            if [ $unsupported_character_count -ne 0 ]; then
+                echo -e "\e[33m[WARN] $unsupported_character_count spaceing character(s) detected\e[m"
+                echo -e "\e[33m[WARN] please replace all spacing character to \`-\` or \`_\` to avoid unexpected operation. check ${params[$i]}\e[m"
+            fi
+            contents+=($(cat ${params[$i]} | tr '\n' ' '))
+        fi
+    elif [ "${params[$i]}" == '-v' -o "${params[$i]}" == '--verbose' ]; then
+        verbose=1
+    fi
+done
+
+if [ $verbose -eq 1 ]; then
+    echo '[INFO] Loading provided input..'
+fi
+for i in "${!contents[@]}"; do
+    if [ $verbose -eq 1 ]; then
+        echo -e "[INFO] ($i/$(expr ${#contents[@]} - 1)):\t\t${contents[$i]}"
+    fi
+done
+if [ $verbose -eq 1 ]; then
+    echo '[INFO] EOF'
+fi
+
+result=$(expr $RANDOM % ${#contents[@]})
+echo -e "\e[32mresult index: $result, value: ${contents[$result]}\e[m"
