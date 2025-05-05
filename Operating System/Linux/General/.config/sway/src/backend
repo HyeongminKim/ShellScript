@@ -101,9 +101,9 @@ function media_controller() {
     fi
 
     playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$media_info" \
-    -B 'Next' 'playerctl next' \
-    -B "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
-    -B 'Previous' 'playerctl previous'
+    -Z 'Next' 'playerctl next' \
+    -Z "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
+    -Z 'Previous' 'playerctl previous'
 }
 
 function sinks_controller() {
