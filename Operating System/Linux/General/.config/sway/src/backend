@@ -34,6 +34,7 @@ function lock_session() {
         echo 'unable to load splash image.' >&2
         return 1
     fi
+    killall swaynag
     swaylock -efF --clock -i "$target_splash"
 
     while :; do
