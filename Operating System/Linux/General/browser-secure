@@ -1,0 +1,9 @@
+#!/bin/bash
+
+target=$(basename $0 | sed 's/-.*//')
+
+if [ "$target" == "firefox" ]; then
+    $target --private-window $@
+else
+    $target --incognito $@
+fi

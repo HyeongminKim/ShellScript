@@ -1,0 +1,9 @@
+#!/bin/bash
+
+target=$(basename $0 | sed 's/-.*//')
+
+if [ "$target" == "firefox" ]; then
+    nice -n 5 /usr/bin/$target $@
+else
+    nice -n 10 /usr/bin/$target $@
+fi
