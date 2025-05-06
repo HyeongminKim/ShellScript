@@ -105,7 +105,7 @@ function current_playing_media() {
 function media_controller() {
     media_info="$(current_playing_media)"
     if [ $? -ne 0 ]; then
-        notify-send -A 'Dissmiss' 'Media Controller' 'No players found'
+        notify-send -et 7000 'Media Controller' 'No players found'
         return 1
     fi
 
