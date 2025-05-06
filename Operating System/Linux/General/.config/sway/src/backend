@@ -4,14 +4,14 @@
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
 function logout() {
-    input=$(notify-send -A '1=Logout' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
+    input=$(notify-send -A '1=⎋' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
     if [[ -n $input &&  $input -eq 1 ]]; then
         swaymsg exit
     fi
 }
 
 function power() {
-    input=$(notify-send -A '1=Sleep' -A '2=Shut Down' -A '3=Reboot' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
+    input=$(notify-send -A '1=⏾' -A '2=⏻' -A '3=↺' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
     if [[ -n $input &&  $input -eq 1 ]]; then
         setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
     elif [[ -n $input &&  $input -eq 2 ]]; then
@@ -109,7 +109,7 @@ function media_controller() {
         return 1
     fi
 
-    input=$(notify-send -A '1=Previous' -A "2=$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" -A '3=Next' 'Media Controller' "$media_info")
+    input=$(notify-send -A '1=⏮' -A "2=$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo '⏸'; else echo '⏵'; fi)" -A '3=⏭' 'Media Controller' "$media_info")
     if [[ -n $input &&  $input -eq 1 ]]; then
         playerctl previous
     elif [[ -n $input &&  $input -eq 2 ]]; then
