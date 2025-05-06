@@ -4,11 +4,21 @@
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
 function logout() {
-    swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -Z 'Logout' 'swaymsg exit'
+    input=$(notify-send -A '1=Logout' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
+    if [[ -n $input &&  $input -eq 1 ]]; then
+        swaymsg exit
+    fi
 }
 
 function power() {
-    swaynag -t warning -m 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.' -Z 'Sleep' 'setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"' -Z 'Shut down' 'poweroff' -Z 'Reboot' 'reboot'
+    input=$(notify-send -A '1=Sleep' -A '2=Shut Down' -A '3=Reboot' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
+    if [[ -n $input &&  $input -eq 1 ]]; then
+        setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
+    elif [[ -n $input &&  $input -eq 2 ]]; then
+        poweroff
+    elif [[ -n $input &&  $input -eq 3 ]]; then
+        reboot
+    fi
 }
 
 function change_wallpaper() {
@@ -34,7 +44,6 @@ function lock_session() {
         echo 'unable to load splash image.' >&2
         return 1
     fi
-    killall swaynag
     swaylock -efF --clock -i "$target_splash"
 
     while :; do
@@ -82,7 +91,7 @@ function current_playing_media() {
 
     current_sink_status
     echo -n 'Now'
-    if [ $(playerctl --player playerctld status | grep 'Playing') == 'Playing' ]; then echo '▶︎'; elif [ $(playerctl --player playerctld status | grep 'Paused') == 'Paused' ]; then echo '⏸'; else echo '■'; fi
+    if [ $(playerctl --player playerctld status | grep -c 'Playing') -eq 1 ]; then echo '▶︎'; elif [ $(playerctl --player playerctld status | grep -c 'Paused') -eq 1 ]; then echo '⏸'; else echo '■'; fi
 
     if [ $(playerctl -a status | grep Playing | wc -l) -gt 1 ]; then
         playerctl -a status | grep Playing | wc -l
@@ -96,50 +105,58 @@ function current_playing_media() {
 function media_controller() {
     media_info="$(current_playing_media)"
     if [ $? -ne 0 ]; then
-        swaynag -t warning -e bottom -y bottom -m 'No players found'
+        notify-send -A 'Dissmiss' 'Media Controller' 'No players found'
         return 1
     fi
 
-    playerctl metadata 2>&1 | grep -vE 'length|url|artUrl|trackid' | swaynag -t warning -e bottom -y bottom -lm "$media_info" \
-    -Z 'Next' 'playerctl next' \
-    -Z "$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" 'playerctl play-pause' \
-    -Z 'Previous' 'playerctl previous'
+    input=$(notify-send -A '1=Previous' -A "2=$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo 'Pause'; else echo 'Play'; fi)" -A '3=Next' 'Media Controller' "$media_info")
+    if [[ -n $input &&  $input -eq 1 ]]; then
+        playerctl previous
+    elif [[ -n $input &&  $input -eq 2 ]]; then
+        playerctl play-pause
+    elif [[ -n $input &&  $input -eq 3 ]]; then
+        playerctl next
+    fi
 }
 
 function sinks_controller() {
     if [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 -a $(~/.config/sway/src/change_sink 'check_current_state' 'inputs') -gt 0 ]; then
-        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
-        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
-        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
-        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
-        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
-        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
-        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
-        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
-        -Z 'defaults' "~/.config/sway/src/change_sink 'default'"\
-        -Z 'mixer' "~/.config/sway/src/change_sink 'per_source'"\
-        -Z "pavucontrol" 'pavucontrol'
+        input=$(notify-send -A '0=Sinks' -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
+        if [[ -n $input &&  $input -eq 0 ]]; then
+            input=$(notify-send -A '1=Default Sinks' -A '2=Source Output' 'Sinks Controller' 'Change output source or Default sink')
+            if [[ -n $input &&  $input -eq 1 ]]; then
+                ~/.config/sway/src/change_sink 'default'
+            elif [[ -n $input &&  $input -eq 2 ]]; then
+                ~/.config/sway/src/change_sink 'per_source'
+            fi
+        elif [[ -n $input &&  $input -eq 1 ]]; then
+            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+        elif [[ -n $input &&  $input -eq 2 ]]; then
+            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+        elif [[ -n $input &&  $input -eq 3 ]]; then
+            pavucontrol
+        fi
     elif [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 ]; then
-        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
-        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
-        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
-        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
-        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
-        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
-        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
-        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
-        -Z 'defaults' "~/.config/sway/src/change_sink 'default'"\
-        -Z "pavucontrol" 'pavucontrol'
+        input=$(notify-send -A '0=Sinks' -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
+        if [[ -n $input &&  $input -eq 0 ]]; then
+            ~/.config/sway/src/change_sink 'default'
+        elif [[ -n $input &&  $input -eq 1 ]]; then
+            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+        elif [[ -n $input &&  $input -eq 2 ]]; then
+            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+        elif [[ -n $input &&  $input -eq 3 ]]; then
+            pavucontrol
+        fi
     else
-        swaynag -t warning -e bottom -y bottom -m "$(current_sink_status && pactl get-default-sink)" \
-        -B '+5%' 'pactl set-sink-volume \@DEFAULT_SINK@ +5%' \
-        -B '+2%' 'pactl set-sink-volume \@DEFAULT_SINK@ +2%' \
-        -B '+1%' 'pactl set-sink-volume \@DEFAULT_SINK@ +1%' \
-        -B "$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" 'pactl set-sink-mute \@DEFAULT_SINK@ toggle' \
-        -B '-1%' 'pactl set-sink-volume \@DEFAULT_SINK@ -1%' \
-        -B '-2%' 'pactl set-sink-volume \@DEFAULT_SINK@ -2%' \
-        -B '-5%' 'pactl set-sink-volume \@DEFAULT_SINK@ -5%' \
-        -Z "pavucontrol" 'pavucontrol'
+        input=$(notify-send -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
+        echo $input
+        if [[ -n $input &&  $input -eq 1 ]]; then
+            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+        elif [[ -n $input &&  $input -eq 2 ]]; then
+            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+        elif [[ -n $input &&  $input -eq 3 ]]; then
+            pavucontrol
+        fi
     fi
 }
 
