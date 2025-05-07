@@ -139,8 +139,11 @@ fi
 
 echo "Checking dependency..."
 git --version
+if [ $? -ne 0 ]; then exit 1; fi
 clang --version
+if [ $? -ne 0 ]; then exit 1; fi
 cmake --version
+if [ $? -ne 0 ]; then exit 1; fi
 
 check_unrealengine_dir
 
