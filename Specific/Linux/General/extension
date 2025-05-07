@@ -5,11 +5,6 @@ if [ $? == 0 ]; then
     sudo aptitude safe-upgrade
 fi
 
-which p4 &> /dev/null
-if [ $? -eq 0 ]; then
-    ~/Documents/Release/ShellScript/Operating\ System/Linux/General/Install\ Perforce
-fi
-
 which nvim &> /dev/null
 if [ $? -eq 0 ]; then
     nvim --version > /dev/null
@@ -72,24 +67,13 @@ if [ $? -eq 0 ]; then
     flatpak update -y
 fi
 
-which yay &> /dev/null
-if [ $? -eq 0 ]; then
-    yay -Ps
-    echo 'if you want cleanup yay & pacman cache directory, you should run below commands.'
-    echo 'yay -Scc'
-fi
-
 if [ -x /usr/bin/vmplayer ]; then
-    if [ -d /lib/modules/$(uname -r) ]; then
-        vm_count=$(ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep -c 'vm')
-        if [ $vm_count -ne 2 ]; then
-            echo 'Installing VMware modules: vmnet, vmmon'
-            sudo vmware-modconfig --console --install-all
-        else
-            echo 'Requirement already satisfied: vmware-modconfig'
-        fi
+    vm_count=$(ls /lib/modules/$(uname -r)/misc 2> /dev/null | grep -c 'vm')
+    if [ $vm_count -ne 2 ]; then
+        echo 'Installing VMware modules: vmnet, vmmon'
+        sudo vmware-modconfig --console --install-all
     else
-        echo 'error: please reboot system first to applying kernel updates!'
+        echo 'Requirement already satisfied: vmware-modconfig'
     fi
 fi
 
