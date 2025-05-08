@@ -130,9 +130,9 @@ function sinks_controller() {
                 ~/.config/sway/src/change_sink 'per_source'
             fi
         elif [[ -n $input &&  $input -eq 1 ]]; then
-            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+	    ~/.config/sway/src/change_sink 'change_sink_volumes'
         elif [[ -n $input &&  $input -eq 2 ]]; then
-            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+	    ~/.config/sway/src/change_sink 'sink_mute_toggles'
         elif [[ -n $input &&  $input -eq 3 ]]; then
             pavucontrol
         fi
@@ -141,9 +141,9 @@ function sinks_controller() {
         if [[ -n $input &&  $input -eq 0 ]]; then
             ~/.config/sway/src/change_sink 'default'
         elif [[ -n $input &&  $input -eq 1 ]]; then
-            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+	    ~/.config/sway/src/change_sink 'change_sink_volumes'
         elif [[ -n $input &&  $input -eq 2 ]]; then
-            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+	    ~/.config/sway/src/change_sink 'sink_mute_toggles'
         elif [[ -n $input &&  $input -eq 3 ]]; then
             pavucontrol
         fi
@@ -151,9 +151,9 @@ function sinks_controller() {
         input=$(notify-send -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
         echo $input
         if [[ -n $input &&  $input -eq 1 ]]; then
-            echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%
+	    ~/.config/sway/src/change_sink 'change_sink_volumes'
         elif [[ -n $input &&  $input -eq 2 ]]; then
-            pactl set-sink-mute \@DEFAULT_SINK@ toggle
+	    ~/.config/sway/src/change_sink 'sink_mute_toggles'
         elif [[ -n $input &&  $input -eq 3 ]]; then
             pavucontrol
         fi
