@@ -42,7 +42,7 @@ function change_sink_volumes() {
 
 function sink_mute_toggles() {
 	if [ $(check_current_state 'sinks') -gt 1 ]; then
-		pactl set-sink-mute $(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $2 }') toggle
+		pactl set-sink-mute $(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }')) to mute" | awk '{ print $2 }') toggle
 	else
 		pactl set-sink-mute \@DEFAULT_SINK@ toggle
 	fi
