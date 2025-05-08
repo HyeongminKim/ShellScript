@@ -31,6 +31,9 @@ function per_source() {
 function change_sink_volumes() {
 	if [ $(check_current_state 'sinks') -gt 1 ]; then
 		sinks=$(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $2 }')
+        if [ -z "$sinks" ]; then
+            return $?
+        fi
 		echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume $sinks $(rofi -dmenu -p "New voluems (cnt. $(pactl get-sink-volume $sinks | awk '{ print $5 }'))")%
 	else
 		echo -e '0\n25\n50\n75\n100\n+5\n-5' | pactl set-sink-volume \@DEFAULT_SINK@ $(rofi -dmenu -p 'New DEFAULT_SINK voluems')%

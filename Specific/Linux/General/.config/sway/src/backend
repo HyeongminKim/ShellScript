@@ -5,18 +5,18 @@
 
 function logout() {
     input=$(notify-send -A '1=⎋' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
-    if [[ -n $input &&  $input -eq 1 ]]; then
+    if [[ -n $input && $input -eq 1 ]]; then
         swaymsg exit
     fi
 }
 
 function power() {
     input=$(notify-send -A '1=⏾' -A '2=⏻' -A '3=↺' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
-    if [[ -n $input &&  $input -eq 1 ]]; then
+    if [[ -n $input && $input -eq 1 ]]; then
         setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
-    elif [[ -n $input &&  $input -eq 2 ]]; then
+    elif [[ -n $input && $input -eq 2 ]]; then
         poweroff
-    elif [[ -n $input &&  $input -eq 3 ]]; then
+    elif [[ -n $input && $input -eq 3 ]]; then
         reboot
     fi
 }
@@ -110,51 +110,62 @@ function media_controller() {
     fi
 
     input=$(notify-send -A '1=⏮' -A "2=$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo '⏸'; else echo '⏵'; fi)" -A '3=⏭' 'Media Controller' "$media_info")
-    if [[ -n $input &&  $input -eq 1 ]]; then
-        playerctl previous
-    elif [[ -n $input &&  $input -eq 2 ]]; then
-        playerctl play-pause
-    elif [[ -n $input &&  $input -eq 3 ]]; then
-        playerctl next
+    if [ $(playerctl -l | wc -l) -gt 1 ]; then
+        target_input=$(playerctl -l | rofi -dmenu -lm -mesg "$(playerctl -a status | sed 's/\n/\#x0a/g')")
+        if [[ -n $input && $input -eq 1 ]]; then
+            playerctl -p $target_input previous
+        elif [[ -n $input && $input -eq 2 ]]; then
+            playerctl -p $target_input play-pause
+        elif [[ -n $input && $input -eq 3 ]]; then
+            playerctl -p $target_input next
+        fi
+    else
+        if [[ -n $input && $input -eq 1 ]]; then
+            playerctl previous
+        elif [[ -n $input && $input -eq 2 ]]; then
+            playerctl play-pause
+        elif [[ -n $input && $input -eq 3 ]]; then
+            playerctl next
+        fi
     fi
 }
 
 function sinks_controller() {
     if [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 -a $(~/.config/sway/src/change_sink 'check_current_state' 'inputs') -gt 0 ]; then
         input=$(notify-send -A '0=Sinks' -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
-        if [[ -n $input &&  $input -eq 0 ]]; then
+        if [[ -n $input && $input -eq 0 ]]; then
             input=$(notify-send -A '1=Default Sinks' -A '2=Source Output' 'Sinks Controller' 'Change output source or Default sink')
-            if [[ -n $input &&  $input -eq 1 ]]; then
+            if [[ -n $input && $input -eq 1 ]]; then
                 ~/.config/sway/src/change_sink 'default'
-            elif [[ -n $input &&  $input -eq 2 ]]; then
+            elif [[ -n $input && $input -eq 2 ]]; then
                 ~/.config/sway/src/change_sink 'per_source'
             fi
-        elif [[ -n $input &&  $input -eq 1 ]]; then
+        elif [[ -n $input && $input -eq 1 ]]; then
             ~/.config/sway/src/change_sink 'change_sink_volumes'
-        elif [[ -n $input &&  $input -eq 2 ]]; then
+        elif [[ -n $input && $input -eq 2 ]]; then
             ~/.config/sway/src/change_sink 'sink_mute_toggles'
-        elif [[ -n $input &&  $input -eq 3 ]]; then
+        elif [[ -n $input && $input -eq 3 ]]; then
             pavucontrol
         fi
     elif [ $(~/.config/sway/src/change_sink 'check_current_state' 'sinks') -gt 1 ]; then
         input=$(notify-send -A '0=Sinks' -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
-        if [[ -n $input &&  $input -eq 0 ]]; then
+        if [[ -n $input && $input -eq 0 ]]; then
             ~/.config/sway/src/change_sink 'default'
-        elif [[ -n $input &&  $input -eq 1 ]]; then
+        elif [[ -n $input && $input -eq 1 ]]; then
             ~/.config/sway/src/change_sink 'change_sink_volumes'
-        elif [[ -n $input &&  $input -eq 2 ]]; then
+        elif [[ -n $input && $input -eq 2 ]]; then
             ~/.config/sway/src/change_sink 'sink_mute_toggles'
-        elif [[ -n $input &&  $input -eq 3 ]]; then
+        elif [[ -n $input && $input -eq 3 ]]; then
             pavucontrol
         fi
     else
         input=$(notify-send -A '1=Volume' -A "2=$(if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then echo 'Mute'; else echo 'UnMute'; fi)" -A '3=pavucontrol' 'Volume Control' "$(current_sink_status && pactl get-default-sink)")
         echo $input
-        if [[ -n $input &&  $input -eq 1 ]]; then
+        if [[ -n $input && $input -eq 1 ]]; then
             ~/.config/sway/src/change_sink 'change_sink_volumes'
-        elif [[ -n $input &&  $input -eq 2 ]]; then
+        elif [[ -n $input && $input -eq 2 ]]; then
             ~/.config/sway/src/change_sink 'sink_mute_toggles'
-        elif [[ -n $input &&  $input -eq 3 ]]; then
+        elif [[ -n $input && $input -eq 3 ]]; then
             pavucontrol
         fi
     fi
