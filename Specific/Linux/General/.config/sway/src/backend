@@ -111,13 +111,25 @@ function media_controller() {
 
     input=$(notify-send -A '1=⏮' -A "2=$(if [ $(playerctl --player playerctld status) == 'Playing' ]; then echo '⏸'; else echo '⏵'; fi)" -A '3=⏭' 'Media Controller' "$media_info")
     if [ $(playerctl -l | wc -l) -gt 1 ]; then
-        target_input=$(playerctl -l | rofi -dmenu -lm -mesg "$(playerctl -a status | sed 's/\n/\#x0a/g')")
+        target_input=$(echo -e "ALL\n$(playerctl -l)" | rofi -dmenu -lm -mesg "$(playerctl -a status | sed 's/\n/\#x0a/g')")
         if [[ -n $input && $input -eq 1 ]]; then
-            playerctl -p $target_input previous
+            if [ "$target_input" == 'ALL' ]; then
+                playerctl -a previous
+            else
+                playerctl -p $target_input previous
+            fi
         elif [[ -n $input && $input -eq 2 ]]; then
-            playerctl -p $target_input play-pause
+            if [ "$target_input" == 'ALL' ]; then
+                playerctl -a play-pause
+            else
+                playerctl -p $target_input play-pause
+            fi
         elif [[ -n $input && $input -eq 3 ]]; then
-            playerctl -p $target_input next
+            if [ "$target_input" == 'ALL' ]; then
+                playerctl -a next
+            else
+                playerctl -p $target_input next
+            fi
         fi
     else
         if [[ -n $input && $input -eq 1 ]]; then
