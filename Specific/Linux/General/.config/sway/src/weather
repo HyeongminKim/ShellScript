@@ -30,6 +30,11 @@ elif [ $(cat $lock_file) -ge $(expr $refresh_interval \* 60) ]; then
     cat $prev_output
     echo 0 > $lock_file
 else
-    cat $prev_output
+    output=$(cat $prev_output)
+    if [ -z $prev_output ]; then
+        echo 0 > $lock_file
+    fi
+
+    echo $output
     echo $(expr $(cat $lock_file) + 1) > $lock_file
 fi
