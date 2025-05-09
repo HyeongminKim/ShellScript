@@ -55,16 +55,61 @@ function output() {
         echo ' 💻 '
         cat /proc/loadavg | awk '{ print $1 }'
     fi
-    if [ $# -eq 2 ]; then
+    which mbpfan &> /dev/null
+    if [ $? -ne 0 ]; then
         echo ' | 🖵 '
         echo $(sensors -u $2 | grep temp1_input | awk '{ print $2 }' | cut -d. -f1)°C
+    else
+        echo ' | '
+        if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
+            echo ' 🪭 '
+            echo $(mbpfan get name | cut -c 1-3)
+        else
+            echo ' 🪭 '
+            echo $(python3 -c "print ($(sensors -u $2 | grep fan1_input | awk '{ print $2 }') / $(sensors -u $2 | grep fan1_max | awk '{ print $2 }') * 100)" | cut -d. -f1)%;
+        fi
     fi
     echo ' ] '
+    if [ -r /sys/class/power_supply/BAT0/status ]; then
+        if [ $(cat /sys/class/power_supply/BAT0/status) == 'Discharging' -a $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -lt 100 ]; then
+            if [ $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -le 10 ]; then
+                echo '[ 🛑'
+            elif [ $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -le 20 ]; then
+                echo '[ ⚠️'
+            else
+                echo '[ '
+            fi
+            echo '🔋'
+            echo $(acpi -b | awk '{ print $4 }' | sed 's/%,//')%
+            echo ' | '
+            if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
+                echo $(sensors | grep TBXT | awk '{ print $2 }' | sed 's/+//' | cut -d. -f1)°C
+            else
+                acpi -b | awk '{ print $5 }' | head -c 5 | sed 's/^0//'
+            fi
+            echo ' ] '
+        elif [ $(cat /sys/class/power_supply/BAT0/status) == 'Charging' -a $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -lt 100 ]; then
+            echo '[ 🗲'
+            echo $(acpi -b | awk '{ print $4 }' | sed 's/%,//')%
+            echo ' | '
+            if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
+                echo $(sensors | grep TBXT | awk '{ print $2 }' | sed 's/+//' | cut -d. -f1)°C
+            else 
+                acpi -b | awk '{ print $5 }' | head -c 5 | sed 's/^0//'
+            fi
+            echo ' ] '
+        fi
+    fi
     which brightnessctl &> /dev/null
     if [ $? -eq 0 ]; then
         echo '[ 🔆 '
         python -c "print($(brightnessctl get) / $(brightnessctl max) * 100)" | cut -d. -f1
         echo '% ] '
+        if [ $(python3 -c "print ($(brightnessctl --device='smc::kbd_backlight' get) / $(brightnessctl --device='smc::kbd_backlight' max) * 100") -gt 0 ]; then
+            echo ' | '
+            echo $(python3 -c "$(brightnessctl --device='smc::kbd_backlight' get) / $(brightnessctl --device='smc::kbd_backlight' max) * 100")%
+            echo ' ] '
+        fi
     fi
     echo '[ '
     ~/.config/sway/src/weather
@@ -76,6 +121,6 @@ function output() {
 if [ $# -ge 1 -a $# -le 2 ]; then
     output $@ | tr -d '\n' && echo ''
 else
-    echo -e "\e [ error while loading status_bar ] [ provided params: $# / 1...2 (sensors for CPU | sensors for GPU etc.) ] [ $(/usr/bin/date +'%Y-%m-%d (%a) %H:%M') ] \e"
+    echo -e "\e [ error while loading status_bar ] [ provided params: $# / 2 (sensors for CPU | sensors for GPU|FAN.) ] [ $(/usr/bin/date +'%Y-%m-%d (%a) %H:%M') ] \e"
 fi
 
