@@ -104,11 +104,12 @@ function output() {
     if [ $? -eq 0 ]; then
         echo '[ 🔆 '
         python -c "print($(brightnessctl get) / $(brightnessctl max) * 100)" | cut -d. -f1
-        echo '% ] '
-        if [ $(python3 -c "print ($(brightnessctl --device='smc::kbd_backlight' get) / $(brightnessctl --device='smc::kbd_backlight' max) * 100") -gt 0 ]; then
-            echo ' | '
-            echo $(python3 -c "$(brightnessctl --device='smc::kbd_backlight' get) / $(brightnessctl --device='smc::kbd_backlight' max) * 100")%
+        if [ $(brightnessctl --device='smc::kbd_backlight' get) -gt 0 ]; then
+            echo '% | '
+            echo $(python3 -c "print ($(brightnessctl --device='smc::kbd_backlight' get) / $(brightnessctl --device='smc::kbd_backlight' max) * 100)" | cut -d. -f1)%
             echo ' ] '
+        else
+            echo '% ] '
         fi
     fi
     echo '[ '
