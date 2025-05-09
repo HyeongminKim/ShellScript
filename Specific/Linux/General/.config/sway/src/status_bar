@@ -1,0 +1,81 @@
+#!/bin/bash
+
+function output() {
+    if [ $(cat /sys/class/leds/input*::capslock/brightness | head -n 1) -eq 1 ]; then
+        echo '[ ⚠️ CAPS ON ]'
+    fi
+    if [ $(systemctl is-enabled sleep.target | grep -c 'masked') -eq 1 ]; then 
+        echo '[ ☕ ]'
+    fi
+
+    echo '['
+    if [ $(pactl list sinks | grep -c Dummy) -ge 1 ]; then 
+        echo ' ⚠️ Dummy '
+    fi
+    if [ $(pactl list sinks | grep Active | grep -c headphones) -eq 1 ]; then 
+        echo ' 🎧 '
+    fi
+    if [ $(pactl get-default-sink | grep -c blue) -eq 1 ]; then 
+        echo ' ᚼ '
+    fi
+    if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then 
+        echo ' 🔊 '
+    else
+        echo ' 🔈 '
+    fi
+    echo "$(amixer get Master | grep 'Left' | grep '%' | awk '{ print $5 }' | tr -d \[ | tr -d \])"
+    if [ "$(playerctl --player playerctld status | grep 'Playing')" == 'Playing' ]; then
+        echo ' ▶︎ '
+    elif [ "$(playerctl --player playerctld status | grep 'Paused')" == 'Paused' ]; then
+        echo ' ⏸ '
+    fi
+
+    if [ $(playerctl -a status | grep Playing | wc -l) -gt 1 ]; then
+        echo $(playerctl -a status | grep Playing | wc -l)
+    elif [ -z \"$(playerctl --player playerctld status | grep -v Stopped)\" ]; then
+        echo ''
+    elif [ -z \"$(playerctl --player playerctld metadata -f '{{xesam:url}}')\" ]; then
+        echo 'N/A'
+    else
+        if [ \"$(playerctl --player playerctld metadata -f '{{xesam:url}}' | cut -d: -f1)\" == 'file' ]; then
+            echo $(playerctl --player playerctld metadata -f '{{xesam:url}}' | cut -d: -f1)
+        else
+            if [ $(playerctl --player playerctld metadata -f '{{xesam:url}}' | sed 's/.*:\/\///' | tr -cd '.' | wc -c) == 2 ]; then
+                echo $(playerctl --player playerctld metadata -f '{{xesam:url}}' | sed 's/.*:\/\///' | awk -F '.' '{ print $2 }')
+            else
+                echo $(playerctl --player playerctld metadata -f '{{xesam:url}}' | sed 's/.*:\/\///' | awk -F '.' '{ print $1 }')
+            fi
+        fi
+    fi
+    echo ' ] ['
+    if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
+        echo ' 💻 '
+        echo $(sensors -u $1 | grep temp1_input | awk '{ print $2 }' | cut -d. -f1)°C
+    else
+        echo ' 💻 '
+        cat /proc/loadavg | awk '{ print $1 }'
+    fi
+    if [ $# -eq 2 ]; then
+        echo ' | 🖵 '
+        echo $(sensors -u $2 | grep temp1_input | awk '{ print $2 }' | cut -d. -f1)°C
+    fi
+    echo ' ] '
+    which brightnessctl &> /dev/null
+    if [ $? -eq 0 ]; then
+        echo '[ 🔆 '
+        python -c "print($(brightnessctl get) / $(brightnessctl max) * 100)" | cut -d. -f1
+        echo '% ] '
+    fi
+    echo '[ '
+    ~/.config/sway/src/weather
+    echo ' ] [ '
+    /usr/bin/date +'%Y-%m-%d (%a) %H:%M'
+    echo ' ]'
+}
+
+if [ $# -ge 1 -a $# -le 2 ]; then
+    output $@ | tr -d '\n' && echo ''
+else
+    echo -e "\e [ error while loading status_bar ] [ provided params: $# / 1...2 (sensors for CPU | sensors for GPU etc.) ] [ $(/usr/bin/date +'%Y-%m-%d (%a) %H:%M') ] \e"
+fi
+
