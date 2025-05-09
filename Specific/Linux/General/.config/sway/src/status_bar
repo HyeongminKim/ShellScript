@@ -2,28 +2,34 @@
 
 function output() {
     if [ $(cat /sys/class/leds/input*::capslock/brightness | head -n 1) -eq 1 ]; then
-        echo '[ ⚠️ CAPS ON ]'
+        echo '[ ⚠️ CAPS ON ] '
     fi
-    if [ $(systemctl is-enabled sleep.target | grep -c 'masked') -eq 1 ]; then 
-        echo '[ ☕ ]'
+    if [ $(systemctl is-enabled sleep.target | grep -c 'masked') -eq 1 ]; then
+        echo '[ ☕ ] '
     fi
 
     echo '['
-    if [ $(pactl list sinks | grep -c Dummy) -ge 1 ]; then 
+    if [ $(pactl list sinks | grep -c Dummy) -ge 1 ]; then
         echo ' ⚠️ Dummy '
-    fi
-    if [ $(pactl list sinks | grep Active | grep -c headphones) -eq 1 ]; then 
-        echo ' 🎧 '
-    fi
-    if [ $(pactl get-default-sink | grep -c blue) -eq 1 ]; then 
-        echo ' ᚼ '
-    fi
-    if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then 
-        echo ' 🔊 '
     else
-        echo ' 🔈 '
+        if [ $(pactl list sinks short | wc -l) -gt 1 ]; then
+            echo " $(wpctl status | grep Audio | grep \* | sed 's/│//' | sed 's/\.//' | awk '{ print $2 }')"
+        else
+            if [ $(pactl list sinks | grep Active | grep -c headphones) -eq 1 ]; then
+                echo ' 🎧 '
+            fi
+            if [ $(pactl get-default-sink | grep -c blue) -eq 1 ]; then
+                echo ' ᚼ '
+            fi
+        fi
+        if [ $(amixer get Master | grep 'Left' | grep '%' | awk '{ print $6 }' | tr -d \[ | tr -d \]) == 'on' ]; then
+            echo ' 🔊 '
+        else
+            echo ' 🔈 '
+        fi
+        echo "$(amixer get Master | grep 'Left' | grep '%' | awk '{ print $5 }' | tr -d \[ | tr -d \])"
     fi
-    echo "$(amixer get Master | grep 'Left' | grep '%' | awk '{ print $5 }' | tr -d \[ | tr -d \])"
+
     if [ "$(playerctl --player playerctld status | grep 'Playing')" == 'Playing' ]; then
         echo ' ▶︎ '
     elif [ "$(playerctl --player playerctld status | grep 'Paused')" == 'Paused' ]; then
