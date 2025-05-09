@@ -32,12 +32,12 @@ function output() {
 
     if [ $(playerctl -a status | grep Playing | wc -l) -gt 1 ]; then
         echo $(playerctl -a status | grep Playing | wc -l)
-    elif [ -z \"$(playerctl --player playerctld status | grep -v Stopped)\" ]; then
+    elif [ -z "$(playerctl --player playerctld status | grep -v Stopped)" ]; then
         echo ''
-    elif [ -z \"$(playerctl --player playerctld metadata -f '{{xesam:url}}')\" ]; then
+    elif [ -z "$(playerctl --player playerctld metadata -f '{{xesam:url}}')" ]; then
         echo 'N/A'
     else
-        if [ \"$(playerctl --player playerctld metadata -f '{{xesam:url}}' | cut -d: -f1)\" == 'file' ]; then
+        if [ "$(playerctl --player playerctld metadata -f '{{xesam:url}}' | cut -d: -f1)" == 'file' ]; then
             echo $(playerctl --player playerctld metadata -f '{{xesam:url}}' | cut -d: -f1)
         else
             if [ $(playerctl --player playerctld metadata -f '{{xesam:url}}' | sed 's/.*:\/\///' | tr -cd '.' | wc -c) == 2 ]; then
@@ -119,9 +119,13 @@ function output() {
     echo ' ]'
 }
 
-if [ $# -ge 1 -a $# -le 2 ]; then
-    output $@ | tr -d '\n' && echo ''
-else
+########    DO NOT CHANGE OR REMOVE BELOW LINES    ########
+#   This script will not work after changing below code   #
+###########################################################
+if [ $# -ge 1 -a $# -le 2 ]; then                         #
+    output $@ | tr -d '\n' && echo ''                     #
+else                                                      #
     echo -e "\e [ error while loading status_bar ] [ provided params: $# / 2 (sensors for CPU | sensors for GPU|FAN.) ] [ $(/usr/bin/date +'%Y-%m-%d (%a) %H:%M') ] \e"
-fi
+fi                                                        #
+###########################################################
 
