@@ -73,13 +73,13 @@ function output() {
     if [ -r /sys/class/power_supply/BAT0/status ]; then
         if [ $(cat /sys/class/power_supply/BAT0/status) == 'Discharging' -a $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -lt 100 ]; then
             if [ $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -le 10 ]; then
-                echo '[ 🛑'
+                echo '[ 🛑 '
             elif [ $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -le 20 ]; then
-                echo '[ ⚠️'
+                echo '[ ⚠️ '
             else
                 echo '[ '
             fi
-            echo '🔋'
+            echo '🔋 '
             echo $(acpi -b | awk '{ print $4 }' | sed 's/%,//')%
             echo ' | '
             if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
@@ -89,7 +89,7 @@ function output() {
             fi
             echo ' ] '
         elif [ $(cat /sys/class/power_supply/BAT0/status) == 'Charging' -a $(acpi -b | awk '{ print $4 }' | sed 's/%,//') -lt 100 ]; then
-            echo '[ 🗲'
+            echo '[ 🗲 '
             echo $(acpi -b | awk '{ print $4 }' | sed 's/%,//')%
             echo ' | '
             if [ $(expr $(date +'%S') % 2) -eq 0 ]; then
