@@ -5,5 +5,9 @@ target=$(basename $0 | sed 's/-.*//')
 if [ "$target" == "firefox" ]; then
     nice -n 5 /usr/bin/$target $@
 else
-    nice -n 10 /usr/bin/$target $@
+    if ! [ x$(pgrep -x sway) == x ]; then
+        nice -n 10 /usr/bin/$target $@
+    else
+        exit 1
+    fi
 fi
