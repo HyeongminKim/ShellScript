@@ -13,7 +13,7 @@ function output() {
         echo ' ⚠️ Dummy '
     else
         if [ $(pactl list sinks short | wc -l) -gt 1 ]; then
-            echo " $(wpctl status | grep Audio | grep \* | sed 's/│//' | sed 's/\.//' | awk '{ print $2 }')"
+            echo " $(~/.config/sway/src/change_sink 'current_source')"
         else
             if [ $(pactl list sinks | grep Active | grep -c headphones) -eq 1 ]; then
                 echo ' 🎧 '

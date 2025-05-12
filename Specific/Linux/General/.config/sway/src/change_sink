@@ -48,6 +48,12 @@ function sink_mute_toggles() {
 	fi
 }
 
+function current_source() {
+    default_device=$(wpctl status | grep Audio | grep \* | sed 's/│//' | sed 's/\.//' | awk '{ print $2 }')
+    device_serial=$(pactl list sinks | grep -E '(object.id|object.serial)' | grep -v spa | grep -A 1 $default_device | grep serial | sed 's/.*object\.serial = //' | sed 's/"//g')
+    echo $device_serial
+}
+
 function check_current_state() {
 	if [ "$1" == "sinks" ]; then
 		pactl list sinks short | wc -l
