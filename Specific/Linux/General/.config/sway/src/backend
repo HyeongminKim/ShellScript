@@ -16,15 +16,22 @@ function power() {
     input=$(notify-send -A '1=⏾' -A '2=⏻' -A '3=↺' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
     if [[ -n $input && $input -eq 1 ]]; then
         ~/.config/sway/src/backend 'enter_sleep' 'test'
-        if [ $? -eq 0 ]; then
+        target=$?
+        if [ $target -eq 0 ]; then
             setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
-        else
-            input=$(notify-send -A "1=Unmask sleep.target & $(~/.config/sway/src/backend 'enter_sleep' 'current')" 'Power' 'unable to run sleep operation. reason: sleep.target was masked.')
-            if [[ -n $input && $input -eq 1 ]]; then
-                $term sudo systemctl unmask sleep.target
-                if [ $? -eq 0 ]; then
-                    setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
-                fi
+            return 0
+        elif [ $target -eq 1 ]; then
+            input=$(notify-send -A "1=Unmask sleep.target" 'Power' 'unable to run sleep operation. reason: sleep.target was masked.')
+        elif [ $target -eq 2 ]; then
+            input=$(notify-send -A "1=Unmask $(~/.config/sway/src/backend 'enter_sleep' 'current').target" 'Power' "unable to run sleep operation. reason: $(~/.config/sway/src/backend 'enter_sleep' 'current').target was masked.")
+        fi
+        if [[ -n $input && $input -eq 1 ]]; then
+            if [ $target -eq 1 ]; then
+                $term -F sudo systemctl unmask sleep.target
+                ~/.config/sway/src/backend 'power'
+            elif [ $target -eq 2 ]; then
+                $term -F sudo systemctl unmask $(~/.config/sway/src/backend 'enter_sleep' 'current').target
+                ~/.config/sway/src/backend 'power'
             fi
         fi
     elif [[ -n $input && $input -eq 2 ]]; then
@@ -82,7 +89,7 @@ function enter_sleep() {
             vailed_target=$(find /etc/systemd -type f -exec grep '^SleepOperation' {} \; | sed 's/SleepOperation=//')
             if [ -n "$vailed_target" -a "$(systemctl is-enabled $vailed_target.target)" == 'masked' ]; then
                 logger --tag sway --priority user.notice "backend: $vailed_target.target was masked. Skipping \`enter_sleep\` operation."
-                return 1
+                return 2
             fi
         else
             logger --tag sway --priority user.notice 'backend: sleep.target was masked. Skipping `enter_sleep` operation.'
