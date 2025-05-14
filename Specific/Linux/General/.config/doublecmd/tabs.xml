@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doublecmd>
+  <Tabs>
+    <OpenedTabs>
+      <Left>
+        <ActiveTab>0</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="..">/usr/lib/doublecmd/</Path>
+                  <Path Filename="doublecmd">/usr/lib/</Path>
+                  <Path Filename="미디어">/mnt/home/</Path>
+                  <Path Filename="..">/mnt/home/미디어/</Path>
+                  <Path Filename="Desktop">/home/hm/</Path>
+                  <Path Filename="Build native Linux UnrealEditor">/home/hm/Desktop/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Left>
+      <Right>
+        <ActiveTab>0</ActiveTab>
+        <Tab>
+          <FileView Type="columns">
+            <Sortings>
+              <Sorting>
+                <Direction>1</Direction>
+                <Function>12</Function>
+              </Sorting>
+            </Sortings>
+            <History>
+              <Entry Active="True">
+                <FileSource Type="FileSystem"/>
+                <Paths>
+                  <Path Filename="..">/usr/lib/doublecmd/</Path>
+                  <Path Filename="Music">/home/hm/</Path>
+                  <Path Filename="..">/home/hm/Music/</Path>
+                  <Path Filename="..">/home/hm/</Path>
+                  <Path Filename="hm">/home/</Path>
+                  <Path Filename="study">/mnt/</Path>
+                  <Path Filename="..">/mnt/study/</Path>
+                  <Path Filename="study">/mnt/</Path>
+                  <Path Filename="강의">/mnt/study/</Path>
+                  <Path Filename="재봉">/mnt/study/강의/</Path>
+                  <Path Filename="무엇이든 담아보세요! 손잡이가 있는 스트링 파우치">/mnt/study/강의/재봉/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/무엇이든 담아보세요! 손잡이가 있는 스트링 파우치/</Path>
+                  <Path Filename="행복을 만드는 소잉 클래스">/mnt/study/강의/재봉/</Path>
+                  <Path Filename="강의노트">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/강의노트/</Path>
+                  <Path Filename="강의노트">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/강의노트/</Path>
+                  <Path Filename="강의노트">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/강의노트/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/</Path>
+                  <Path Filename="올바른 패션스쿨">/mnt/study/강의/재봉/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/올바른 패션스쿨/</Path>
+                  <Path Filename="행복을 만드는 소잉 클래스">/mnt/study/강의/재봉/</Path>
+                  <Path Filename="..">/mnt/study/강의/재봉/행복을 만드는 소잉 클래스/</Path>
+                </Paths>
+              </Entry>
+            </History>
+            <ColumnsView>
+              <ColumnsSet>Default</ColumnsSet>
+            </ColumnsView>
+          </FileView>
+        </Tab>
+      </Right>
+    </OpenedTabs>
+  </Tabs>
+</doublecmd>
