@@ -1,5 +1,7 @@
 #!/bin/bash
 
+term=foot
+
 # This script will helps you without reload your sway program after below codes changed.
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
@@ -17,7 +19,13 @@ function power() {
         if [ $? -eq 0 ]; then
             setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
         else
-            notify-send -et 7000 'Power' 'unable to run sleep operation. reason: sleep.target was masked.'
+            input=$(notify-send -A "1=Unmask sleep.target & $(~/.config/sway/src/backend 'enter_sleep' 'current')" 'Power' 'unable to run sleep operation. reason: sleep.target was masked.')
+            if [[ -n $input && $input -eq 1 ]]; then
+                $term sudo systemctl unmask sleep.target
+                if [ $? -eq 0 ]; then
+                    setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
+                fi
+            fi
         fi
     elif [[ -n $input && $input -eq 2 ]]; then
         poweroff
@@ -80,6 +88,8 @@ function enter_sleep() {
             logger --tag sway --priority user.notice 'backend: sleep.target was masked. Skipping `enter_sleep` operation.'
             return 1
         fi
+    elif [ "$1" == 'current' ]; then
+        find /etc/systemd -type f -exec grep '^SleepOperation' {} \; | sed 's/SleepOperation=//'
     else
         ~/.config/sway/src/backend 'enter_sleep' 'test'
         if [ $? -eq 0 ]; then
