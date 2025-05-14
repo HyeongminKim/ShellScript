@@ -1,0 +1,16 @@
+#!/bin/bash
+
+window_server=$(inxi -G | grep Display | awk '{ print $2 }')
+if [ "$window_server" == "x11" ]; then
+    # OBS__USE_EGL=1 # when use Screen Capure (Pipewire)
+    /usr/bin/obs $@
+else
+    if [ "$1" == "--version" -o "$1" == "-v" ]; then
+        /usr/bin/obs --version
+    elif [ "$1" == "--help" -o "$1" == "-h" ]; then
+        /usr/bin/obs --help
+    else
+        notify-send --action='1=OK' 'Unable to launch obs-studio.' "Aborted due to invalid Display server: $window_server. reason: Possible conflict obs-studio configuration."
+        exit 1
+    fi
+fi
