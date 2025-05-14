@@ -119,7 +119,7 @@ function media_controller() {
             elif [ $input -eq 3 ]; then
                 mode='⏭'
             fi
-            target_input=$(echo -e "$(if [ $(playerctl -a status | grep -v Stopped | wc -l) -gt 1 ]; then echo 'ALL\n'; fi)$(playerctl -a metadata --format '{{playerName}}: {{lc(status)}} [{{duration(position)}}/{{duration(mpris:length)}}]')" | rofi -dmenu -p "Pressed $mode button" | awk -F ':' '{ print $1 }')
+            target_input=$(echo -e "$(if [ $(playerctl -a status | grep -v Stopped | wc -l) -gt 1 ]; then echo 'ALL\n'; fi)$(playerctl -a metadata --format '{{playerName}}: {{status}} [{{duration(position)}}/{{duration(mpris:length)}}]')" | rofi -dmenu -p "Pressed $mode button" | awk -F ':' '{ print $1 }')
             if [ -z $target_input ]; then
                 return 1
             fi
