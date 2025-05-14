@@ -1,36 +1,38 @@
-#!/bin/bash
+#!/bin/zsh
 
-sinks_list=$(pactl list sinks short | awk '{ print $1 "  " $2 "  " $6 "(" $5 ") " $7 }')
+sinks_raw=$(pactl list sinks | sed 's/\t//g' | sed 's/ = /: /' | grep -E "(Name: |object.id|object.serial)" | grep -v spa | sed 's/object\.//' | sed 's/"//g')
+sinks_list=$(echo $sinks_raw | sed 's/\n/ /' | awk 'ORS=NR%3?" ":"\n"' | sed -E 's/(Name|id|serial): //g' | awk '{ print $2 "\t" $1 }')
+current_sink=$(echo $sinks_raw | grep -A 2 "Name: $(pactl get-default-sink)" | grep id | awk '{ print $2 }')
 
 function default() {
-	if [ $(pactl list sinks short | wc -l) -le 1 ]; then
+	if [[ $(pactl list sinks short | wc -l) -le 1 ]]; then
 		rofi -e "No alternative sinks available. resetting $(pactl get-default-sink)"
 	else
-        pactl set-default-sink $(echo "$sinks_list" | rofi -dmenu -p "Set sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $2 }') 2> /dev/null
+        pactl set-default-sink $(echo "$sinks_list" | rofi -dmenu -p "Set sinks (cnt.$current_sink)" | awk '{ print $2 }') 2> /dev/null
 	fi
 }
 
 function per_source() {
-	if [ $(pactl list sinks short | wc -l) -le 1 ]; then
+	if [[ $(pactl list sinks short | wc -l) -le 1 ]]; then
 		rofi -e "No alternative sinks available. resetting $(pactl get-default-sink)"
-	elif [ $(pactl list sink-inputs | wc -l) -lt 1 ]; then
+	elif [[ $(pactl list sink-inputs | wc -l) -lt 1 ]]; then
 		rofi -e 'No players found.'
 	else
-		target_app=$(pactl list sink-inputs | grep -E '(Input|media\.name|application\.process\.binary|Sink:)' | sed 's/Sink: /O/' | sed 's/Sink Input \#/I/' | sed 's/.*application.process.binary =//' | sed 's/.*media.name =//' | sed 's/\"//g' | xargs | sed 's/I/\nI/g' | sed '1d' | rofi -dmenu -p "Choose program (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $1 " " $2 }' | sed -E 's/(I|O)//g')
-		if [ -z "$target_app" ]; then
+        target_app=$(pactl list sink-inputs | grep -E '(Input|media\.name|application\.process\.binary|node\.driver-id)' | sed 's/Sink Input \#/I/' | sed 's/node.driver-id = /O/' | sed 's/.*application.process.binary =//' | sed 's/.*media.name =//' | sed 's/\"//g' | xargs | sed 's/I/\nI/g' | sed '1d' | awk '{first=$1; last=$NF; $1=""; $NF=""; sub(/^ /, "", $0); print first, last, $0}' | rofi -dmenu -p "Choose program (cnt.$current_sink)" | sed -E 's/(I|O)//g' | awk '{ print $1 " " $2 }')
+		if [[ -z "$target_app" ]]; then
 			return $?
 		else
 			target_id=$(echo $target_app | awk '{ print $1 }')
 			target_prev_source=$(echo $target_app | awk '{ print $2 }')
 		fi
-		target_source=$(echo "$sinks_list" | rofi -dmenu -p "$(pactl list sink-inputs | grep -E '(Sink:|Input)' | sed 's/Sink Input \#//' | grep -A1 $target_id | grep -v $target_id | sed 's/.*Sink: /Set new sinks (cnt\./')" | awk '{ print $1 }')
+        target_source=$(echo "$sinks_list" | rofi -dmenu -p "$(pactl list sink-inputs | grep -E '(Input|node\.driver-id|Sink Input)' | sed 's/\"//g' | grep -A1 $target_id | grep -v $target_id | sed 's/.*node\.driver-id = /Set new sinks (cnt\./')" | awk '{ print $2 }')
 		pactl move-sink-input $target_id $target_source
 	fi
 }
 
 function change_sink_volumes() {
-	if [ $(check_current_state 'sinks') -gt 1 ]; then
-		sinks=$(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }'))" | awk '{ print $2 }')
+	if [[ $(check_current_state 'sinks') -gt 1 ]]; then
+		sinks=$(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$current_sink)" | awk '{ print $2 }')
         if [ -z "$sinks" ]; then
             return $?
         fi
@@ -41,8 +43,8 @@ function change_sink_volumes() {
 }
 
 function sink_mute_toggles() {
-	if [ $(check_current_state 'sinks') -gt 1 ]; then
-		pactl set-sink-mute $(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$(pactl list sinks short | grep $(pactl get-default-sink) | awk '{ print $1 }')) to mute" | awk '{ print $2 }') toggle
+	if [[ $(check_current_state 'sinks') -gt 1 ]]; then
+		pactl set-sink-mute $(echo "$sinks_list" | rofi -dmenu -p "Choose sinks (cnt.$current_sink) to mute" | awk '{ print $2 }') toggle
 	else
 		pactl set-sink-mute \@DEFAULT_SINK@ toggle
 	fi
@@ -50,16 +52,17 @@ function sink_mute_toggles() {
 
 function current_source() {
     default_device=$(wpctl status | grep Audio | grep \* | sed 's/│//' | sed 's/\.//' | awk '{ print $2 }')
-    device_serial=$(pactl list sinks | grep -E '(object.id|object.serial)' | grep -v spa | grep -A 1 $default_device | grep serial | sed 's/.*object\.serial = //' | sed 's/"//g')
-    echo $device_serial
+    device_id=$(pactl list sinks | grep 'object.id' | grep -v spa | grep $default_device | grep id | sed 's/.*object\.id = //' | sed 's/"//g')
+    echo $device_id
 }
 
 function check_current_state() {
-	if [ "$1" == "sinks" ]; then
+	if [[ "$1" == "sinks" ]]; then
 		pactl list sinks short | wc -l
-	elif [ "$1" == "inputs" ]; then
-		pactl list sink-inputs | wc -l
+	elif [[ "$1" == "inputs" ]]; then
+		pactl list sink-inputs short | wc -l
 	else
+        echo "usage: $0 check_current_state <options>" >&2
 		return 127
 	fi
 }
