@@ -13,7 +13,12 @@ function logout() {
 function power() {
     input=$(notify-send -A '1=⏾' -A '2=⏻' -A '3=↺' 'Power' 'You pressed the power button. Do you really want to exit sway? This will end your Wayland session.')
     if [[ -n $input && $input -eq 1 ]]; then
-        setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
+        ~/.config/sway/src/backend 'enter_sleep' 'test'
+        if [ $? -eq 0 ]; then
+            setsid ~/.config/sway/src/backend "lock_session" && sleep 1 && ~/.config/sway/src/backend "enter_sleep"
+        else
+            notify-send -et 7000 'Power' 'unable to run sleep operation. reason: sleep.target was masked.'
+        fi
     elif [[ -n $input && $input -eq 2 ]]; then
         poweroff
     elif [[ -n $input && $input -eq 3 ]]; then
@@ -57,24 +62,31 @@ function lock_session() {
 }
 
 function enter_sleep() {
-    if ! [ "$(systemctl is-enabled sleep.target)" == 'masked' ]; then
-        # NOTE: To change SleepOperation features, please enter below commands and reboot to changes take effect.
-        # `echo 'SleepOperation=suspend' | sudo tee /etc/systemd/logind.conf.d/sleep-operation.conf`
-        # applicable sleep targets in SleepOperation: suspend, suspend-then-hibernate, hibernate, hybrid-sleep
-        # Any Handle*Key configs will not changes take effect in this `enter_sleep` function
-        # If you want reject sleep operation, please enter `systemctl mask sleep.target` commands
-        # To check current SleepOperation value, please run `systemd-analyze cat-config systemd/logind.conf`
-        
-        vailed_target=$(find /etc/systemd -type f -exec grep '^SleepOperation' {} \; | sed 's/SleepOperation=//')
-        if [ -n "$vailed_target" -a "$(systemctl is-enabled $vailed_target.target)" == 'masked' ]; then
-            logger --tag sway --priority user.notice "backend: $vailed_target.target was masked. Skipping \`enter_sleep\` operation."
+    if [ "$1" == 'test' ]; then
+        if ! [ "$(systemctl is-enabled sleep.target)" == 'masked' ]; then
+            # NOTE: To change SleepOperation features, please enter below commands and reboot to changes take effect.
+            # `echo 'SleepOperation=suspend' | sudo tee /etc/systemd/logind.conf.d/sleep-operation.conf`
+            # applicable sleep targets in SleepOperation: suspend, suspend-then-hibernate, hibernate, hybrid-sleep
+            # Any Handle*Key configs will not changes take effect in this `enter_sleep` function
+            # If you want reject sleep operation, please enter `systemctl mask sleep.target` commands
+            # To check current SleepOperation value, please run `systemd-analyze cat-config systemd/logind.conf`
+
+            vailed_target=$(find /etc/systemd -type f -exec grep '^SleepOperation' {} \; | sed 's/SleepOperation=//')
+            if [ -n "$vailed_target" -a "$(systemctl is-enabled $vailed_target.target)" == 'masked' ]; then
+                logger --tag sway --priority user.notice "backend: $vailed_target.target was masked. Skipping \`enter_sleep\` operation."
+                return 1
+            fi
+        else
+            logger --tag sway --priority user.notice 'backend: sleep.target was masked. Skipping `enter_sleep` operation.'
             return 1
         fi
-
-        systemctl sleep
     else
-        logger --tag sway --priority user.notice 'backend: sleep.target was masked. Skipping `enter_sleep` operation.'
-        return 1
+        ~/.config/sway/src/backend 'enter_sleep' 'test'
+        if [ $? -eq 0 ]; then
+            systemctl sleep
+        else
+            return 1
+        fi
     fi
 }
 
