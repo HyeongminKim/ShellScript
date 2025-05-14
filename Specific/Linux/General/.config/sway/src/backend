@@ -4,7 +4,7 @@
 # NOTE: `status_command` will not work properly. Please write theese settings in configuration file.
 
 function logout() {
-    input=$(notify-send -A '1=⎋' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
+    input=$(notify-send -A '1=󰍃' 'Logout' 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.')
     if [[ -n $input && $input -eq 1 ]]; then
         swaymsg exit
     fi
