@@ -53,7 +53,7 @@ function net_device_select() {
     fi
 }
 
-params=("$@")
+params=("${@}")
 for i in "${params[@]}"; do
     case $i in
     "--public")

@@ -6,9 +6,9 @@ if [ $# -eq 0 -a -t 0 ]; then
 elif [ "$1" == "-i" -o "$1" == "--info" ]; then
     newline=0
     if [ -t 0 ]; then
-        params=("$@")
+        params=("${@}")
     else
-        params=("$@" $(cat /dev/stdin))
+        params=("${@}" $(cat /dev/stdin))
     fi
     for i in "${!params[@]}"; do
         if [[ "${params[$i]}" != "-"* ]]; then
@@ -74,9 +74,9 @@ fi
 
 constantEOF=""
 if [ -t 0 ]; then
-    params=("$@")
+    params=("${@}")
 else
-    params=("$@" $(cat /dev/stdin))
+    params=("${@}" $(cat /dev/stdin))
 fi
 
 for i in "${!params[@]}"; do

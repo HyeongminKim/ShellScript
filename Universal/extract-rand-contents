@@ -1,6 +1,6 @@
 #!/bin/bash
 
-params=("$@")
+params=("${@}")
 filename=()
 verbose=0
 count=1
@@ -26,12 +26,12 @@ fi
 for i in "${!params[@]}"; do
     if [[ "${params[$i]}" != "-"* ]]; then
         if [ -r "${params[$i]}" ]; then
-            unsupported_character_count=$(cat ${params[$i]} | grep -c ' ')
+            unsupported_character_count=$(cat "${params[$i]}" | grep -c ' ')
             if [ $unsupported_character_count -ne 0 ]; then
                 echo -e "\e[33m[WARN] $unsupported_character_count spaceing character(s) detected\e[m"
                 echo -e "\e[33m[WARN] please replace all spacing character to \`-\` or \`_\` to avoid unexpected operation. check ${params[$i]}\e[m"
             fi
-            contents+=($(cat ${params[$i]} | tr '\n' ' '))
+            contents+=($(cat "${params[$i]}" | tr '\n' ' '))
             filename+=("${params[$i]}")
         fi
     elif [ "${params[$i]}" == '-v' -o "${params[$i]}" == '--verbose' ]; then
