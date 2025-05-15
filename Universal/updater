@@ -4,7 +4,7 @@ exitCode=0
 prevDir=$(pwd)
 
 function gitUpdate() {
-    repoName=("Release/ShellScript" "Release/PasswordsGenerator")
+    repoName=("Release/ShellScript" "Release/PasswordsGenerator" "Release/Dotfiles")
     if [ "$(uname -s)" == "Darwin" ]; then
         repoName+=("Release/aptall")
     elif [ "$(uname -s)" == "Linux" ]; then
