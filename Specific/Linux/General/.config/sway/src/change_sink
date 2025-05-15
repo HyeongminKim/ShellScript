@@ -73,5 +73,5 @@ function check_current_state() {
 if [ $# -eq 0 ]; then                                     #
 	echo "usage: $0 <function [options]>" >&2             #
 	exit 127                                              #
-else $@; fi                                               #
+else "${@}"; fi                                           #
 ###########################################################
