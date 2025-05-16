@@ -23,12 +23,8 @@ end
 -- 속성 값이 변경되었을 때 호출됨
 ------------------------------------------------------
 function script_update(settings)
-    local name = obs.obs_data_get_string(settings, "player_name")
-    if name == nil or name == "" then
-        player_name = "firefox"  -- 기본값
-    else
-        player_name = name
-    end
+    player_name = obs.obs_data_get_string(settings, "player_name")
+    player_name = (player_name ~= nil and player_name ~= "") and player_name or "firefox"
 end
 
 ------------------------------------------------------
