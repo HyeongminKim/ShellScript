@@ -35,9 +35,7 @@ end
 function on_recording_started()
     local cmd = "playerctl --player=" .. player_name .. " play &"
     os.execute(cmd)
-    print("[obs-lua] playerctl play 실행됨: " .. cmd)
-    local info_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '{{duration(position)}} / {{duration(mpris:length)}}' &", player_name)
-    os.execute(info_cmd)
+    print("[obs-lua] " .. player_name .. " now playing")
 
     local metadata_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '{{duration(position)}} / {{duration(mpris:length)}}'", player_name)
     local metadata_handle = io.popen(metadata_cmd)
