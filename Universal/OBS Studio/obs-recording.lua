@@ -7,7 +7,7 @@ player_name = "firefox"
 -- OBS에서 보여질 스크립트 설명
 ------------------------------------------------------
 function script_description()
-    return "녹화 시작 시 지정된 MPRIS 플레이어 (예: Firefox)의 재생을 자동으로 시작합니다."
+    return "녹화 시작 시 지정된 MPRIS 플레이어 (예: Firefox)의 재생을 자동으로 시작합니다. 또한 미디어 길이를 OBS Script Log에 표시합니다."
 end
 
 ------------------------------------------------------
@@ -16,6 +16,8 @@ end
 function script_properties()
     local props = obs.obs_properties_create()
     obs.obs_properties_add_text(props, "player_name", "Player Name (default: firefox)", obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_text(props, "status_text", "스크립트 출력은 Script Log에서 볼 수 있습니다.", obs.OBS_TEXT_INFO)
+
     return props
 end
 
@@ -34,6 +36,17 @@ function on_recording_started()
     local cmd = "playerctl --player=" .. player_name .. " play &"
     os.execute(cmd)
     print("[obs-lua] playerctl play 실행됨: " .. cmd)
+    local info_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '{{duration(position)}} / {{duration(mpris:length)}}' &", player_name)
+    os.execute(info_cmd)
+
+    local metadata_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '{{duration(position)}} / {{duration(mpris:length)}}'", player_name)
+    local metadata_handle = io.popen(metadata_cmd)
+    local metadata = metadata_handle:read("*a")
+    metadata_handle:close()
+
+    result = string.format("▶ %s [%s]", player_name, metadata:gsub("\n", ""))
+
+    obs.script_log(obs.LOG_INFO, result)
 end
 
 ------------------------------------------------------
