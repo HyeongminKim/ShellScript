@@ -3,12 +3,13 @@ obs = obslua
 player_name = "firefox"
 
 function script_description()
-    return "playerctl 상태를 OBS 상태바에 1초마다 표시합니다."
+    return "playerctl 상태를 OBS Script Log에 1초마다 표시합니다."
 end
 
 function script_properties()
     local props = obs.obs_properties_create()
-    obs.obs_properties_add_text(props, "player_name", "Player Name (예: firefox)", obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_text(props, "player_name", "Player Name (default: firefox)", obs.OBS_TEXT_DEFAULT)
+    obs.obs_properties_add_text(props, "status_text", "스크립트 출력은 Script Log에서 볼 수 있습니다.", obs.OBS_TEXT_INFO)
     return props
 end
 
