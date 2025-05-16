@@ -37,12 +37,12 @@ function on_recording_started()
     os.execute(cmd)
     print("[obs-lua] " .. player_name .. " now playing")
 
-    local metadata_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '{{duration(position)}} / {{duration(mpris:length)}}'", player_name)
+    local metadata_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '[{{duration(position)}} / {{duration(mpris:length)}}] {{xesam:title}}'", player_name)
     local metadata_handle = io.popen(metadata_cmd)
     local metadata = metadata_handle:read("*a")
     metadata_handle:close()
 
-    result = string.format("▶ %s [%s]", player_name, metadata:gsub("\n", ""))
+    result = string.format("▶ %s: %s", player_name, metadata:gsub("\n", ""))
 
     obs.script_log(obs.LOG_INFO, result)
 end
