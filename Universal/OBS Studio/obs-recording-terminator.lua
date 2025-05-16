@@ -41,7 +41,7 @@ end
 function check_and_stop_recording()
     if not is_player_playing() then
         if obs.obs_frontend_recording_active() then
-            print("OBS 녹화가 다음으로 인해 종료되었습니다: " .. player_name .. " does not playing any media.")
+            print("OBS recording was stopped due to " .. player_name .. " does not playing any media.")
             obs.obs_frontend_recording_stop()
         end
     end
@@ -50,6 +50,7 @@ function check_and_stop_recording()
         fired = true
         obs.timer_remove(check_and_stop_recording)
         obs.timer_add(check_and_stop_recording, 1000)
+        print("successfully changed obs.timer interval: 3000 -> 1000 ms")
     end
 end
 
