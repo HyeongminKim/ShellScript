@@ -35,7 +35,23 @@ end
 function on_recording_started()
     local cmd = "playerctl --player=" .. player_name .. " play &"
     os.execute(cmd)
-    print("[obs-lua] " .. player_name .. " now playing")
+
+    local status_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) status", player_name)
+    local status_handle = io.popen(status_cmd)
+    local status = status_handle:read("*a"):gsub("\n", ""):lower()
+    status_handle:close()
+
+    if status == "playing" then
+        print(player_name .. " now playing")
+    else
+        print("error: unable to play media. " .. player_name .. " doesn't accepted any media or unsupported media keys.")
+        if obs.obs_frontend_recording_active() then
+            print("OBS 녹화가 다음으로 인해 종료되었습니다: " .. player_name .. " does not playing any media.")
+            obs.obs_frontend_recording_stop()
+        end
+
+        return
+    end
 
     local metadata_cmd = string.format("playerctl --player=$(playerctl -l | grep %s) metadata --format '[{{duration(position)}} / {{duration(mpris:length)}}] {{xesam:title}}'", player_name)
     local metadata_handle = io.popen(metadata_cmd)

@@ -2,6 +2,8 @@ obs = obslua
 
 player_name = "firefox"  -- 기본값
 
+local fired = false
+
 -- 설명
 function script_description()
     return "지정한 MPRIS 플레이어 (예: Firefox) 가 재생 중이지 않으면 자동으로 녹화를 중단합니다."
@@ -39,15 +41,21 @@ end
 function check_and_stop_recording()
     if not is_player_playing() then
         if obs.obs_frontend_recording_active() then
-            print("[obs-lua] OBS 녹화가 다음으로 인해 종료되었습니다: " .. player_name .. " does not playing any media.")
+            print("OBS 녹화가 다음으로 인해 종료되었습니다: " .. player_name .. " does not playing any media.")
             obs.obs_frontend_recording_stop()
         end
+    end
+
+    if not fired then
+        fired = true
+        obs.timer_remove(check_and_stop_recording)
+        obs.timer_add(check_and_stop_recording, 1000)
     end
 end
 
 -- 스크립트 로드시 타이머 시작
 function script_load(settings)
-    obs.timer_add(check_and_stop_recording, 1000)
+    obs.timer_add(check_and_stop_recording, 3000)
 end
 
 -- 스크립트 언로드시 타이머 제거
