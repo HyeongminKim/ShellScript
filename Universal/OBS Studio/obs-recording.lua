@@ -41,9 +41,7 @@ function on_recording_started()
     local status = status_handle:read("*a"):gsub("\n", ""):lower()
     status_handle:close()
 
-    if status == "playing" then
-        print(player_name .. " now playing")
-    else
+    if not status == "playing" then
         print("error: unable to play media. " .. player_name .. " doesn't accepted any media or unsupported media keys.")
         if obs.obs_frontend_recording_active() then
             print("OBS 녹화가 다음으로 인해 종료되었습니다: " .. player_name .. " does not playing any media.")
