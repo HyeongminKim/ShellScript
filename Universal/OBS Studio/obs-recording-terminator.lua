@@ -1,5 +1,4 @@
 obs = obslua
-
 player_name = "firefox"  -- 기본값
 
 local fired = false
@@ -59,7 +58,6 @@ function check_and_stop_recording()
             obs.obs_frontend_recording_stop()
             change_interval(false)
         else
-            print("waiting " .. player_name .. " play any media...")
             if fired then change_interval(false) end
         end
     else
