@@ -23,7 +23,17 @@ elif [ $# -eq 1 -a -f "$1" ]; then
     projectName=`basename "$1" | sed 's/\.uproject//'`
     target=$(echo "$1" | sed "s/$projectName\.uproject//")
     cd "$target"
-    exit 1
+elif [ $# -eq 2 -a -d "$2" ]; then
+    cd "$2" &> /dev/null
+    if [ $? -eq 0 ]; then
+        projectName=`basename "$PWD"`
+    else
+        echo "unable to access $2. Please check permission." >&2
+    fi
+elif [ $# -eq 2 -a -f "$2" ]; then
+    projectName=`basename "$2" | sed 's/\.uproject//'`
+    target=$(echo "$2" | sed "s/$projectName\.uproject//")
+    cd "$target"
 elif [ $# -ne 0 ]; then
     echo "usage: $0 [option|uproject]"
     exit 1
@@ -40,4 +50,5 @@ if [ -r "$projectName.uproject" ]; then
     fi
 else
     echo "unable to cleanup $projectName project. reason: $PWD does not seem UnrealProject directory structure." >&2
+    exit 1
 fi
