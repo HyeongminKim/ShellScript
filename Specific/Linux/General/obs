@@ -3,7 +3,7 @@
 window_server=$(inxi -G | grep Display | awk '{ print $2 }')
 if [ "$window_server" == "x11" ]; then
     # OBS__USE_EGL=1 # when use Screen Capure (Pipewire)
-    /usr/bin/obs $@
+    /usr/bin/obs --disable-shutdown-check $@
 else
     if [ "$1" == "--version" -o "$1" == "-v" ]; then
         /usr/bin/obs --version
