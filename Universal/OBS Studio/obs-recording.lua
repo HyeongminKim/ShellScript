@@ -1,7 +1,5 @@
 obs = obslua
-
--- 기본값
-player_name = "firefox"
+player_name = "firefox"  -- 기본값
 
 ------------------------------------------------------
 -- OBS에서 보여질 스크립트 설명
