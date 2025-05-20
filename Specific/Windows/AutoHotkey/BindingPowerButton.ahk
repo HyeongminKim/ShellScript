@@ -17,6 +17,7 @@ ShowPowerDialog() {
     Gui, PowerGui:Add, Button, gSleepSection w100, Sleep
     Gui, PowerGui:Add, Button, gCancelSection w100, Cancel
     Gui, PowerGui:Show,, Power Menu
+    ControlFocus, Button4, Power Menu
 }
 
 ShutdownSection:
