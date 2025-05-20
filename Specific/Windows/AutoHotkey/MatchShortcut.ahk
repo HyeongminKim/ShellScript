@@ -1,53 +1,5 @@
+#NoTrayIcon
 ; Change Windows shortcut will matching macOS shortcut.
-
-; KoreanIM
-^Space::
-Send {vk15sc138}
-return
-
-; Spotlight
-#Space::
-Send !{Space}
-return
-
-#+Space::
-return
-
-; Clipboard
-#c::
-Send ^{c}
-return
-
-#x::
-Send ^{x}
-return
-
-#v::
-Send ^{v}
-return
-
-#a::
-Send ^{a}
-return
-
-; Undo & Redo
-#z::
-Send ^{z}
-return
-
-#+z::
-Send ^+{z}
-return
-
-; Save
-#s::
-Send ^{s}
-return
-
-; Mission Control
-^#Up::
-Send #{Tab}
-return
 
 ; Lock account & Sleep
 ^#q::
@@ -63,52 +15,6 @@ Loop {
 }
 return
 
-; Open System Preferences
-#!,::
-Send #{i}
-return
-
-; Screen Capture
-#+4::
-Send #+{s}
-return
-
-; Open AppStore
-#!^A::
-Run ms-windows-store:
-return
-
-; Window control
-#w::
-Send !{F4}
-return
-
-#t::
-Send ^{t}
-return
-
-#f::
-Send ^{f}
-return
-
-#r::
-Send {F5}
-return
-
-; Overriedden run key sequence (#r) redefinition
-#!r::
-Run %A_Appdata%\Microsoft\Windows\Start Menu\Programs\System Tools\Run.lnk
-return
-
-#q::
-WinGet, TARGET, ProcessName, A
-if (TARGET == "Explorer.EXE") {
-    SoundPlay %A_WinDir%\Media\Windows Foreground.wav
-} else {
-    Run taskkill /im %TARGET%,,Hide
-}
-return
-
 ; Instance path changer like Finder
 #+g::
 try {
@@ -121,10 +27,5 @@ try {
 } catch e {
     MsgBox, 16, %TARGET%, Windows cannot find '%TARGET%'. Make sure you typed the name correctly, and then try again.
 }
-return
-
-; Launch Activity Monitor
-#!ESC::
-Send ^+{ESC}
 return
 
