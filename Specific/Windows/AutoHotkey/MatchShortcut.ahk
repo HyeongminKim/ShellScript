@@ -4,15 +4,6 @@
 ; Lock account & Sleep
 ^#q::
 Run rundll32.exe user32.dll LockWorkStation
-Sleep 1000
-checksum := A_TimeIdle
-Loop {
-    if (A_TimeIdle > 4000) {
-        Run rundll32.exe powrprof.dll SetSuspendState
-    } else if (A_TimeIdle < checksum) {
-        break
-    }
-}
 return
 
 ; Instance path changer like Finder
