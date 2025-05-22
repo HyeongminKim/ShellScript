@@ -14,10 +14,7 @@ ShowPowerDialog() {
     Gui, PowerGui:Add, Text,, Power key press.
     Gui, PowerGui:Add, Button, gShutdownSection w100, Shutdown
     Gui, PowerGui:Add, Button, gRebootSection w100, Restart
-    Gui, PowerGui:Add, Button, gSleepSection w100, Sleep
-    Gui, PowerGui:Add, Button, gCancelSection w100, Cancel
     Gui, PowerGui:Show,, Power Menu
-    ControlFocus, Button4, Power Menu
 }
 
 ShutdownSection:
@@ -26,13 +23,5 @@ ShutdownSection:
 
 RebootSection:
     Shutdown, 2 ; 다시 시작
-    return
-
-SleepSection:
-    DllCall("SetSuspendState", "int", 0, "int", 1, "int", 0) ; 절전 모드
-    return
-
-CancelSection:
-    Gui, PowerGui:Destroy
     return
 
