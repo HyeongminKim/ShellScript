@@ -35,7 +35,6 @@ ShowMediaDialog() {
     Gui, MediaGui:Add, Button, gPlayPause w100, Play/Pause
     Gui, MediaGui:Add, Button, gNextTrack w100, Next
     Gui, MediaGui:Add, Button, gPrevTrack w100, Previous
-    Gui, MediaGui:Add, Button, gCancel w100, Cancel
     Gui, MediaGui:Show,, Media Menu
 }
 
@@ -49,9 +48,5 @@ NextTrack:
 
 PrevTrack:
     Send {Media_Prev}
-    return
-
-Cancel:
-    Gui, MediaGui:Destroy
     return
 
