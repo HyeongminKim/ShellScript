@@ -39,14 +39,17 @@ ShowMediaDialog() {
 }
 
 PlayPause:
-  Send {Media_Play_Pause}
-  return
+    Gui, MediaGui:Destroy
+    Send {Media_Play_Pause}
+    return
 
 NextTrack:
+    Gui, MediaGui:Destroy
     Send {Media_Next}
     return
 
 PrevTrack:
+    Gui, MediaGui:Destroy
     Send {Media_Prev}
     return
 
