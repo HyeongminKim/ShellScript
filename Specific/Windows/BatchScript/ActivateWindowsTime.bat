@@ -12,12 +12,12 @@ if %ERRORLEVEL% == 1 (
 
 sc query w32time | findstr RUNNING > NUL
 if %ERRORLEVEL% == 1 (
+    :waiting_service
     sc start w32time
     timeout /t 3 /nobreak > NUL
     sc query w32time | findstr RUNNING > NUL
     if %ERRORLEVEL% == 1 (
-        echo unable to start w32time. Aborting
-        exit /b 127
+        goto waiting_service
     )
 )
 
