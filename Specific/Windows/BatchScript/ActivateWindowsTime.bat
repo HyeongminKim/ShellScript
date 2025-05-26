@@ -14,7 +14,12 @@ sc query w32time | findstr RUNNING > NUL
 if %ERRORLEVEL% == 1 (
     :waiting_service
     sc start w32time
-    timeout /t 3 /nobreak > NUL
+    if %ERRORLEVEL% == 1056 (
+        goto activated_service
+    )
+    timeout /t 5 /nobreak > NUL
+
+    :activated_service
     sc query w32time | findstr RUNNING > NUL
     if %ERRORLEVEL% == 1 (
         goto waiting_service
