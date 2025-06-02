@@ -16,10 +16,13 @@ function gitUpdate() {
             echo -e "\n\033[37mupdater: Updating repo ~/Documents/$target...\033[m"
             cd ~/Documents/$target
             git pull --rebase --stat origin $(git branch | sed '/* /!d' | sed 's/* //g')
-
-            if [ $(git remote get-url origin | grep -c unstable-code) -ne 1 ]; then
-                echo "updater: Updating remoteURL for $target"
-                git remote set-url origin https://github.com/unstable-code/$(echo $target | sed 's/Release\///').git
+            if [ $? -ne 0 ]; then
+                git status
+            else
+                if [ $(git remote get-url origin | grep -c unstable-code) -ne 1 ]; then
+                    echo "updater: Updating remoteURL for $target"
+                    git remote set-url origin https://github.com/unstable-code/$(echo $target | sed 's/Release\///').git
+                fi
             fi
 
             cd - &>/dev/null
