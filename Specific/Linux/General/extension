@@ -99,3 +99,8 @@ if [ "$USE_FULL_UPGRADE" == "true" ]; then
     echo -e "\n"
 fi
 
+which pacman &> /dev/null
+if [ $? -eq 0 ]; then
+    curl -s 'https://archlinux.org/mirrorlist/?country=KR&country=JP&protocol=https&use_mirror_status=on' | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors -n 5 - | sudo tee /etc/pacman.d/mirrorlist
+fi
+
