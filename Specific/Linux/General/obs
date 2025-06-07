@@ -2,14 +2,28 @@
 
 window_server=$(inxi -G | grep Display | awk '{ print $2 }')
 if [ "$window_server" == "x11" ]; then
-    # OBS__USE_EGL=1 # when use Screen Capure (Pipewire)
-    /usr/bin/obs --disable-shutdown-check $@
+    if [ -n "$DISCORD_BOT_PLAYERCTL" ]; then
+        /usr/bin/python "$HOME/Documents/Release/ShellScript/Universal/OBS Studio/discord-bot.py" 2>&1 &
+        bot_pid=$!
+        if [ -r /proc/$bot_pid/exe ]; then
+            /usr/bin/obs --disable-shutdown-check $@
+            kill $bot_pid
+        else
+            echo 'error: unable to load `discord-bot.py`. see output.' >&2
+            exit 1
+        fi
+    else
+        echo 'error: unable to load `discord-bot.py`. API Key is empty.' >&2
+        notify-send --action='1=OK' 'Unable to launch obs-studio.' 'The Discord API Key does not set yet. Please enter your API Key in `DISCORD_BOT_PLAYERCTL` environment value.'
+        exit 1
+    fi
 else
     if [ "$1" == "--version" -o "$1" == "-v" ]; then
         /usr/bin/obs --version
     elif [ "$1" == "--help" -o "$1" == "-h" ]; then
         /usr/bin/obs --help
     else
+        echo "$window_server does not support yet." >&2
         notify-send --action='1=OK' 'Unable to launch obs-studio.' "Aborted due to invalid Display server: $window_server. reason: Possible conflict obs-studio configuration."
         exit 1
     fi
