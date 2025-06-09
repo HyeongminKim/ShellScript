@@ -3,7 +3,7 @@
 // @namespace   Violentmonkey Scripts
 // @match       *://www.cdec.kr/*
 // @grant       none
-// @version     2025.06090
+// @version     2025.06091
 // @author      Hyeongmin Kim
 // @icon        https://i.namu.wiki/i/2R9UASCEkjwtVVvcP4q0r765eu3xJ_a5e8o6y7C2c_OgWtzJTX9Z_2pdxf3Wo11HPjgXi3Lg_71TlkotyM7DSw.svg
 // @description 9/9/2024, 민방위 학습 플레이어 크기 및 볼륨값 재지정
@@ -13,8 +13,8 @@
 
 const AAA = document.getElementById('player');
 if (AAA && AAA.classList.contains('player-dimensions')) {
-  AAA.style.width = '600px';
-  AAA.style.height = '400px';
+  AAA.style.width = '1366px';
+  AAA.style.height = '768px';
 }
 
 const volumeLevels = document.querySelectorAll('.vjs-volume-level');
